@@ -238,7 +238,7 @@
       <WarningLevel>Level4</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>.\..\..\lib\vc_lib\mswud;.\..\..\include;.;.\..\..\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\wxWidgets-2.9.5\lib\vc_lib\mswud;D:\wxWidgets-2.9.5\include;.;D:\wxWidgets-2.9.5\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;__WXMSW__;_WINDOWS;NOPCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\vc_mswud\minimal\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\vc_mswud\minimal\minimal.pch</PrecompiledHeaderOutputFile>
@@ -267,8 +267,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OutputFile>vc_mswud\minimal.exe</OutputFile>
-      <AdditionalLibraryDirectories>.\..\..\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>wxmsw29ud_core.lib;wxbase29ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;wininet.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\wxWidgets-2.9.5\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>wxmsw29ud_core.lib;wxbase29ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;wininet.lib;strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -278,17 +278,13 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'"> /opt:ref /opt:icf /EHsc   /opt:ref /opt:icf /EHsc </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'"> /EHsc   /EHsc </AdditionalOptions>
     </ClCompile>
+    <ClCompile Include="src\BasicDrawPane.cpp" />
     <ClCompile Include="src\Kamera.cpp" />
+    <ClCompile Include="src\RenderTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\sample.rc">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">\wxWidgets-2.9.5\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">\wxWidgets-2.9.5\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">\wxWidgets-2.9.5\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">\wxWidgets-2.9.5\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="include\BasicDrawPane.hpp" />
+    <ClInclude Include="include\RenderTimer.hpp" />
     <ClInclude Include="main.hpp" />
     <ClInclude Include="include\Kamera.hpp" />
   </ItemGroup>

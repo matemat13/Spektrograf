@@ -15,17 +15,24 @@
     <ClCompile Include="src\Kamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\sample.rc">
+    <ClCompile Include="src\BasicDrawPane.cpp">
       <Filter>Source Files</Filter>
-    </ResourceCompile>
+    </ClCompile>
+    <ClCompile Include="src\RenderTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Kamera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="main.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BasicDrawPane.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderTimer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

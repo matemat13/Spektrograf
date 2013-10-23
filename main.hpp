@@ -33,6 +33,7 @@
 #include "wx/stopwatch.h"
 #include "wx/versioninfo.h"
 #include "wx/dcbuffer.h"
+#include "wx/timer.h"
 
 #if wxUSE_CLIPBOARD
     #include "wx/dataobj.h"
@@ -51,3 +52,5 @@
 #endif
 
 #include "include/Kamera.hpp"
+#include "include/BasicDrawPane.hpp"
+#include "include/RenderTimer.hpp"

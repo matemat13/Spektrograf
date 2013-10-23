@@ -1,10 +1,16 @@
 #include "../include/Kamera.hpp"
 
-#import "qedit.dll" raw_interfaces_only named_guids
-EXTERN_C const CLSID CLSID_NullRenderer;
-EXTERN_C const CLSID CLSID_SampleGrabber;
-
-#include <stdio.h>
+void exit_message(const char* error_message, int error)
+{
+	// Print an error message
+	fprintf(stderr, error_message);
+	fprintf(stderr, "\n");
+	
+	CoUninitialize();
+	
+	// Exit the program
+	exit(error);
+}
 
 HRESULT Kamera::EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum)
 {
@@ -27,7 +33,7 @@ HRESULT Kamera::EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum)
 }
 
 void Kamera::NastavKamery()
-{
+{/*
  HRESULT hr = NULL;
  
  IAMVideoProcAmp *camera = 0;
@@ -52,50 +58,8 @@ void Kamera::NastavKamery()
   }
  }
  
-}
-
-void exit_message(const char* error_message, int error)
-{
-	// Print an error message
-	fprintf(stderr, error_message);
-	fprintf(stderr, "\n");
-	
-	CoUninitialize();
-	
-	// Exit the program
-	exit(error);
-}
-
-void Kamera::Obrazek(wxImage *img)
-{
- HRESULT hr;
- ICreateDevEnum *pDevEnum = NULL;
- IEnumMoniker *pEnum = NULL;
- IMoniker *pMoniker = NULL;
- IPropertyBag *pPropBag = NULL;
- IGraphBuilder *pGraph = NULL;
- ICaptureGraphBuilder2 *pBuilder = NULL;
- IBaseFilter *pCap = NULL;
- IBaseFilter *pSampleGrabberFilter = NULL;
- DexterLib::ISampleGrabber *pSampleGrabber = NULL;
- IBaseFilter *pNullRenderer = NULL;
- IMediaControl *pMediaControl = NULL;
- char *pBuffer = NULL;
- int n = 0;
-
- int list_devices = 0;
- int device_number = 1;
- char device_name[100];
-	// Other variables
-	char char_buffer[100];
-
-
-	// Intialise COM
-	/*hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-	if (hr != S_OK)
-		exit_message("Could not initialise COM", 1);*/
-
-	// Create filter graph
+ */
+ // Create filter graph
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL,
 			CLSCTX_INPROC_SERVER, IID_IGraphBuilder,
 			(void**)&pGraph);
@@ -128,7 +92,7 @@ void Kamera::Obrazek(wxImage *img)
 	
 	// If the user has included the "/list" command line
 	// argument, just list available devices, then exit.
-	if (list_devices != 0)
+	if (false)
 	{
 		fprintf(stderr, "Available capture devices:\n");
 		n = 0;
@@ -216,6 +180,8 @@ void Kamera::Obrazek(wxImage *img)
 		else if (n >= device_number) break;
 	}
 	
+	
+
 	// Get video input device name
 	hr = pMoniker->BindToStorage(0, 0, IID_PPV_ARGS(&pPropBag));
 	VariantInit(&var);
@@ -251,7 +217,7 @@ void Kamera::Obrazek(wxImage *img)
 		exit_message("Could not enable sample buffering in the sample grabber", 1);
 
 	// Set media type in sample grabber filter
-	AM_MEDIA_TYPE mt;
+	
 	ZeroMemory(&mt, sizeof(AM_MEDIA_TYPE));
 	mt.majortype = MEDIATYPE_Video;
 	mt.subtype = MEDIASUBTYPE_RGB24;
@@ -309,7 +275,7 @@ void Kamera::Obrazek(wxImage *img)
 	
 	// Grab a sample
 	// First, find the required buffer size
-	long buffer_size = 0;
+	
 	while(1)
 	{
 		// Passing in a NULL pointer signals that we're just checking
@@ -329,9 +295,24 @@ void Kamera::Obrazek(wxImage *img)
 
 	// Stop the graph
 	pMediaControl->Stop();
+}
+
+
+void Kamera::Obrazek(wxImage *img)
+{
+ n = 0;
+
+
+
+	// Intialise COM
+	/*hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	if (hr != S_OK)
+		exit_message("Could not initialise COM", 1);*/
+
+	
 
 	// Allocate buffer for image
-	pBuffer = new char[buffer_size + 4];
+	pBuffer = new char[buffer_size + 24];
 	if (!pBuffer)
 		exit_message("Could not allocate data buffer for image", 1);
 	
@@ -356,10 +337,10 @@ void Kamera::Obrazek(wxImage *img)
 		pVih = (VIDEOINFOHEADER*)mt.pbFormat;
 
 
-		unsigned char tmp[2] = {pBuffer[0], pBuffer[1]};
-		pBuffer += 4;
-		pBuffer[pVih->bmiHeader.biWidth*pVih->bmiHeader.biHeight*3+1] = tmp[0];
-		pBuffer[pVih->bmiHeader.biWidth*pVih->bmiHeader.biHeight*3+2] = tmp[1];
+		unsigned char tmp[24] = {0};
+		memcpy(tmp, pBuffer, 24);
+		pBuffer += 24;
+		memcpy(pBuffer+pVih->bmiHeader.biWidth*pVih->bmiHeader.biHeight*3, tmp, 24);
 	    img->Create(pVih->bmiHeader.biWidth, pVih->bmiHeader.biHeight, (unsigned char*)pBuffer);
 		
 		/*
@@ -400,5 +381,17 @@ void Kamera::Obrazek(wxImage *img)
 Kamera::Kamera()
 {
  stav = -2;
+ pDevEnum = NULL;
+ pEnum = NULL;
+ pMoniker = NULL;
+ pPropBag = NULL;
+ pGraph = NULL;
+ pBuilder = NULL;
+ pCap = NULL;
+ pSampleGrabberFilter = NULL;
+ pSampleGrabber = NULL;
+ pNullRenderer = NULL;
+ pMediaControl = NULL;
+ pBuffer = NULL;
  NastavKamery();
 }

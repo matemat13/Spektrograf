@@ -6,13 +6,32 @@ enum
 {
     // menu items
     BUTTON_Quit = wxID_EXIT,
-
+	TIMER_NewImage = wxID_HIGHEST
     // it is important for the id corresponding to the "About" command to have
     // this standard value as otherwise it won't be handled properly under Mac
     // (where it is special and put into the "Apple" menu)
 };
 
 
+class FrameMain : public wxFrame
+{
+public:
+    // ctor(s)
+    FrameMain(const wxString& title);
+
+    // event handlers (these functions should _not_ be virtual)
+    void OnQuit(wxCommandEvent& event);
+	/*void OnPaint(wxPaintEvent& event);
+	void OnProgressTimer(wxTimerEvent& event);*/
+private:
+    // any class wishing to process wxWidgets events must use this macro
+	BasicDrawPane *drawPane;
+	bool drawing;
+	wxButton *QuitBut;
+	//void DrawImage(wxDC &dc);
+	RenderTimer *timer;
+    DECLARE_EVENT_TABLE()
+};
 
 class AppMain : public wxApp
 {
@@ -25,34 +44,22 @@ public:
     // return: if OnInit() returns false, the application terminates)
     virtual bool OnInit();
 private:
-	Kamera *kamera;
+	FrameMain *frame;
+
+	//void activateRenderLoop(bool on);
 };
 
 
-class FrameMain : public wxFrame
-{
-public:
-    // ctor(s)
-    FrameMain(const wxString& title);
-
-    // event handlers (these functions should _not_ be virtual)
-    void OnQuit(wxCommandEvent& event);
-	void OnPaint(wxPaintEvent& event);
-
-private:
-    // any class wishing to process wxWidgets events must use this macro
-	wxButton *QuitBut;
-	void DrawImage(wxDC &dc);
-	Kamera *kamera;
-    DECLARE_EVENT_TABLE()
-};
 
 
 BEGIN_EVENT_TABLE(FrameMain, wxFrame)
     EVT_BUTTON(BUTTON_Quit,  FrameMain::OnQuit)
-	EVT_PAINT(FrameMain::OnPaint)
 END_EVENT_TABLE()
 
+
+BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
+ EVT_PAINT(BasicDrawPane::paintEvent)
+END_EVENT_TABLE()
 
 IMPLEMENT_APP(AppMain)
 
@@ -61,31 +68,41 @@ IMPLEMENT_APP(AppMain)
 
 // frame constructor
 FrameMain::FrameMain(const wxString& title)
-       : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(640,480), 0)
+       : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(800,600), 0)
 {
+
+  
   SetBackgroundColour(wxColor(80,100,255));
-  SetBackgroundStyle(wxBG_STYLE_PAINT);
   // set the frame icon
   QuitBut = new wxButton(this, BUTTON_Quit, wxT("Ukonèit"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
   QuitBut->SetForegroundColour(wxColor(150,150,255));
   int x, y;
   QuitBut->GetSize(&x, &y);
-  QuitBut->SetPosition(wxPoint(640-x, 0));
+  QuitBut->SetPosition(wxPoint(800-x, 0));
 
+  drawPane = new BasicDrawPane( this );
+ 
+  timer = new RenderTimer(drawPane);
+  timer->start();
+  drawPane->Refresh();
 
   SetIcon(wxICON(sample));
   Centre();
-  kamera = new Kamera();
-
+  /*
+  static const int INTERVAL = 300; // milliseconds
+  timer = new wxTimer(this, TIMER_NewImage);
+  timer->Start(INTERVAL);*/
 }
-
+/*
 void FrameMain::OnPaint(wxPaintEvent& event)
 {
    wxAutoBufferedPaintDC dc(this);
    dc.SetBackground(wxBrush(this->GetBackgroundColour()));
    dc.Clear();
    DrawImage(dc);
+   
 }
+
 
 void FrameMain::DrawImage(wxDC &dc)
 {
@@ -94,21 +111,22 @@ void FrameMain::DrawImage(wxDC &dc)
   kamera->Obrazek(image);
   
   //image->Mirror(true);
-  
+  //(image->Rotate180())
   
   
   wxSize imageSize = image->GetSize();
-  wxBitmap bitmap = wxBitmap((image->Rotate180()));
+  wxBitmap bitmap = wxBitmap(*image);
   //delete image;
   dc.DrawBitmap(bitmap,0,0, false);
-}
+}*/
 
 // event handlers
 
 void FrameMain::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
-    // true is to force the frame to close
-    Close(true);
+ timer->Stop();
+ delete timer;
+ Close(true);
 }
 
 
@@ -120,7 +138,7 @@ bool AppMain::OnInit()
         return false;
 
     // create the main application window
-    FrameMain *frame = new FrameMain("Spektrograf");
+    frame = new FrameMain("Spektrograf");
 
     // and show it (the frames, unlike simple controls, are not shown when
     // created initially)
@@ -135,7 +153,7 @@ bool AppMain::OnInit()
  
             //frame->SetSizer(sizer);
     frame->Show(true);
-
+	
 	//kamera = new Kamera();
 	
     //kamera->Obrazek(img);

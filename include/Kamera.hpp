@@ -11,6 +11,12 @@
 #include <assert.h>
 #pragma comment(lib, "strmiids")
 
+#import "qedit.dll" raw_interfaces_only named_guids
+EXTERN_C const CLSID CLSID_NullRenderer;
+EXTERN_C const CLSID CLSID_SampleGrabber;
+
+#include <stdio.h>
+
 class Kamera
 {
 public:
@@ -25,7 +31,26 @@ private:
 	int stav;
 	//IBaseFilter *camera_filter;
 	IBaseFilter *camera_filter;
-
+	
+ int device_number, n, list_devices;
+ long buffer_size;
+ char device_name[100];
+ // Other variables
+ char char_buffer[100];
+ HRESULT hr;
+ ICreateDevEnum *pDevEnum;
+ IEnumMoniker *pEnum;
+ IMoniker *pMoniker;
+ IPropertyBag *pPropBag;
+ IGraphBuilder *pGraph;
+ ICaptureGraphBuilder2 *pBuilder;
+ IBaseFilter *pCap;
+ IBaseFilter *pSampleGrabberFilter;
+ DexterLib::ISampleGrabber *pSampleGrabber;
+ IBaseFilter *pNullRenderer;
+ IMediaControl *pMediaControl;
+ AM_MEDIA_TYPE mt;
+ char *pBuffer;
 };
 
 #endif

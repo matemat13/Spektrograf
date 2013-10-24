@@ -21,6 +21,7 @@ class Kamera
 {
 public:
 	Kamera();
+	~Kamera();
 	void Obrazek(wxImage *img);
 private:
 	//Moje fce
@@ -30,7 +31,6 @@ private:
 	//moje promenny
 	int stav;
 	//IBaseFilter *camera_filter;
-	IBaseFilter *camera_filter;
 	
  int device_number, n, list_devices;
  long buffer_size;

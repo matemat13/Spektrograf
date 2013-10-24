@@ -79,15 +79,14 @@ FrameMain::FrameMain(const wxString& title)
   int x, y;
   QuitBut->GetSize(&x, &y);
   QuitBut->SetPosition(wxPoint(800-x, 0));
-
-  drawPane = new BasicDrawPane( this );
+  drawPane = new BasicDrawPane(this);
  
   timer = new RenderTimer(drawPane);
   timer->start();
   drawPane->Refresh();
-
-  SetIcon(wxICON(sample));
+  
   Centre();
+  SetIcon(wxICON(sample));
   /*
   static const int INTERVAL = 300; // milliseconds
   timer = new wxTimer(this, TIMER_NewImage);

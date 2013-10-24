@@ -33,14 +33,14 @@ HRESULT Kamera::EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum)
 }
 
 void Kamera::NastavKamery()
-{/*
- HRESULT hr = NULL;
+{
+// HRESULT hr = NULL;
  
  IAMVideoProcAmp *camera = 0;
- IMoniker *pMoniker = NULL;
- IEnumMoniker *pEnum = NULL;
- IBaseFilter *pCap = NULL;
- 
+// IMoniker *pMoniker = NULL;
+// IEnumMoniker *pEnum = NULL;
+// IBaseFilter *pCap = NULL;
+ /*
  stav = -1;
  hr = EnumerateDevices(CLSID_VideoInputDeviceCategory, &pEnum);
  if (SUCCEEDED(hr))
@@ -50,15 +50,26 @@ void Kamera::NastavKamery()
   {
    pMoniker->BindToObject(0, 0, IID_IBaseFilter, (void**)&pCap);
    pCap->QueryInterface(IID_IAMVideoProcAmp, (void**)&camera);
- 
-   camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
-   camera->Set(VideoProcAmp_WhiteBalance, 6000, VideoProcAmp_Flags_Manual);
-   camera_filter = pCap;
+   if (stav == 1 || true)
+   {
+    hr = camera->Set(VideoProcAmp_Brightness, 0, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set brightness", 1);
+    hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);
+    hr = camera->Set(VideoProcAmp_WhiteBalance, 6000, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set white balance", 1);
+    /*hr = camera->Set(VideoProcAmp_WhiteBalance, 6000, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);
+    hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);*//*
+    hr = camera->Set(VideoProcAmp_Gain, 0, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set gain", 1);
+   }
    stav++;
   }
  }
- 
  */
+ 
  // Create filter graph
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL,
 			CLSCTX_INPROC_SERVER, IID_IGraphBuilder,
@@ -193,9 +204,28 @@ void Kamera::NastavKamery()
 	hr = pMoniker->BindToObject(0, 0,
 					IID_IBaseFilter, (void**)&pCap);
 	if (hr != S_OK) exit_message("Could not create capture filter", 1);
-		
+	
+    pCap->QueryInterface(IID_IAMVideoProcAmp, (void**)&camera);
+
+	//Wait for camera to init!!
+	Sleep(1000);
+    hr = camera->Set(VideoProcAmp_Brightness, 0, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set brightness", 1);
+    hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);
+    hr = camera->Set(VideoProcAmp_WhiteBalance, 6500, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set white balance", 1);
+    /*hr = camera->Set(VideoProcAmp_WhiteBalance, 6000, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);
+    hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);*/
+    hr = camera->Set(VideoProcAmp_Gain, 0, VideoProcAmp_Flags_Manual);
+    if (hr != S_OK) exit_message("Could not set gain", 1);
+
 	// Add capture filter to graph
 	hr = pGraph->AddFilter(pCap, L"Capture Filter");
+
+
 	if (hr != S_OK) exit_message("Could not add capture filter to graph", 1);
 
 	// Create sample grabber filter
@@ -293,8 +323,6 @@ void Kamera::NastavKamery()
 			exit_message("Could not get buffer size", 1);
 	}
 
-	// Stop the graph
-	pMediaControl->Stop();
 }
 
 
@@ -341,7 +369,7 @@ void Kamera::Obrazek(wxImage *img)
 		memcpy(tmp, pBuffer, 24);
 		pBuffer += 24;
 		memcpy(pBuffer+pVih->bmiHeader.biWidth*pVih->bmiHeader.biHeight*3, tmp, 24);
-	    img->Create(pVih->bmiHeader.biWidth, pVih->bmiHeader.biHeight, (unsigned char*)pBuffer);
+	    img->Create(pVih->bmiHeader.biWidth, pVih->bmiHeader.biHeight, (unsigned char*)pBuffer, true);
 		
 		/*
 		// Create bitmap structure
@@ -393,5 +421,12 @@ Kamera::Kamera()
  pNullRenderer = NULL;
  pMediaControl = NULL;
  pBuffer = NULL;
+ device_number = 1;
  NastavKamery();
+}
+
+Kamera::~Kamera()
+{
+ //Stop the graph
+ pMediaControl->Stop();
 }

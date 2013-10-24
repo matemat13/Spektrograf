@@ -37,8 +37,8 @@ void BasicDrawPane::render( wxDC& dc )
   wxSize imageSize = kamObr->GetSize();
   bitmap = wxBitmap(*kamObr);
   //delete image;
- dc.SetBackground( *wxWHITE_BRUSH );
- dc.Clear();
+ //dc.SetBackground( *wxWHITE_BRUSH );
+// dc.Clear();
   dc.DrawBitmap(bitmap,0,0, false);
 }
 

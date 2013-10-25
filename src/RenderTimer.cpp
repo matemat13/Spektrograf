@@ -12,5 +12,5 @@ void RenderTimer::Notify()
  
 void RenderTimer::start()
 {
-    wxTimer::Start(500);
+    wxTimer::Start(40);
 }

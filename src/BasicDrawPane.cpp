@@ -11,6 +11,7 @@ wxPanel(parent)
   Centre();
   kamera = new Kamera();
   kamObr = new wxImage();
+ 
 }
  
  
@@ -40,6 +41,7 @@ void BasicDrawPane::render( wxDC& dc )
  //dc.SetBackground( *wxWHITE_BRUSH );
 // dc.Clear();
   dc.DrawBitmap(bitmap,0,0, false);
+  //dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF),0,0, false);
 }
 
 void BasicDrawPane::renderWaiting( wxDC& dc )

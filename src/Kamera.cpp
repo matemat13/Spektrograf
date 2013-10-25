@@ -210,17 +210,17 @@ void Kamera::NastavKamery()
 	//Wait for camera to init!!
 	Sleep(1000);
     hr = camera->Set(VideoProcAmp_Brightness, 0, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set brightness", 1);
+    //if (hr != S_OK) exit_message("Could not set brightness", 1);
     hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);
+    //if (hr != S_OK) exit_message("Could not set backlight compensation", 1);
     hr = camera->Set(VideoProcAmp_WhiteBalance, 6500, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set white balance", 1);
+    //if (hr != S_OK) exit_message("Could not set white balance", 1);
     /*hr = camera->Set(VideoProcAmp_WhiteBalance, 6000, VideoProcAmp_Flags_Manual);
     if (hr != S_OK) exit_message("Could not set backlight compensation", 1);
     hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
     if (hr != S_OK) exit_message("Could not set backlight compensation", 1);*/
     hr = camera->Set(VideoProcAmp_Gain, 0, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set gain", 1);
+    //if (hr != S_OK) exit_message("Could not set gain", 1);
 
 	// Add capture filter to graph
 	hr = pGraph->AddFilter(pCap, L"Capture Filter");
@@ -364,13 +364,15 @@ void Kamera::Obrazek(wxImage *img)
 		// Get video info header structure from media type
 		pVih = (VIDEOINFOHEADER*)mt.pbFormat;
 
-
-		unsigned char tmp[24] = {0};
+		
+		/*unsigned char tmp[24] = {0};
 		memcpy(tmp, pBuffer, 24);
 		pBuffer += 24;
-		memcpy(pBuffer+pVih->bmiHeader.biWidth*pVih->bmiHeader.biHeight*3, tmp, 24);
+		memcpy(pBuffer+pVih->bmiHeader.biWidth*pVih->bmiHeader.biHeight*3, tmp, 24);*/
+		
 	    img->Create(pVih->bmiHeader.biWidth, pVih->bmiHeader.biHeight, (unsigned char*)pBuffer, true);
 		
+
 		/*
 		// Create bitmap structure
 		long cbBitmapInfoSize = mt.cbFormat - SIZE_PREHEADER;

@@ -4,12 +4,8 @@
 
 enum
 {
-    // menu items
-    BUTTON_Quit = wxID_EXIT,
-	TIMER_NewImage = wxID_HIGHEST
-    // it is important for the id corresponding to the "About" command to have
-    // this standard value as otherwise it won't be handled properly under Mac
-    // (where it is special and put into the "Apple" menu)
+ BUTTON_Quit = wxID_EXIT,
+ TIMER_NewImage = wxID_HIGHEST
 };
 
 
@@ -45,6 +41,7 @@ public:
     virtual bool OnInit();
 private:
 	FrameMain *frame;
+	SettingsManager *setMgr;
 
 	//void activateRenderLoop(bool on);
 };
@@ -85,6 +82,9 @@ FrameMain::FrameMain(const wxString& title)
   timer->start();
   drawPane->Refresh();
   
+  /*
+  wxClientDC dc(this);
+  dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF_RESOURCE),0,0, false);*/
   Centre();
   SetIcon(wxICON(sample));
   /*
@@ -156,7 +156,7 @@ bool AppMain::OnInit()
 	//kamera = new Kamera();
 	
     //kamera->Obrazek(img);
-
+	setMgr = new SettingsManager();
     // success: wxApp::OnRun() will be called which will enter the main message
     // loop and the application will run. If we returned false here, the
     // application would exit immediately.

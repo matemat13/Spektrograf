@@ -1,6 +1,5 @@
-
 #include "main.hpp"
-
+//adsad
 
 enum
 {
@@ -71,12 +70,12 @@ FrameMain::FrameMain(const wxString& title)
   
   SetBackgroundColour(wxColor(80,100,255));
   // set the frame icon
-  QuitBut = new wxButton(this, BUTTON_Quit, wxT("Ukonèit"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
+  QuitBut = new wxButton(this, BUTTON_Quit, wxT("Ukonï¿½it"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
   QuitBut->SetForegroundColour(wxColor(150,150,255));
   QuitBut->SetBackgroundColour(wxColor(255,0,0));
   QuitBut->SetCursor(wxCursor(wxCURSOR_HAND));
-  QuitBut->SetHelpText(wxString("Ukonèí aplikaci spektrograf."));
-  QuitBut->SetToolTip(wxString("Ukonèit program"));
+  QuitBut->SetHelpText(wxString("Ukonï¿½ï¿½ aplikaci spektrograf."));
+  QuitBut->SetToolTip(wxString("Ukonï¿½it program"));
   //QuitBut->SetAuthNeeded(true);
 
 

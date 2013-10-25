@@ -220,7 +220,7 @@ void Kamera::NastavKamery()
     hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
     if (hr != S_OK) exit_message("Could not set backlight compensation", 1);*/
     hr = camera->Set(VideoProcAmp_Gain, 0, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set gain", 1);
+    //if (hr != S_OK) exit_message("Could not set gain", 1);
 
 	// Add capture filter to graph
 	hr = pGraph->AddFilter(pCap, L"Capture Filter");

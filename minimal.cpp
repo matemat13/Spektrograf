@@ -76,6 +76,13 @@ FrameMain::FrameMain(const wxString& title)
   // set the frame icon
   QuitBut = new wxButton(this, BUTTON_Quit, wxT("Ukonèit"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
   QuitBut->SetForegroundColour(wxColor(150,150,255));
+  QuitBut->SetBackgroundColour(wxColor(255,0,0));
+  QuitBut->SetCursor(wxCursor(wxCURSOR_HAND));
+  QuitBut->SetHelpText(wxString("Ukonèí aplikaci spektrograf."));
+  QuitBut->SetToolTip(wxString("Ukonèit program"));
+  //QuitBut->SetAuthNeeded(true);
+
+
   int x, y;
   QuitBut->GetSize(&x, &y);
   QuitBut->SetPosition(wxPoint(800-x, 0));

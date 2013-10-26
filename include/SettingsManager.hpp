@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include "include/debug_exit.hpp"
 
 #define N_SETTINGS 8
 

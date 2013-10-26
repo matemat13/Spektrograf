@@ -1,16 +1,5 @@
 #include "../include/Kamera.hpp"
 
-void exit_message(const char* error_message, int error)
-{
-	// Print an error message
-	fprintf(stderr, error_message);
-	fprintf(stderr, "\n");
-	
-	CoUninitialize();
-	
-	// Exit the program
-	exit(error);
-}
 
 HRESULT Kamera::EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum)
 {
@@ -323,6 +312,32 @@ void Kamera::NastavKamery()
 			exit_message("Could not get buffer size", 1);
 	}
 
+
+
+	// Allocate buffer for image
+	pBuffer = new char[buffer_size];
+	if (!pBuffer)
+		exit_message("Could not allocate data buffer for image", 1);
+
+	
+	// Get the media type from the sample grabber filter
+	hr = pSampleGrabber->GetConnectedMediaType(
+			(DexterLib::_AMMediaType *)&mt);
+	if (hr != S_OK) exit_message("Could not get media type", 1);
+	// Retrieve format information
+	
+	if ((mt.formattype == FORMAT_VideoInfo) && 
+		(mt.cbFormat >= sizeof(VIDEOINFOHEADER)) &&
+		(mt.pbFormat != NULL)) 
+	{
+		// Get video info header structure from media type
+		pVih = (VIDEOINFOHEADER*)mt.pbFormat;
+	}
+	else 
+	{
+		exit_message("Wrong media type", 1);
+	}
+
 }
 
 
@@ -339,10 +354,6 @@ void Kamera::Obrazek(wxImage *img)
 
 	
 
-	// Allocate buffer for image
-	pBuffer = new char[buffer_size + 24];
-	if (!pBuffer)
-		exit_message("Could not allocate data buffer for image", 1);
 	
 	// Retrieve image data from sample grabber buffer
 	hr = pSampleGrabber->GetCurrentBuffer(
@@ -350,26 +361,38 @@ void Kamera::Obrazek(wxImage *img)
 	if (hr != S_OK)
 		exit_message("Could not get buffer data from sample grabber", 1);
 
-	// Get the media type from the sample grabber filter
-	hr = pSampleGrabber->GetConnectedMediaType(
-			(DexterLib::_AMMediaType *)&mt);
-	if (hr != S_OK) exit_message("Could not get media type", 1);
 	
-	// Retrieve format information
-	VIDEOINFOHEADER *pVih = NULL;
-	if ((mt.formattype == FORMAT_VideoInfo) && 
-		(mt.cbFormat >= sizeof(VIDEOINFOHEADER)) &&
-		(mt.pbFormat != NULL)) 
-	{
-		// Get video info header structure from media type
-		pVih = (VIDEOINFOHEADER*)mt.pbFormat;
+	
 
 		
 		/*unsigned char tmp[24] = {0};
 		memcpy(tmp, pBuffer, 24);
 		pBuffer += 24;
 		memcpy(pBuffer+pVih->bmiHeader.biWidth*pVih->bmiHeader.biHeight*3, tmp, 24);*/
+
+
+		//Prohození R a B bytù
 		
+		unsigned char rgb = 0;
+		unsigned char oldR = 0;
+		for (long byte = 0; byte < (pVih->bmiHeader.biWidth)*(pVih->bmiHeader.biHeight)*3; byte++)
+		{
+		 if (rgb == 0)
+		 {
+		  oldR = pBuffer[byte];
+		  rgb++;
+		 } else if (rgb == 1)
+		 {
+		  rgb++;
+		 } else  //rgb == 2
+		 {
+		  pBuffer[byte -2] = pBuffer[byte];
+		  pBuffer[byte] = oldR;
+		  rgb = 0;
+		 }
+		}
+
+		img->Destroy();
 	    img->Create(pVih->bmiHeader.biWidth, pVih->bmiHeader.biHeight, (unsigned char*)pBuffer, true);
 		
 
@@ -382,26 +405,8 @@ void Kamera::Obrazek(wxImage *img)
 		bfh.bfSize = sizeof(bfh) + buffer_size + cbBitmapInfoSize;
 		bfh.bfOffBits = sizeof(BITMAPFILEHEADER) + cbBitmapInfoSize;
 		*/
-	}
-	else 
-	{
-		exit_message("Wrong media type", 1);
-	}
 	
 	
-	// Free the format block
-	if (mt.cbFormat != 0)
-	{
-		CoTaskMemFree((PVOID)mt.pbFormat);
-		mt.cbFormat = 0;
-		mt.pbFormat = NULL;
-	}
-	if (mt.pUnk != NULL)
-	{
-		// pUnk should not be used.
-		mt.pUnk->Release();
-		mt.pUnk = NULL;
-	}
 
 	// Clean up and exit
 	//exit_message("", 0);
@@ -422,6 +427,7 @@ Kamera::Kamera()
  pSampleGrabber = NULL;
  pNullRenderer = NULL;
  pMediaControl = NULL;
+ pVih = NULL;
  pBuffer = NULL;
  device_number = 1;
  NastavKamery();
@@ -431,4 +437,33 @@ Kamera::~Kamera()
 {
  //Stop the graph
  pMediaControl->Stop();
+ 
+	// Free the format block
+	if (mt.cbFormat != 0)
+	{
+		CoTaskMemFree((PVOID)mt.pbFormat);
+		mt.cbFormat = 0;
+		mt.pbFormat = NULL;
+	}
+	if (mt.pUnk != NULL)
+	{
+		// pUnk should not be used.
+		mt.pUnk->Release();
+		mt.pUnk = NULL;
+	}
+ // Clean up DirectShow / COM stuff
+ if (pBuffer != NULL) delete[] pBuffer;
+ if (pMediaControl != NULL) pMediaControl->Release();	
+ if (pNullRenderer != NULL) pNullRenderer->Release();
+ if (pSampleGrabber != NULL) pSampleGrabber->Release();
+ if (pSampleGrabberFilter != NULL)
+ 		pSampleGrabberFilter->Release();
+ if (pCap != NULL) pCap->Release();
+ if (pBuilder != NULL) pBuilder->Release();
+ if (pGraph != NULL) pGraph->Release();
+ if (pPropBag != NULL) pPropBag->Release();
+ if (pMoniker != NULL) pMoniker->Release();
+ if (pEnum != NULL) pEnum->Release();
+ if (pDevEnum != NULL) pDevEnum->Release();
+ CoUninitialize();
 }

@@ -1,7 +1,8 @@
 #general
 
 *.BAK
-
+./vc_mswud/*
+.*vcproj*
 
 #################
 ## Eclipse

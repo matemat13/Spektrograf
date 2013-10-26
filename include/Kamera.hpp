@@ -15,7 +15,7 @@
 EXTERN_C const CLSID CLSID_NullRenderer;
 EXTERN_C const CLSID CLSID_SampleGrabber;
 
-#include <stdio.h>
+#include "include/debug_exit.hpp"
 
 class Kamera
 {
@@ -50,6 +50,7 @@ private:
  IBaseFilter *pNullRenderer;
  IMediaControl *pMediaControl;
  AM_MEDIA_TYPE mt;
+ VIDEOINFOHEADER *pVih;
  char *pBuffer;
 };
 

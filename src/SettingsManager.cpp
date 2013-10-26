@@ -1,12 +1,5 @@
 #include "../include/SettingsManager.hpp"
 
-void exit_message(const char* error_message, int error);
-
-bool SettingsManager::GetSetting(setting &set)
-{
- return GetSetting(set.id, set.value);
-}
-
 bool SettingsManager::GetSetting(int id, int &set)
 {
 /*
@@ -26,10 +19,6 @@ bool SettingsManager::GetSetting(int id, int &set)
  return true;
 }
 
-void SettingsManager::SetSetting(setting &set)
-{
-
-}
 
 void SettingsManager::SetSetting(int id, int &set)
 {
@@ -170,14 +159,3 @@ SettingsManager::~SettingsManager(void)
  }
 }
 
-
-void exit_message(const char* error_message, int error)
-{
-	// Print an error message
-	fprintf(stderr, error_message);
-	fprintf(stderr, "\n");
-	
-	
-	// Exit the program
-	exit(error);
-}

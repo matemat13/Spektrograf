@@ -14,6 +14,7 @@ public:
  
     DECLARE_EVENT_TABLE()
 private:
+	bool painting;
     void render(wxDC& dc);
 	void renderWaiting(wxDC& dc);
 	Kamera *kamera;

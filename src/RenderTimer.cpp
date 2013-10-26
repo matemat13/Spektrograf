@@ -7,7 +7,7 @@ RenderTimer::RenderTimer(BasicDrawPane* pane) : wxTimer()
  
 void RenderTimer::Notify()
 {
-    pane->Refresh();
+    pane->paintNow();
 }
  
 void RenderTimer::start()

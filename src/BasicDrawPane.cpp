@@ -11,7 +11,6 @@ wxPanel(parent)
   Centre();
   kamera = new Kamera();
   kamObr = new wxImage();
- 
 }
  
  
@@ -38,9 +37,9 @@ void BasicDrawPane::render( wxDC& dc )
   wxSize imageSize = kamObr->GetSize();
   bitmap = wxBitmap(*kamObr);
   //delete image;
- //dc.SetBackground( *wxWHITE_BRUSH );
-// dc.Clear();
-  dc.DrawBitmap(bitmap,0,0, false);
+  //dc.SetBackground( *wxWHITE_BRUSH );
+  // dc.Clear();
+  //dc.DrawBitmap(bitmap,0,0, false);
   //dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF),0,0, false);
 }
 
@@ -51,7 +50,7 @@ void BasicDrawPane::renderWaiting( wxDC& dc )
  
  wxStaticText t(this, -1, wxT("Inicializuji kameru, prosím èekejte."), wxPoint(x,y));
  t.Centre();
- dc.SetBackground( *wxWHITE_BRUSH );
+ dc.SetBackground(*wxWHITE_BRUSH);
  dc.Clear();
  t.Show();
 

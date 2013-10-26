@@ -45,6 +45,7 @@ local.properties
 
 [Dd]ebug/
 [Rr]elease/
+vc_mswud/
 x64/
 build/
 [Bb]in/

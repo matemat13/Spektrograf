@@ -66,24 +66,36 @@ IMPLEMENT_APP(AppMain)
 FrameMain::FrameMain(const wxString& title)
        : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(800,600), 0)
 {
-
+  wxFont font(10, wxDEFAULT, wxNORMAL, wxBOLD);
   
   SetBackgroundColour(wxColor(80,100,255));
-  // set the frame icon
-  QuitBut = new wxButton(this, BUTTON_Quit, wxT("Ukon�it"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
-  QuitBut->SetForegroundColour(wxColor(150,150,255));
-  QuitBut->SetBackgroundColour(wxColor(255,0,0));
+  /**Cudlik pro vypnuti**/
+  QuitBut = new wxButton(this, BUTTON_Quit, wxT("Ukončit"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
+  QuitBut->SetForegroundColour(wxColor(255,255,255));
+  QuitBut->SetBackgroundColour(wxColor(224,67,67));
   QuitBut->SetCursor(wxCursor(wxCURSOR_HAND));
-  QuitBut->SetHelpText(wxString("Ukon�� aplikaci spektrograf."));
-  QuitBut->SetToolTip(wxString("Ukon�it program"));
+  QuitBut->SetHelpText(wxString("Ukončit aplikaci spektrograf."));
+  QuitBut->SetToolTip(wxString("Ukončit program"));
+  QuitBut->SetFont(font);
   //QuitBut->SetAuthNeeded(true);
-
-
   int x, y;
   QuitBut->GetSize(&x, &y);
-  QuitBut->SetPosition(wxPoint(800-x, 0));
+  QuitBut->SetPosition(wxPoint(800-x-5, 0));  //zarovnani ke kraji
+  
+  //Velky text
+  
+
+  wxStaticText t(this, wxID_ANY, wxT("Spektrograf"), wxPoint(0,0));
+  t.SetForegroundColour(wxColor(255,255,255));
+  t.SetBackgroundColour(wxColor(255,0,0));
+  t.SetFont(font);
+  t.SetSize(50,50);
+  t.SetToolTip(wxString("Ukončit program"));
+  t.SetCursor(wxCursor(wxCURSOR_HAND));
+  t.SetPosition(wxPoint(0, 0)); 
+  //t.Show();
+  //Casovac pro vykreslovani kamery
   drawPane = new BasicDrawPane(this);
- 
   timer = new RenderTimer(drawPane);
   timer->start();
   drawPane->Refresh();

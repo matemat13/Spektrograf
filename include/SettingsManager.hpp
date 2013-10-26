@@ -3,20 +3,25 @@
 #include <iostream>
 #include <fstream>
 
-#define SETT_CAM_N 0;	//cislo zarizeni
-#define SETT_LINE_POS 1;	//pozice cary
-#define SETT_CAM_ROT 2;	//otoceni
-#define SETT_CAM_EXP 3;	//expozice
-#define SETT_CAM_BRI 4;	//svetlost
-#define SETT_CAM_COM 5;	//kompenzace
-#define SETT_CAM_WBA 6;	//white balance
-#define SETT_CAM_GAI 7;	//gain
+#define N_SETTINGS 8
+
+enum
+{
+ SETT_CAM_N,	//cislo zarizeni
+ SETT_LINE_POS,	//pozice cary
+ SETT_CAM_ROT,	//otoceni
+ SETT_CAM_EXP,	//expozice
+ SETT_CAM_BRI,	//svetlost
+ SETT_CAM_COM,	//kompenzace
+ SETT_CAM_WBA,	//white balance
+ SETT_CAM_GAI	//gain
+};
 
 struct setting
 {
  unsigned int fpos;
  int value;
- int id;
+ //int id;
 };
 
 class SettingsManager
@@ -30,6 +35,8 @@ private:
 	bool WriteSetting(setting &set);
 
 	//Setting variables
+	setting sets[N_SETTINGS];
+	/*
 	setting cislo_kamery;
 	setting pozice_vstupni_cary_kamery;
 	setting otoceni_kamery;
@@ -38,10 +45,14 @@ private:
 	setting kompenzace_kamery;
 	setting white_balance_kamery;
 	setting gain_kamery;
+	*/
 public:
 	SettingsManager(void);
 	~SettingsManager(void);
 
-
+	bool GetSetting(setting &set);
+	bool GetSetting(int id, int &set);
+	void SetSetting(setting &set);
+	void SetSetting(int id, int &set);
 };
 

@@ -1,7 +1,50 @@
 #include "../include/SettingsManager.hpp"
-bool SettingsManager::LoadSettingsFile()
+
+void exit_message(const char* error_message, int error);
+
+bool SettingsManager::GetSetting(setting &set)
+{
+ return GetSetting(set.id, set.value);
+}
+
+bool SettingsManager::GetSetting(int id, int &set)
+{
+/*
+ switch (id)
+ {
+ case SETT_CAM_N: set = cislo_kamery.value; break;
+ case SETT_LINE_POS: set = otoceni_kamery.value; break;
+ case SETT_CAM_ROT: set = cislo_kamery.value; break;
+ case SETT_CAM_EXP: set = cislo_kamery.value; break;
+ case SETT_CAM_BRI: set = cislo_kamery.value; break;
+ case SETT_CAM_COM: set = cislo_kamery.value; break;
+ case SETT_CAM_WBA: set = cislo_kamery.value; break;
+ case SETT_CAM_GAI: set = cislo_kamery.value; break;
+ default: exit_message("Inexistent setting asked for.", 2); return false;
+ }
+ */
+ return true;
+}
+
+void SettingsManager::SetSetting(setting &set)
 {
 
+}
+
+void SettingsManager::SetSetting(int id, int &set)
+{
+ 
+}
+
+bool SettingsManager::LoadSettingsFile()
+{
+ for (int i = 0; i < N_SETTINGS; i++)
+ {
+  SettingsFile >> sets[i].value;
+ }
+
+
+	/*
   SettingsFile >> cislo_kamery.value;
   SettingsFile >> pozice_vstupni_cary_kamery.value;
   SettingsFile >> otoceni_kamery.value;
@@ -10,6 +53,7 @@ bool SettingsManager::LoadSettingsFile()
   SettingsFile >> kompenzace_kamery.value;
   SettingsFile >> white_balance_kamery.value;
   SettingsFile >> gain_kamery.value;
+  */
 
  return true;
 }
@@ -35,6 +79,7 @@ bool SettingsManager::CreateSettingsFile()
  SettingsFile.open("settings.bin", std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
  if (SettingsFile.good())
  {
+	 /*
   cislo_kamery.fpos = 0*sizeof(setting().value);
   cislo_kamery.value = 0;
   cislo_kamery.id = SETT_CAM_N;
@@ -59,7 +104,9 @@ bool SettingsManager::CreateSettingsFile()
   gain_kamery.fpos = 7*sizeof(setting().value);
   gain_kamery.value = 0;
   gain_kamery.id = SETT_CAM_GAI;
+  */
 
+	 /*
   WriteSetting(cislo_kamery);
   WriteSetting(pozice_vstupni_cary_kamery);
   WriteSetting(otoceni_kamery);
@@ -68,6 +115,7 @@ bool SettingsManager::CreateSettingsFile()
   WriteSetting(kompenzace_kamery);
   WriteSetting(white_balance_kamery);
   WriteSetting(gain_kamery);
+  */
 
   return true;
  } else
@@ -87,6 +135,12 @@ bool SettingsManager::WriteSetting(setting &set)
 SettingsManager::SettingsManager(void)
 {
  stav = 0;
+
+ for (int i = 0; i < N_SETTINGS; i++)
+ {
+  sets[i].fpos = i*sizeof(setting().value);
+ }
+
  if (!OpenSettingsFile())
  {
   if (!CreateSettingsFile())
@@ -114,4 +168,16 @@ SettingsManager::~SettingsManager(void)
  {
   SettingsFile.close();
  }
+}
+
+
+void exit_message(const char* error_message, int error)
+{
+	// Print an error message
+	fprintf(stderr, error_message);
+	fprintf(stderr, "\n");
+	
+	
+	// Exit the program
+	exit(error);
 }

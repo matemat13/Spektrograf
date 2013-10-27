@@ -19,7 +19,7 @@
 // the application icon (under Windows and OS/2 it is in resources and even
 // though we could still include the XPM here it would be unused)
 #ifndef wxHAS_IMAGES_IN_RESOURCES
-    #include "../sample.xpm"
+    #include "./sample.xpm"
 #endif
 
 #include "wx/image.h"
@@ -51,7 +51,9 @@
     #include "wx/rawbmp.h"
 #endif
 
+#include "include/resources.hpp"
 #include "include/Kamera.hpp"
 #include "include/BasicDrawPane.hpp"
 #include "include/RenderTimer.hpp"
 #include "include/SettingsManager.hpp"
+

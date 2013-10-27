@@ -8,5 +8,6 @@ void exit_message(const char* error_message, int error)
 	
 	
 	// Exit the program
-	exit(error);
+	if (false)
+	 exit(error);
 }

@@ -16,27 +16,35 @@ EXTERN_C const CLSID CLSID_NullRenderer;
 EXTERN_C const CLSID CLSID_SampleGrabber;
 
 #include "include/debug_exit.hpp"
+#include "include/SettingsManager.hpp"
+
+#define ERROR_STILL_IMGS 50
 
 class Kamera
 {
 public:
-	Kamera();
+	Kamera(SettingsManager *n_SetMan);
 	~Kamera();
-	void Obrazek(wxImage *img);
+	bool Obrazek(wxImage *img);
+	const char *GetError() {return error_buf;};
 private:
 	//Moje fce
 	HRESULT EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum);
 	void NastavKamery();
+	void error_message(const char* error_message, int error);
 
 	//moje promenny
 	int stav;
+	SettingsManager *SetMan;
+
 	//IBaseFilter *camera_filter;
 	
  int device_number, n, list_devices;
  long buffer_size;
  char device_name[100];
  // Other variables
- char char_buffer[100];
+ char error_buf[100];
+ int still_imgs;
  HRESULT hr;
  ICreateDevEnum *pDevEnum;
  IEnumMoniker *pEnum;
@@ -52,6 +60,7 @@ private:
  AM_MEDIA_TYPE mt;
  VIDEOINFOHEADER *pVih;
  char *pBuffer;
+ char *oldBuffer;
 };
 
 #endif

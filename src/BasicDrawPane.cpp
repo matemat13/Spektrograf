@@ -1,16 +1,15 @@
 #include "../include/BasicDrawPane.hpp"
 
-BasicDrawPane::BasicDrawPane(wxFrame* parent) :
+BasicDrawPane::BasicDrawPane(wxFrame* parent, SettingsManager *n_SetMan) :
 wxPanel(parent)
 {
  painting = false;
  SetBackgroundColour(wxColor(80,100,255));
+ SetDoubleBuffered(true);
  SetBackgroundStyle(wxBG_STYLE_PAINT);
  SetSize(640, 480);
- wxClientDC dc(this);
- renderWaiting(dc);
  Centre();
- kamera = new Kamera();
+ kamera = new Kamera(n_SetMan);
  kamObr = new wxImage();
  
 }
@@ -21,7 +20,7 @@ void BasicDrawPane::paintEvent(wxPaintEvent& WXUNUSED(evt))
  if (!painting)
  {
   wxPaintDC dc(this);
-  render(dc);
+  reRender(dc);
  }
 }
  
@@ -33,24 +32,51 @@ void BasicDrawPane::paintNow()
   render(dc);
  }
 }
- 
-void BasicDrawPane::render( wxDC& dc )
+
+void BasicDrawPane::reRender(wxDC& dc)
 {
  painting = true;
- kamera->Obrazek(kamObr);
-  
- //image->Mirror(true);
- //(image->Rotate180())
-  
-  
- wxSize imageSize = kamObr->GetSize();
+ bool painted = false; 
+
  if (kamObr->IsOk())
  {
+  wxSize imageSize = kamObr->GetSize();
   bitmap = wxBitmap(*kamObr);
   if (bitmap.IsOk())
   {
    dc.DrawBitmap(bitmap,0,0, false);
+   painted = true;
   }
+ }
+ if (!painted)
+ {
+  renderError(dc);
+ }
+
+ painting = false;
+}
+
+void BasicDrawPane::render(wxDC& dc)
+{
+ painting = true;
+ bool painted = false; 
+ //image->Mirror(true);
+ //(image->Rotate180())
+  
+  
+ if (kamera->Obrazek(kamObr) && kamObr->IsOk())
+ {
+  wxSize imageSize = kamObr->GetSize();
+  bitmap = wxBitmap(*kamObr);
+  if (bitmap.IsOk())
+  {
+   dc.DrawBitmap(bitmap,0,0, false);
+   painted = true;
+  }
+ }
+ if (!painted)
+ {
+  renderError(dc);
  }
   //delete image;
  //dc.SetBackground( *wxWHITE_BRUSH );
@@ -59,15 +85,12 @@ void BasicDrawPane::render( wxDC& dc )
  painting = false;
 }
 
-void BasicDrawPane::renderWaiting( wxDC& dc )
+void BasicDrawPane::renderError(wxDC& dc)
 {
- int x = GetPosition().x;
- int y = GetPosition().y;
- 
- wxStaticText t(this, -1, wxT("Inicializuji kameru, prosím èekejte."), wxPoint(x,y));
- t.Centre();
- dc.SetBackground( *wxWHITE_BRUSH );
+ dc.SetBackgroundMode(wxBG_STYLE_PAINT);
+ dc.SetBackground(*wxBLACK_BRUSH);
+ dc.SetTextBackground(*wxBLACK);
+ dc.SetTextForeground(*wxWHITE);
  dc.Clear();
- t.Show();
-
+ dc.DrawText(wxT("Nastal problém s kamerou.\nZkontrolujte, jestli není vypojená."), 128, 128);
 }

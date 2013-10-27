@@ -66,24 +66,29 @@ IMPLEMENT_APP(AppMain)
 FrameMain::FrameMain(const wxString& title)
        : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(800,600), 0)
 {
+  SetFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
-  
+
+  /*char *res = wxLoadUserResource(wxString::FromUTF8("WINICON"));
+  SetIcon(wxIcon(res));
+  //wxBitmap close = wxBITMAP_PNG(CLOSEICON);*/
+  //Maximize(true);
   SetBackgroundColour(wxColor(80,100,255));
   // set the frame icon
-  QuitBut = new wxButton(this, BUTTON_Quit, wxT("Ukončit"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
+  QuitBut = new wxButton(this, BUTTON_Quit, wxString::FromUTF8("Ukončit"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
   QuitBut->SetForegroundColour(wxColor(150,150,255));
   QuitBut->SetBackgroundColour(wxColor(255,0,0));
   QuitBut->SetCursor(wxCursor(wxCURSOR_HAND));
-  QuitBut->SetHelpText(wxT("Ukonči aplikaci spektrograf."));
-  QuitBut->SetToolTip(wxT("Ukončit program"));
+  QuitBut->SetHelpText(wxString::FromUTF8("Ukonči aplikaci spektrograf."));
+  QuitBut->SetToolTip(wxString::FromUTF8("Ukončit program"));
   //QuitBut->SetAuthNeeded(true);
-
+  
+  SettingsManager *SetMan = new SettingsManager();
 
   int x, y;
   QuitBut->GetSize(&x, &y);
   QuitBut->SetPosition(wxPoint(800-x, 0));
-  drawPane = new BasicDrawPane(this);
- 
+  drawPane = new BasicDrawPane(this, SetMan);
   timer = new RenderTimer(drawPane);
   timer->start();
   drawPane->Refresh();
@@ -162,7 +167,6 @@ bool AppMain::OnInit()
 	//kamera = new Kamera();
 	
     //kamera->Obrazek(img);
-	setMgr = new SettingsManager();
     // success: wxApp::OnRun() will be called which will enter the main message
     // loop and the application will run. If we returned false here, the
     // application would exit immediately.

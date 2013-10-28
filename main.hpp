@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "wx/wxprec.h"
 
@@ -53,9 +53,9 @@
     #include "wx/rawbmp.h"
 #endif
 
-#include "include/resources.hpp"
 #include "include/Kamera.hpp"
 #include "include/BasicDrawPane.hpp"
 #include "include/RenderTimer.hpp"
 #include "include/SettingsManager.hpp"
+#include "include/Buttons.hpp"
 

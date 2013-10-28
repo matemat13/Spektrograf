@@ -4,7 +4,8 @@
 enum
 {
  BUTTON_Quit = wxID_EXIT,
- TIMER_NewImage = wxID_HIGHEST
+ TIMER_NewImage = wxID_HIGHEST,
+ BUTTON_Max
 };
 
 
@@ -16,13 +17,15 @@ public:
 
     // event handlers (these functions should _not_ be virtual)
     void OnQuit(wxCommandEvent& event);
+    void OnMax(wxCommandEvent& event);
 	/*void OnPaint(wxPaintEvent& event);
 	void OnProgressTimer(wxTimerEvent& event);*/
 private:
     // any class wishing to process wxWidgets events must use this macro
 	BasicDrawPane *drawPane;
 	bool drawing;
-	wxButton *QuitBut;
+	QuitButton *quitBut;
+	MaxDemaxButton *maxBut;
 	//void DrawImage(wxDC &dc);
 	RenderTimer *timer;
     DECLARE_EVENT_TABLE()
@@ -49,7 +52,8 @@ private:
 
 
 BEGIN_EVENT_TABLE(FrameMain, wxFrame)
-    EVT_BUTTON(BUTTON_Quit,  FrameMain::OnQuit)
+ EVT_BUTTON(BUTTON_Quit,  FrameMain::OnQuit)
+ EVT_BUTTON(BUTTON_Max,  FrameMain::OnMax)
 END_EVENT_TABLE()
 
 
@@ -66,35 +70,24 @@ IMPLEMENT_APP(AppMain)
 FrameMain::FrameMain(const wxString& title)
        : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(800,600), 0)
 {
-  SetFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
- 
- wxBitmap *bmp = new wxBitmap(wxT("RC_closeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
- wxBitmap *bmp2 = new wxBitmap(wxT("RC_demaximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
+ SetFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+ SetFocus();
+ /*wxBitmap *bmp2 = new wxBitmap(wxT("RC_demaximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
  wxBitmap *bmp3 = new wxBitmap(wxT("RC_maximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
- wxBitmap *bmp4 = new wxBitmap(wxT("RC_USBdiscon"), wxBITMAP_TYPE_ICO_RESOURCE);
-
+ wxBitmap *bmp4 = new wxBitmap(wxT("RC_USBdiscon"), wxBITMAP_TYPE_ICO_RESOURCE);*/
+ 
   /*char *res = wxLoadUserResource(wxString::FromUTF8("WINICON"));
   SetIcon(wxIcon(res));
   //wxBitmap close = wxBITMAP_PNG(CLOSEICON);*/
   //Maximize(true);
-  SetBackgroundColour(wxColor(80,100,255));
+  SetBackgroundColour(wxColor(230,230,246));
   // set the frame icon
-  QuitBut = new wxButton(this, BUTTON_Quit, wxString::FromUTF8("Ukončit"), wxDefaultPosition, wxSize(32,32), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT);
-  QuitBut->SetForegroundColour(wxColor(150,150,255));
-  //QuitBut->SetBackgroundColour(wxColor(255,0,0));
-  QuitBut->SetCursor(wxCursor(wxCURSOR_HAND));
-  QuitBut->SetHelpText(wxString::FromUTF8("Ukonči aplikaci spektrograf."));
-  QuitBut->SetToolTip(wxString::FromUTF8("Ukončit program"));
-  QuitBut->SetBitmap(*bmp);
-  QuitBut->SetBitmapCurrent(*bmp2);
-  QuitBut->SetBitmapPressed(*bmp3);
-  //QuitBut->SetAuthNeeded(true);
   
   SettingsManager *SetMan = new SettingsManager();
+  //Maximize();
 
-  int x, y;
-  QuitBut->GetSize(&x, &y);
-  QuitBut->SetPosition(wxPoint(800-x, 0));
+  quitBut = new QuitButton(this, BUTTON_Quit);
+  maxBut = new MaxDemaxButton(this, BUTTON_Max, ST_MAXED);
   drawPane = new BasicDrawPane(this, SetMan);
   timer = new RenderTimer(drawPane);
   timer->start();
@@ -138,6 +131,29 @@ void FrameMain::DrawImage(wxDC &dc)
 }*/
 
 // event handlers
+void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
+{
+ if (IsMaximized(GetHWND()))
+ {
+  drawPane->Hide();
+  Maximize(false);
+  Centre();
+  drawPane->Centre();
+  quitBut->Align();
+  maxBut->Align();
+  maxBut->ToggleState();
+  drawPane->Show();
+ } else
+ {
+  drawPane->Hide();
+  Maximize(true);
+  drawPane->Centre();
+  quitBut->Align();
+  maxBut->Align();
+  maxBut->ToggleState();
+  drawPane->Show();
+ }
+}
 
 void FrameMain::OnQuit(wxCommandEvent& WXUNUSED(event))
 {

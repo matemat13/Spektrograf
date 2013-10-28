@@ -67,7 +67,11 @@ FrameMain::FrameMain(const wxString& title)
        : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(800,600), 0)
 {
   SetFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-
+ 
+ wxBitmap *bmp = new wxBitmap(wxT("RC_closeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
+ wxBitmap *bmp2 = new wxBitmap(wxT("RC_demaximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
+ wxBitmap *bmp3 = new wxBitmap(wxT("RC_maximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
+ wxBitmap *bmp4 = new wxBitmap(wxT("RC_USBdiscon"), wxBITMAP_TYPE_ICO_RESOURCE);
 
   /*char *res = wxLoadUserResource(wxString::FromUTF8("WINICON"));
   SetIcon(wxIcon(res));
@@ -75,12 +79,15 @@ FrameMain::FrameMain(const wxString& title)
   //Maximize(true);
   SetBackgroundColour(wxColor(80,100,255));
   // set the frame icon
-  QuitBut = new wxButton(this, BUTTON_Quit, wxString::FromUTF8("Ukončit"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
+  QuitBut = new wxButton(this, BUTTON_Quit, wxString::FromUTF8("Ukončit"), wxDefaultPosition, wxSize(32,32), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT);
   QuitBut->SetForegroundColour(wxColor(150,150,255));
-  QuitBut->SetBackgroundColour(wxColor(255,0,0));
+  //QuitBut->SetBackgroundColour(wxColor(255,0,0));
   QuitBut->SetCursor(wxCursor(wxCURSOR_HAND));
   QuitBut->SetHelpText(wxString::FromUTF8("Ukonči aplikaci spektrograf."));
   QuitBut->SetToolTip(wxString::FromUTF8("Ukončit program"));
+  QuitBut->SetBitmap(*bmp);
+  QuitBut->SetBitmapCurrent(*bmp2);
+  QuitBut->SetBitmapPressed(*bmp3);
   //QuitBut->SetAuthNeeded(true);
   
   SettingsManager *SetMan = new SettingsManager();

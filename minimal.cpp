@@ -111,7 +111,7 @@ FrameMain::FrameMain(const wxString& title)
   wxClientDC dc(this);
   dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF_RESOURCE),0,0, false);*/
   Centre();
-  SetIcon(wxICON(sample));
+  SetIcon(wxICON(aaaa));
   /*
   static const int INTERVAL = 300; // milliseconds
   timer = new wxTimer(this, TIMER_NewImage);

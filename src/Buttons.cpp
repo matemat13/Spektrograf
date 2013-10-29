@@ -1,4 +1,5 @@
 #include "include/Buttons.hpp"
+#include "main.hpp"
 
 QuitButton::QuitButton(wxFrame *parent, int id) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(32,32), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
 {
@@ -14,6 +15,7 @@ QuitButton::QuitButton(wxFrame *parent, int id) : wxButton(parent, id, wxString:
  SetBitmapCurrent(focus);
  //SetBitmapFocus(focus);
  SetBitmapPressed(press);
+ SetBackgroundColour(APP_STYLE_MAINBG/*wxTransparentColour*/);
  Align();
 }
 void QuitButton::Align()
@@ -53,6 +55,7 @@ MaxDemaxButton::MaxDemaxButton(wxFrame *parent, int id, bool n_state) : wxButton
   //SetBitmapFocus(focus2);
   SetBitmapPressed(press2);
  }
+ SetBackgroundColour(APP_STYLE_MAINBG);
  Align();
 }
 void MaxDemaxButton::Align()

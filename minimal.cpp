@@ -86,9 +86,10 @@ FrameMain::FrameMain(const wxString& title)
   SetIcon(wxIcon(res));
   //wxBitmap close = wxBITMAP_PNG(CLOSEICON);*/
   //Maximize(true);
-  SetBackgroundColour(wxColor(230,230,246));
-  // set the frame icon
-  
+  SetBackgroundColour(APP_STYLE_MAINBG);
+  //Png pokus
+  //wxStaticBitmap *ikona2 = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("pokus"), wxBITMAP_TYPE_PNG_RESOURCE), wxPoint(0,0));
+  //Inicializace nastaveni
   SettingsManager *SetMan = new SettingsManager();
   //Maximize();
 
@@ -105,6 +106,8 @@ FrameMain::FrameMain(const wxString& title)
   t->SetFont(wxFont(20, wxDEFAULT, wxNORMAL, wxBOLD));
   /**OBRAZEK**/
   wxStaticBitmap *ikona = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("aaaa"), wxBITMAP_TYPE_ICO_RESOURCE), wxPoint(BUT_BORDER,BUT_BORDER));
+
+  
   /**UV panely**/
   UVStatusPanel *uvA = new UVStatusPanel(this, 100);
 

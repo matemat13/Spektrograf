@@ -4,7 +4,7 @@
 
 //The close program icon
 RC_closeicon ICON "resources/close_normal.ico"
-//RC_closeicon RCDATA "resources/close.png"
+pokus RCDATA "resources/duha.png"
 RC_closeiconF ICON "resources/close_focus.ico"
 RC_closeiconP ICON "resources/close_pressed.ico"
 RC_demaximizeicon ICON "resources/demaximize_normal.ico"

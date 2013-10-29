@@ -1,8 +1,7 @@
 #general
 
 *.BAK
-./vc_mswud/*
-.*vcproj*
+
 
 #################
 ## Eclipse
@@ -226,3 +225,4 @@ pip-log.txt
 .gitignore
 .BAK
 settings.bin
+minimal.sdf

@@ -2,7 +2,8 @@
 
 QuitButton::QuitButton(wxFrame *parent, int id) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(32,32), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
 {
- normal = wxBitmap(wxT("RC_closeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
+ normal = wxBitmap(wxT("RC_closeicon"), wxBITMAP_TYPE_ICO_RESOURCE);//wxBITMAP_TYPE_PNG
+ //normal = wxBitmap(wxT("RC_closeicon"), wxBITMAP_TYPE_PNG_RESOURCE);
  focus = wxBitmap(wxT("RC_closeiconF"), wxBITMAP_TYPE_ICO_RESOURCE);
  press = wxBitmap(wxT("RC_closeiconP"), wxBITMAP_TYPE_ICO_RESOURCE);
 
@@ -11,7 +12,7 @@ QuitButton::QuitButton(wxFrame *parent, int id) : wxButton(parent, id, wxString:
  SetToolTip(wxString::FromUTF8("Ukonèit program"));
  SetBitmap(normal);
  SetBitmapCurrent(focus);
- SetBitmapFocus(focus);
+ //SetBitmapFocus(focus);
  SetBitmapPressed(press);
  Align();
 }
@@ -41,7 +42,7 @@ MaxDemaxButton::MaxDemaxButton(wxFrame *parent, int id, bool n_state) : wxButton
   SetToolTip(wxString::FromUTF8("Minimalizovat aplikaci."));
   SetBitmap(normal1);
   SetBitmapCurrent(focus1);
-  SetBitmapFocus(focus1);
+  //SetBitmapFocus(focus1);
   SetBitmapPressed(press1);
  } else //state == ST_WINDO
  {
@@ -49,7 +50,7 @@ MaxDemaxButton::MaxDemaxButton(wxFrame *parent, int id, bool n_state) : wxButton
   SetToolTip(wxString::FromUTF8("Maximalizovat aplikaci."));
   SetBitmap(normal2);
   SetBitmapCurrent(focus2);
-  SetBitmapFocus(focus2);
+  //SetBitmapFocus(focus2);
   SetBitmapPressed(press2);
  }
  Align();

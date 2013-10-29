@@ -76,6 +76,8 @@ FrameMain::FrameMain(const wxString& title)
 {
  SetFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
  SetFocus();
+
+ //wxImage::AddHandler( new wxPNGHandler );  //Neco hrozne dulezityho pro png...
  /*wxBitmap *bmp2 = new wxBitmap(wxT("RC_demaximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
  wxBitmap *bmp3 = new wxBitmap(wxT("RC_maximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
  wxBitmap *bmp4 = new wxBitmap(wxT("RC_USBdiscon"), wxBITMAP_TYPE_ICO_RESOURCE);*/
@@ -103,6 +105,9 @@ FrameMain::FrameMain(const wxString& title)
   t->SetFont(wxFont(20, wxDEFAULT, wxNORMAL, wxBOLD));
   /**OBRAZEK**/
   wxStaticBitmap *ikona = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("aaaa"), wxBITMAP_TYPE_ICO_RESOURCE), wxPoint(BUT_BORDER,BUT_BORDER));
+  /**UV panely**/
+  UVStatusPanel *uvA = new UVStatusPanel(this, 100);
+
 
   /*
   wxClientDC dc(this);
@@ -181,7 +186,9 @@ bool AppMain::OnInit()
     // few common command-line options but it could be do more in the future
     if ( !wxApp::OnInit() )
         return false;
-
+    //Aditional image handlers
+    wxImage::AddHandler(new wxBMPHandler); 
+    wxImage::AddHandler(new wxPNGHandler);
     // create the main application window
     frame = new FrameMain("Spektrograf");
 

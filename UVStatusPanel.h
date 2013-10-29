@@ -7,7 +7,7 @@ class UVStatusPanel : public wxPanel
 {
  
 public:
-    UVStatusPanel(wxFrame* parent);
+    UVStatusPanel(wxFrame* parent, int pos);
  
     void paintEvent(wxPaintEvent& evt);
     void paintNow();
@@ -15,4 +15,5 @@ public:
     DECLARE_EVENT_TABLE()
 private:
 	bool painting;
+	void render(wxDC &dc);
 };

@@ -97,15 +97,12 @@ FrameMain::FrameMain(const wxString& title)
   timer->start();
   drawPane->Refresh();
   /**HLAVNI NADPIS**/
-  wxFont font(20, wxDEFAULT, wxNORMAL, wxBOLD);
-  wxStaticText *t = new wxStaticText(this, wxID_ANY, wxT("Spektrograf"), wxPoint(BUT_BORDER,BUT_BORDER));
+  //wxFont ;
+  wxStaticText *t = new wxStaticText(this, wxID_ANY, wxT("Spektrograf"), wxPoint(BUT_BORDER*2+32,BUT_BORDER));
   t->SetForegroundColour(wxColor(0,122,204));
-  //t->SetBackgroundColour(wxColor(230,230,246));
-  t->SetFont(font);
-  //t->SetToolTip(wxString("Ukonèit program"));
-  //t->SetCursor(wxCursor(wxCURSOR_HAND));
-  //t->SetPosition(wxPoint(0, 0));
-  //t.Show();
+  t->SetFont(wxFont(20, wxDEFAULT, wxNORMAL, wxBOLD));
+  /**OBRAZEK**/
+  wxStaticBitmap *ikona = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("aaaa"), wxBITMAP_TYPE_ICO_RESOURCE), wxPoint(BUT_BORDER,BUT_BORDER));
 
   /*
   wxClientDC dc(this);

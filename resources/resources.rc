@@ -1,0 +1,21 @@
+//#include "../include/resources.hpp"
+#include "sample.rc"
+
+
+//The close program icon
+RC_closeicon ICON "resources/close_normal.ico"
+RC_closeiconF ICON "resources/close_focus.ico"
+RC_closeiconP ICON "resources/close_pressed.ico"
+RC_demaximizeicon ICON "resources/demaximize_normal.ico"
+RC_demaximizeiconF ICON "resources/demaximize_focus.ico"
+RC_demaximizeiconP ICON "resources/demaximize_pressed.ico"
+RC_maximizeicon ICON "resources/maximize_normal.ico"
+RC_maximizeiconF ICON "resources/maximize_focus.ico"
+RC_maximizeiconP ICON "resources/maximize_pressed.ico"
+RC_USBdiscon ICON "resources/USB_discon.ico"
+
+// set this to 1 if you don't want to use manifest resource (manifest resource
+// is needed to enable visual styles on Windows XP - see docs/msw/winxp.txt
+// for more information)
+#define wxUSE_NO_MANIFEST 0
+

@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "wx/wxprec.h"
 
@@ -12,16 +12,17 @@
     #include "wx/wx.h"
 #endif
 
-#define wxUSE_UNICODE 1
 // ----------------------------------------------------------------------------
 // resources
 // ----------------------------------------------------------------------------
 
 // the application icon (under Windows and OS/2 it is in resources and even
 // though we could still include the XPM here it would be unused)
+/*
 #ifndef wxHAS_IMAGES_IN_RESOURCES
-    #include "../sample.xpm"
+    #include "./sample.xpm"
 #endif
+	*/
 
 #include "wx/image.h"
 #include "wx/file.h"
@@ -56,3 +57,5 @@
 #include "include/BasicDrawPane.hpp"
 #include "include/RenderTimer.hpp"
 #include "include/SettingsManager.hpp"
+#include "include/Buttons.hpp"
+

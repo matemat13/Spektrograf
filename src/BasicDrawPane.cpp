@@ -1,57 +1,122 @@
 #include "../include/BasicDrawPane.hpp"
 
-BasicDrawPane::BasicDrawPane(wxFrame* parent) :
+BasicDrawPane::BasicDrawPane(wxFrame* parent, SettingsManager *n_SetMan) :
 wxPanel(parent)
 {
-  SetBackgroundColour(wxColor(80,100,255));
-  SetBackgroundStyle(wxBG_STYLE_PAINT);
-  SetSize(640, 480);
-  wxClientDC dc(this);
-  renderWaiting(dc);
-  Centre();
-  kamera = new Kamera();
-  kamObr = new wxImage();
+ painting = false;
+ SetBackgroundColour(wxColor(80,100,255));
+ SetDoubleBuffered(true);
+ SetBackgroundStyle(wxBG_STYLE_PAINT);
+ SetSize(640, 480);
+ Centre();
+ kamera = new Kamera(n_SetMan);
+ kamObr = new wxImage();
+ 
 }
  
  
 void BasicDrawPane::paintEvent(wxPaintEvent& WXUNUSED(evt))
 {
-    wxPaintDC dc(this);
-    render(dc);
+ if (!painting)
+ {
+  wxPaintDC dc(this);
+  reRender(dc);
+ }
 }
  
 void BasicDrawPane::paintNow()
 {
-    wxClientDC dc(this);
-    render(dc);
+ if (!painting)
+ {
+  wxClientDC dc(this);
+  render(dc);
+ }
 }
- 
-void BasicDrawPane::render( wxDC& dc )
+
+void BasicDrawPane::reRender(wxDC& dc)
 {
-  kamera->Obrazek(kamObr);
-  
-  //image->Mirror(true);
-  //(image->Rotate180())
-  
-  
+ painting = true;
+ bool painted = false; 
+
+ if (kamObr->IsOk())
+ {
   wxSize imageSize = kamObr->GetSize();
   bitmap = wxBitmap(*kamObr);
-  //delete image;
-  //dc.SetBackground( *wxWHITE_BRUSH );
-  // dc.Clear();
-  //dc.DrawBitmap(bitmap,0,0, false);
-  //dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF),0,0, false);
+  if (bitmap.IsOk())
+  {
+   dc.DrawBitmap(bitmap,0,0, false);
+   painted = true;
+  }
+ }
+ if (!painted)
+ {
+  renderError(dc);
+ }
+
+ painting = false;
 }
 
-void BasicDrawPane::renderWaiting( wxDC& dc )
+void BasicDrawPane::render(wxDC& dc)
 {
- int x = GetPosition().x;
- int y = GetPosition().y;
+ painting = true;
+ bool painted = false; 
+ //image->Mirror(true);
+ //(image->Rotate180())
+  
+  
+ if (kamera->Obrazek(kamObr) && kamObr->IsOk())
+ {
+  wxSize imageSize = kamObr->GetSize();
+  bitmap = wxBitmap(*kamObr);
+  if (bitmap.IsOk())
+  {
+   dc.DrawBitmap(bitmap,0,0, false);
+   painted = true;
+  }
+ }
+ if (!painted)
+ {
+  renderError(dc);
+ }
  
- wxStaticText t(this, -1, wxT("Inicializuji kameru, prosím èekejte."), wxPoint(x,y));
- t.Centre();
+  
+
+  //delete image;
+ //dc.SetBackground( *wxWHITE_BRUSH );
+// dc.Clear();
+  //dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF),0,0, false);
+ painting = false;
+
+}
+
+void BasicDrawPane::renderError(wxDC& dc)
+{
+	
+ dc.SetBackgroundMode(wxBG_STYLE_PAINT);
+ dc.SetBackground(*wxBLACK_BRUSH);
+ dc.SetTextBackground(*wxBLACK);
+ dc.SetTextForeground(*wxWHITE);
+ dc.Clear();
+ dc.DrawText(wxT("Nastal problém s kamerou.\nZkontrolujte, jestli není vypojená."), 128, 128);
+ 
+
+	/*
  dc.SetBackground(*wxWHITE_BRUSH);
  dc.Clear();
- t.Show();
-
+ 
+ wxBitmap bmp(wxT("RC_closeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
+ wxBitmap bmp2(wxT("RC_demaximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
+ wxBitmap bmp3(wxT("RC_maximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
+ wxBitmap bmp4(wxT("RC_USBdiscon"), wxBITMAP_TYPE_ICO_RESOURCE);
+ 
+  dc.DrawText("BMP from resources", 30, 128);
+    if ( bmp.IsOk() )
+        dc.DrawBitmap(bmp, 30, 160, true);
+    if ( bmp2.IsOk() )
+        dc.DrawBitmap(bmp2, 30, 256, true);
+    if ( bmp3.IsOk() )
+        dc.DrawBitmap(bmp3, 30, 384, true);
+    if ( bmp4.IsOk() )
+        dc.DrawBitmap(bmp4, 30, 412, true);
+		*/
 }

@@ -1,12 +1,5 @@
 #include "../include/SettingsManager.hpp"
 
-void exit_message(const char* error_message, int error);
-
-bool SettingsManager::GetSetting(setting &set)
-{
- return GetSetting(set.id, set.value);
-}
-
 bool SettingsManager::GetSetting(int id, int &set)
 {
 /*
@@ -23,22 +16,29 @@ bool SettingsManager::GetSetting(int id, int &set)
  default: exit_message("Inexistent setting asked for.", 2); return false;
  }
  */
- return true;
+ if (id < SETS::SETS_LAST)
+ {
+  set = sets[id].value;
+  return true;
+ } else
+ {
+  return false;
+ }
 }
 
-void SettingsManager::SetSetting(setting &set)
-{
 
-}
-
-void SettingsManager::SetSetting(int id, int &set)
+void SettingsManager::SetSetting(int id, int set)
 {
- 
+ if (id < SETS::SETS_LAST)
+ {
+  sets[id].value = set;
+  WriteSetting(sets[id]);
+ }
 }
 
 bool SettingsManager::LoadSettingsFile()
 {
- for (int i = 0; i < N_SETTINGS; i++)
+ for (int i = 0; i < SETS::SETS_LAST; i++)
  {
   SettingsFile >> sets[i].value;
  }
@@ -79,6 +79,10 @@ bool SettingsManager::CreateSettingsFile()
  SettingsFile.open("settings.bin", std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
  if (SettingsFile.good())
  {
+  for (int i = 0; i < SETS::SETS_LAST; i++)
+  {
+   WriteSetting(sets[i]);
+  }
 	 /*
   cislo_kamery.fpos = 0*sizeof(setting().value);
   cislo_kamery.value = 0;
@@ -136,11 +140,21 @@ SettingsManager::SettingsManager(void)
 {
  stav = 0;
 
- for (int i = 0; i < N_SETTINGS; i++)
+ for (int i = 0; i < SETS::SETS_LAST; i++)
  {
   sets[i].fpos = i*sizeof(setting().value);
+  switch (i)
+  {
+   case SETT_CAM_N: sets[i].value = 1;	break;
+   case SETT_LINE_POS: sets[i].value = 320;	break;
+   case SETT_CAM_ROT: sets[i].value = 1;	break;
+   case SETT_CAM_EXP: sets[i].value = 0;	break;
+   case SETT_CAM_BRI: sets[i].value = 0;	break;
+   case SETT_CAM_COM: sets[i].value = 0;	break;
+   case SETT_CAM_WBA: sets[i].value = 6000;	break;
+   case SETT_CAM_GAI: sets[i].value = 0;	break;
+  }
  }
-
  if (!OpenSettingsFile())
  {
   if (!CreateSettingsFile())
@@ -162,7 +176,7 @@ SettingsManager::SettingsManager(void)
 }
 
 
-SettingsManager::~SettingsManager(void)
+SettingsManager::~SettingsManager()
 {
  if (SettingsFile.is_open())
  {
@@ -170,14 +184,3 @@ SettingsManager::~SettingsManager(void)
  }
 }
 
-
-void exit_message(const char* error_message, int error)
-{
-	// Print an error message
-	fprintf(stderr, error_message);
-	fprintf(stderr, "\n");
-	
-	
-	// Exit the program
-	exit(error);
-}

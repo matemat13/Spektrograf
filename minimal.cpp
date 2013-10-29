@@ -61,6 +61,10 @@ BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
  EVT_PAINT(BasicDrawPane::paintEvent)
 END_EVENT_TABLE()
 
+BEGIN_EVENT_TABLE(UVStatusPanel, wxPanel)
+ EVT_PAINT(UVStatusPanel::paintEvent)
+END_EVENT_TABLE()
+
 IMPLEMENT_APP(AppMain)
 
 
@@ -92,7 +96,17 @@ FrameMain::FrameMain(const wxString& title)
   timer = new RenderTimer(drawPane);
   timer->start();
   drawPane->Refresh();
-  
+  /**HLAVNI NADPIS**/
+  wxFont font(20, wxDEFAULT, wxNORMAL, wxBOLD);
+  wxStaticText *t = new wxStaticText(this, wxID_ANY, wxT("Spektrograf"), wxPoint(BUT_BORDER,BUT_BORDER));
+  t->SetForegroundColour(wxColor(0,122,204));
+  //t->SetBackgroundColour(wxColor(230,230,246));
+  t->SetFont(font);
+  //t->SetToolTip(wxString("Ukonèit program"));
+  //t->SetCursor(wxCursor(wxCURSOR_HAND));
+  //t->SetPosition(wxPoint(0, 0));
+  //t.Show();
+
   /*
   wxClientDC dc(this);
   dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF_RESOURCE),0,0, false);*/
@@ -153,6 +167,7 @@ void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
   maxBut->ToggleState();
   drawPane->Show();
  }
+ drawPane->SetFocus();
 }
 
 void FrameMain::OnQuit(wxCommandEvent& WXUNUSED(event))

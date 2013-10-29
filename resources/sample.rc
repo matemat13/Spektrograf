@@ -19,7 +19,7 @@
 aaaaaaaa ICON "sample.ico"
 
 // this icon is used with wxFrame::SetIcon()
-sample ICON "sample.ico"
+sample ICON "spectrum.ico"
 
 
 // set this to 1 if you don't want to use manifest resource (manifest resource

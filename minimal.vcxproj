@@ -255,7 +255,7 @@
     </Midl>
     <ResourceCompile>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>.\..\..\lib\vc_lib\mswud;.\..\..\include;.;.\..\..\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MYSELF\Programing\C++\KNIHOVNY\wxWidgets\lib\vc_lib\mswud;C:\MYSELF\Programing\C++\KNIHOVNY\wxWidgets\include;.;C:\MYSELF\Programing\C++\KNIHOVNY\wxWidgets\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Bscmake>
@@ -279,16 +279,25 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'"> /EHsc   /EHsc </AdditionalOptions>
     </ClCompile>
     <ClCompile Include="src\BasicDrawPane.cpp" />
+    <ClCompile Include="src\Buttons.cpp" />
+    <ClCompile Include="src\debug_exit.cpp" />
     <ClCompile Include="src\Kamera.cpp" />
     <ClCompile Include="src\RenderTimer.cpp" />
     <ClCompile Include="src\SettingsManager.cpp" />
+    <ClCompile Include="UVStatusPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BasicDrawPane.hpp" />
+    <ClInclude Include="include\Buttons.hpp" />
+    <ClInclude Include="include\debug_exit.hpp" />
     <ClInclude Include="include\RenderTimer.hpp" />
     <ClInclude Include="include\SettingsManager.hpp" />
     <ClInclude Include="main.hpp" />
     <ClInclude Include="include\Kamera.hpp" />
+    <ClInclude Include="UVStatusPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

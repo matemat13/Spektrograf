@@ -58,6 +58,7 @@ void BasicDrawPane::reRender(wxDC& dc)
 
 void BasicDrawPane::render(wxDC& dc)
 {
+ return;
  painting = true;
  bool painted = false; 
  //image->Mirror(true);
@@ -97,9 +98,15 @@ void BasicDrawPane::renderError(wxDC& dc)
  dc.SetTextBackground(*wxBLACK);
  dc.SetTextForeground(*wxWHITE);
  dc.Clear();
- dc.DrawText(wxT("Nastal problém s kamerou.\nZkontrolujte, jestli není vypojená."), 128, 128);
- 
+ wxString text = wxT("Nastal problém s kamerou.\nZkontrolujte, jestli není vypojená.");
+ wxCoord x,y;
+ dc.GetMultiLineTextExtent (text, &x, &y);//, (wxCoord *)NULL, (wxFont*)NULL
+ wxSize size = dc.GetSize();
+ dc.DrawText(wxT("Nastal problém s kamerou.\nZkontrolujte, jestli není vypojená."), (size.GetX()-x)/2, (size.GetY()-y)/2);
 
+ wxBitmap usbdis = wxBitmap(wxT("RC_USBdiscon"), wxBITMAP_TYPE_ICO_RESOURCE);
+
+ dc.DrawBitmap(usbdis,(size.GetX()-x)/2-usbdis.GetSize().GetX(),(size.GetY()-usbdis.GetSize().GetY())/2);
 	/*
  dc.SetBackground(*wxWHITE_BRUSH);
  dc.Clear();

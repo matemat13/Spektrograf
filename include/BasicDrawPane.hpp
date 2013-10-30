@@ -11,6 +11,7 @@ public:
  
     void paintEvent(wxPaintEvent& evt);
     void paintNow();
+	
  
     DECLARE_EVENT_TABLE()
 private:
@@ -18,6 +19,8 @@ private:
     void render(wxDC& dc);
 	void reRender(wxDC& dc);
 	void renderError(wxDC& dc);
+	
+
 	Kamera *kamera;
 	wxImage *kamObr;
 	wxBitmap bitmap;

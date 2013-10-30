@@ -55,7 +55,7 @@
 
 #include "include/Kamera.hpp"
 #include "include/BasicDrawPane.hpp"
-#include "UVStatusPanel.h"
+#include "include/UVStatusPanel.hpp"
 #include "include/RenderTimer.hpp"
 #include "include/SettingsManager.hpp"
 #include "include/Buttons.hpp"

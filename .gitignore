@@ -1,7 +1,12 @@
 #general
 
 *.BAK
-
+*.exe
+*.idb
+*.ilk
+*.pdb
+*.obj
+*.lastbuildstate
 
 #################
 ## Eclipse

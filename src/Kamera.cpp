@@ -41,6 +41,7 @@ int Kamera::Radek(char *&buffer)
    buffer[i + 2] = pBuffer[radek_posun + i*iWidth*3 + 2];
   }
  } 
+ return ret;
 }
 
 

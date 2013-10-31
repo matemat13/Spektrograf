@@ -111,6 +111,8 @@ FrameMain::FrameMain(const wxString& title)
   /**UV panely**/
   UVStatusPanel *uvA = new UVStatusPanel(this, 100);
   UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
+  /**Graf**/
+  //GraphPanel *graf = new GraphPanel(this, SetMan);
 
   /*
   wxClientDC dc(this);

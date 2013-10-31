@@ -26,6 +26,7 @@ public:
 	Kamera(SettingsManager *n_SetMan);
 	~Kamera();
 	bool Obrazek(wxImage *img);
+	int Radek(char *&buffer);
 	const char *GetError() {return error_buf;};
 private:
 	//Moje fce
@@ -39,7 +40,7 @@ private:
 
 	//IBaseFilter *camera_filter;
 	
- int device_number, n, list_devices;
+ int device_number, n, list_devices, img_rotation, iWidth, iHeight, radek_posun;
  long buffer_size;
  char device_name[100];
  // Other variables

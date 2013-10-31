@@ -15,6 +15,8 @@ enum SETS
  SETT_CAM_COM,	//kompenzace backlightu
  SETT_CAM_WBA,	//white balance
  SETT_CAM_GAI,	//gain
+ SETT_IMG_ROT,	//rotace obrazku
+ SETT_IMG_OFS,	//offset radku v obrazku
  SETS_LAST
 };
 

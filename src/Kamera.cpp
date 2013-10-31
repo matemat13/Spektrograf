@@ -1,5 +1,48 @@
 #include "../include/Kamera.hpp"
 
+int Kamera::Radek(char *&buffer)
+{
+ int ret = 0;
+ if (buffer != NULL) delete buffer;
+ if (img_rotation == 0)
+ {
+  ret = iWidth*3;
+  buffer = new char[ret];
+  for (int i = 0; i < ret; i++)
+  {
+   buffer[i] = pBuffer[radek_posun*iWidth*3 + i];
+  }
+ } else if (img_rotation == 1)
+ {
+  ret = iHeight*3;
+  buffer = new char[ret];
+  for (int i = 0; i < iHeight; i++)	//Prirazuje se po trech, kvuli subpixelum
+  {
+   buffer[i] = pBuffer[radek_posun + i*iWidth*3];
+   buffer[i + 1] = pBuffer[radek_posun + i*iWidth*3 + 1];
+   buffer[i + 2] = pBuffer[radek_posun + i*iWidth*3 + 2];
+  }
+ } else if (img_rotation == 2)
+ {
+  ret = iWidth*3;
+  buffer = new char[ret];
+  for (int i = ret -1; i >= 0; i--)
+  {
+   buffer[i] = pBuffer[radek_posun*iWidth*3 + i];
+  }
+ } else if (img_rotation == 3)
+ {
+  ret = iHeight*3;
+  buffer = new char[ret];
+  for (int i = iHeight -1; i > 0; i--)	//Prirazuje se po trech, kvuli subpixelum
+  {
+   buffer[i] = pBuffer[radek_posun + i*iWidth*3];
+   buffer[i + 1] = pBuffer[radek_posun + i*iWidth*3 + 1];
+   buffer[i + 2] = pBuffer[radek_posun + i*iWidth*3 + 2];
+  }
+ } 
+}
+
 
 HRESULT Kamera::EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum)
 {
@@ -408,6 +451,8 @@ void Kamera::NastavKamery()
 	{
 		// Get video info header structure from media type
 		pVih = (VIDEOINFOHEADER*)mt.pbFormat;
+		iWidth = pVih->bmiHeader.biWidth;
+		iHeight = pVih->bmiHeader.biHeight;
 	}
 	else 
 	{
@@ -487,7 +532,7 @@ Kamera::Kamera(SettingsManager *n_SetMan)
 {
  SetMan = n_SetMan;
  stav = -2;
- still_imgs = 0;
+ still_imgs = iWidth = iHeight = 0;
  pDevEnum = NULL;
  pEnum = NULL;
  pMoniker = NULL;
@@ -503,6 +548,8 @@ Kamera::Kamera(SettingsManager *n_SetMan)
  pBuffer = NULL;
  oldBuffer = NULL;
  SetMan->GetSetting(SETT_CAM_N, device_number);
+ SetMan->GetSetting(SETT_IMG_ROT, img_rotation);
+ SetMan->GetSetting(SETT_IMG_OFS, radek_posun);
  NastavKamery();
 }
 

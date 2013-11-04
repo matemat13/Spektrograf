@@ -49,7 +49,7 @@ void GraphPanel::render(wxDC& dc)
      
 
 
-
+     DrawGraph(dc, *kamObr);
      painted = true;
   }
  }
@@ -74,13 +74,20 @@ void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
  //dc.SetPen(wxPen(wxColor(255,255,255), 0, wxDOT_DASH));
 
  /**Zahlavi**/
+ dc.SetFont(wxFont(15, wxDEFAULT, wxNORMAL, wxBOLD));
+ dc.SetTextBackground(*wxBLACK);
+ dc.SetTextForeground(*wxWHITE);
  wxString text = wxT("Vlnová délka:");
- dc.GetMultiLineTextExtent (text, &x, &y);
+ dc.GetTextExtent (text, &x, &y);
  dc.DrawText(text, 2, 2);
 
  /**Oddeleni**/
- dc.SetPen(wxPen(wxColor(255,255,255), 0, wxDOT_DASH));
- dc.DrawLine(0, x+4, sz.GetWidth(), x+4);
+ dc.SetPen(wxPen(wxColor(255,255,255), 0, wxDOT));
+ dc.DrawLine(0, y+4, sz.GetWidth(), y+4);
+ /**Spodni radek**/
+ dc.SetPen(wxPen(wxColor(255,255,255), 2, wxSOLID));
+ dc.DrawLine(0, sz.GetHeight()-20, sz.GetWidth(), sz.GetHeight()-20);
+ 
 }
 void GraphPanel::renderError(wxDC& dc)
 {

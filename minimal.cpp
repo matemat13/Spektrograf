@@ -65,6 +65,10 @@ BEGIN_EVENT_TABLE(UVStatusPanel, wxPanel)
  EVT_PAINT(UVStatusPanel::paintEvent)
 END_EVENT_TABLE()
 
+BEGIN_EVENT_TABLE(GraphPanel, wxPanel)
+ EVT_PAINT(GraphPanel::paintEvent)
+END_EVENT_TABLE()
+
 IMPLEMENT_APP(AppMain)
 
 
@@ -95,10 +99,10 @@ FrameMain::FrameMain(const wxString& title)
 
   quitBut = new QuitButton(this, BUTTON_Quit);
   maxBut = new MaxDemaxButton(this, BUTTON_Max, ST_MAXED);
-  drawPane = new BasicDrawPane(this, SetMan);
+  /*drawPane = new BasicDrawPane(this, SetMan);
   timer = new RenderTimer(drawPane);
   timer->start();
-  drawPane->Refresh();
+  drawPane->Refresh();*/
   /**HLAVNI NADPIS**/
   //wxFont ;
   wxStaticText *t = new wxStaticText(this, wxID_ANY, wxT("Spektrograf"), wxPoint(BUT_BORDER*2+32,BUT_BORDER));
@@ -112,7 +116,7 @@ FrameMain::FrameMain(const wxString& title)
   UVStatusPanel *uvA = new UVStatusPanel(this, 100);
   UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
   /**Graf**/
-  //GraphPanel *graf = new GraphPanel(this, SetMan);
+  GraphPanel *graf = new GraphPanel(this, SetMan);
 
   /*
   wxClientDC dc(this);
@@ -179,8 +183,8 @@ void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
 
 void FrameMain::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
- timer->Stop();
- delete timer;
+ //timer->Stop();
+ //delete timer;
  Close(true);
 }
 

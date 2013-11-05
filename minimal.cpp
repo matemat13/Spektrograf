@@ -162,31 +162,24 @@ void FrameMain::DrawImage(wxDC &dc)
 // event handlers
 void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
 {
- graf->Hide();
  timer->Stop();
+ graf->Hide();
  if (IsMaximized(GetHWND()))
  {
   Maximize(false);
   Centre();
-  //drawPane->Centre();
-  graf->Align();
-  quitBut->Align();
-  maxBut->Align();
-  maxBut->ToggleState();
-  uvbut->Align();
-
- } else
+ } 
+ else
  {
   Maximize(true);
-  //drawPane->Centre();
-  uvbut->Align();
-  graf->Align();
-  quitBut->Align();
-  maxBut->Align();
-  maxBut->ToggleState();
  }
- timer->Start();
+ uvbut->Align();
+ graf->Align();
+ quitBut->Align();
+ maxBut->Align();
+ maxBut->ToggleState();
  graf->Show();
+ timer->Start();
  //drawPane->SetFocus();
  graf->SetFocus();
 }

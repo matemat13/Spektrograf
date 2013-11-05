@@ -2,14 +2,14 @@
 #include <wx/sizer.h>
 #include <wx/wx.h>
 #include <wx/timer.h>
-#include "BasicDrawPane.hpp"
+#include "GraphPanel.hpp"
 
 
 class RenderTimer : public wxTimer
 {
-    BasicDrawPane* pane;
+    GraphPanel* pane;
 public:
-    RenderTimer(BasicDrawPane* pane);
+    RenderTimer(GraphPanel* pane);
     void Notify();
     void start();
 };

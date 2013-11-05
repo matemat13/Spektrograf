@@ -11,6 +11,7 @@ public:
  
     void paintEvent(wxPaintEvent& evt);
     void paintNow();
+	unsigned int selectedLine;
 	
  
     DECLARE_EVENT_TABLE()
@@ -20,7 +21,7 @@ private:
 	void renderError(wxDC& dc);
 	void DrawGraph(wxDC& dc, wxImage &img);
 	
-
+	void DrawGradientLine(wxDC& dc,wxPoint a, wxPoint b, const wxColour&, const wxColour&);
 	Kamera *kamera;
 	wxImage *kamObr;
 	wxBitmap bitmap;

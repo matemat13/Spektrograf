@@ -11,6 +11,7 @@ wxPanel(parent)
  Centre();
  kamera = new Kamera(n_SetMan);
  kamObr = new wxImage();
+ selectedLine = 0;
  
 }
  
@@ -68,7 +69,7 @@ void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
  wxCoord x,y;  //Budou se pouzivat opakovane
  /**Ramecek**/
  dc.SetBrush(wxColor(0,0,0));
- dc.SetPen(wxColor(255,255,255));
+ dc.SetPen(wxPen(wxColor(255,255,255),0,wxPENSTYLE_TRANSPARENT));
  dc.DrawRectangle(0,0,sz.GetWidth(), sz.GetHeight());
 
  //dc.SetPen(wxPen(wxColor(255,255,255), 0, wxDOT_DASH));
@@ -87,7 +88,155 @@ void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
  /**Spodni radek**/
  dc.SetPen(wxPen(wxColor(255,255,255), 2, wxSOLID));
  dc.DrawLine(0, sz.GetHeight()-20, sz.GetWidth(), sz.GetHeight()-20);
+
+ /**Graf**/
+ int lastyb = 0;
+ int lastyg = 0;
+ int lastyr = 0;
+ int lastyall = 0;
+ unsigned char lastblue = 0;
+ unsigned char lastgreen = 0;
+ unsigned char lastred = 0;
+ unsigned char lastwhite = 0;
+ unsigned int lastx = 0;
+ for(unsigned int i=0; i<(unsigned int)img.GetWidth(); i++) {
+   int colorsum = img.GetRed(i, selectedLine)+img.GetGreen(i, selectedLine)+img.GetBlue(i, selectedLine);
+   int x = sz.GetWidth()*((float)i/((float)img.GetWidth()));
+
+   //int yb = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)img.GetBlue(i, selectedLine)/255.0));
+   //int yr = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)img.GetRed(i, selectedLine)/255.0));
+   //int yg = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)img.GetGreen(i, selectedLine)/255.0));
+
+   int yall = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)(colorsum)/(765.0)));
+
+   //DrawGradientLine(dc, wxPoint(lastx, lastyb), wxPoint(x, yb), wxColour(0,0, 64+(((float)lastblue)/4.0)*3.0) , wxColour(0,0,64+(((float)img.GetBlue(i, selectedLine))/4.0)*3.0));
+   //DrawGradientLine(dc, wxPoint(lastx, lastyr), wxPoint(x, yr), wxColour(64+(((float)lastred)/4.0)*3.0,0,0)  , wxColour(64+(((float)img.GetRed(i, selectedLine))/4.0)*3.0,0,0));
+   //DrawGradientLine(dc, wxPoint(lastx, lastyg), wxPoint(x, yg), wxColour(0, 64+(((float)lastgreen)/4.0)*3.0,0), wxColour(0,64+(((float)img.GetGreen(i, selectedLine))/4.0)*3.0,0));
+   
+
+   unsigned char white_aspect = 64+(((float)colorsum)/12.0)*3.0;
+   //DrawGradientLine(dc, wxPoint(lastx, lastyall), wxPoint(x, yall), wxColour(lastwhite, lastwhite, lastwhite), wxColour(white_aspect, white_aspect, white_aspect));
+   DrawGradientLine(dc, wxPoint(lastx, lastyall), wxPoint(x, yall), wxColour(lastred, lastgreen, lastblue), wxColour(img.GetRed(i, selectedLine), img.GetGreen(i, selectedLine), img.GetBlue(i, selectedLine)));
+   //dc.SetPen(wxPen(*wxWHITE));
+   //dc.DrawLine(lastx, lastyb, x, yb);
+
+   if(lastblue==0) {
+	   //wxMessageBox("TMA!");
+
+   }
+   /**SPODNI RADEK**/
+   dc.SetBrush(wxBrush(wxColor(img.GetRed(i, selectedLine), img.GetGreen(i, selectedLine), img.GetBlue(i, selectedLine))));
+   dc.SetPen(wxPen(*wxRED, 0, wxPENSTYLE_TRANSPARENT));
+   dc.DrawRectangle(lastx, sz.GetHeight()-18, x-lastx, 18);
+   /**PAMATOVAT SI POSLEDNI HODNOTY**/
+   lastx=x;
+   lastblue = img.GetBlue(i, selectedLine);
+   lastred = img.GetRed(i, selectedLine);
+   lastgreen = img.GetGreen(i, selectedLine);
+   //lastcolorsum = colorsum;
+   lastwhite=white_aspect;
+   //lastyb = yb;
+   //lastyr = yr;
+   //lastyg = yg;
+   lastyall = yall;
+
+ }
  
+
+
+
+ //DrawGradientLine(dc, wxPoint(0, sz.GetHeight()-20), wxPoint(sz.GetWidth(), sz.GetHeight()-20), wxColor(255,255,255), wxColor(0,255,0));
+ /*for(int i=0; i<360; i+=1) {
+	 float pos = x;//((float)x/180.0)*M_PI;
+	 DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200+(int)floor(50.0*(cos(pos))), 200+(int)(50.0*(sin(pos)))), wxColor(255,255,255), wxColor(0,255,0));
+     dc.SetPen(wxPen(wxColor(255,255,255), 1, wxSOLID));
+	 dc.DrawLine(400+x, 400, 400+(int)floor(50.0*(cos(pos))), 400+(int)(50.0*(sin(pos))));
+ }*/
+
+ //int iter = 50;
+ /*for(int x=0; x<200; x+=20) 
+ {
+	 ///for(int y=-100; y<100; y+=20) 
+	 //{
+		  DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200+x, 200-x), wxColor(255,0,0), wxColor(0,255,0));
+          //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200-x, 200), wxColor(255,0,0), wxColor(0,255,0));
+		  //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200, 200+x), wxColor(255,0,0), wxColor(0,255,0));
+		  //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200, 200-x), wxColor(255,0,0), wxColor(0,255,0));
+		  //iter+=100;
+	 ///}
+ }*/
+  //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(190, 180), wxColor(255,255,255), wxColor(0,255,0));
+  //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(140, 100), wxColor(255,255,255), wxColor(0,255,0));
+
+ //DrawGradientLine(dc,  wxPoint(0, 110),wxPoint(50, 150), wxColor(255,255,255), wxColor(0,255,0));
+}
+void swap(int &a, int &b) {
+	int c = a;
+	a=b;
+	b=c;
+}
+
+void GraphPanel::DrawGradientLine(wxDC& dc,wxPoint a, wxPoint b, const wxColour &end, const wxColour &start) {
+  bool steep= abs(b.y - a.y) > abs(b.x - a.x);
+  if(steep) {
+      swap(a.x, a.y);
+      swap(b.x, b.y);
+	  /*int c = a.x;
+	  a.x=b.y;
+	  a.y=c;
+
+	  c=b.x;
+	  b.x=b.y;
+	  b.y=c;*/
+  }
+  /*if(a.x>b.x) {
+      swap(a.x, b.x);
+      swap(a.y, b.y);
+  }*/
+
+  int deltax = b.x-a.x;
+  int deltay = abs(b.y-a.y);
+  int error = deltax / 2;
+
+  /*char message[20] = {0};
+  itoa(deltay,message,10);
+  strcat(message, ", ");
+  itoa(error,message,10);
+
+  wxMessageBox (wxString(std::String()));*/
+  
+
+  int ystep = a.y<b.y?1:-1;
+  int increment = a.x<b.x?1:-1;
+
+  int y = a.y;
+
+  for(int x=a.x; (a.x<b.x&&x<=b.x)||(a.x>b.x&&x>=b.x); x+=increment) {
+	  float koef = a.x>b.x?1.0-x/(float)a.x:x/(float)b.x;
+
+  /*char message[20] = {0};
+  itoa((int)(koef*1000),message,10);
+  wxMessageBox (wxString(message));*/
+
+	  dc.SetPen(wxColour(
+		   end.Red()+((float)(start.Red()-end.Red()))*koef,
+		   end.Green()+((float)(start.Green()-end.Green()))*koef,
+	       end.Blue()+((float)(start.Blue()-end.Blue()))*koef
+	  ));
+	  //dc.SetPen(*wxRED);
+      if(steep) {
+		  dc.DrawPoint(y,x);
+	  }
+	  else {
+		  dc.DrawPoint(x,y);
+	  }
+      error -= increment*deltay;
+      if((a.x<=b.x&&error<0)||(a.x>=b.x&&error>0)) 
+	  {
+          y += ystep;
+          error += deltax;
+	  }
+  }
 }
 void GraphPanel::renderError(wxDC& dc)
 {

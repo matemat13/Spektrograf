@@ -61,6 +61,9 @@
 #include "include/SettingsManager.hpp"
 #include "include/Buttons.hpp"
 
+#include <String>
+#include <math.h>
+
 
 //Definice vzhledu a textu:
 #define APP_STYLE_MAINBG wxColor(230,230,246)

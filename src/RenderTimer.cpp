@@ -1,6 +1,6 @@
 #include "../include/RenderTimer.hpp"
 
-RenderTimer::RenderTimer(BasicDrawPane* pane) : wxTimer()
+RenderTimer::RenderTimer(GraphPanel* pane) : wxTimer()
 {
     RenderTimer::pane = pane;
 }

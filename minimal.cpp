@@ -23,6 +23,7 @@ public:
 private:
     // any class wishing to process wxWidgets events must use this macro
 	BasicDrawPane *drawPane;
+	GraphPanel *graf;
 	bool drawing;
 	QuitButton *quitBut;
 	MaxDemaxButton *maxBut;
@@ -116,8 +117,9 @@ FrameMain::FrameMain(const wxString& title)
   UVStatusPanel *uvA = new UVStatusPanel(this, 100);
   UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
   /**Graf**/
-  GraphPanel *graf = new GraphPanel(this, SetMan);
-
+  graf =  new GraphPanel(this, SetMan);
+  timer = new RenderTimer(graf);
+  timer->start();
   /*
   wxClientDC dc(this);
   dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF_RESOURCE),0,0, false);*/
@@ -183,8 +185,8 @@ void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
 
 void FrameMain::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
- //timer->Stop();
- //delete timer;
+ timer->Stop();
+ delete timer;
  Close(true);
 }
 

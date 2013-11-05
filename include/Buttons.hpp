@@ -3,7 +3,7 @@
 
 #define ST_MAXED true
 #define ST_WINDO false
-#define BUT_BORDER 8
+#define BUT_BORDER 0
 
 class QuitButton : public wxButton
 {

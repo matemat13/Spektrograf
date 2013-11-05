@@ -24,9 +24,9 @@ int Kamera::Radek(unsigned char *&buffer)
   buffer = new unsigned char[ret];
   for (int i = 0; i < iHeight; i++)	//Prirazuje se po trech, kvuli subpixelum
   {
-   buffer[i] = pBuffer[radek_posun + i*iWidth*3];
-   buffer[i + 1] = pBuffer[radek_posun + i*iWidth*3 + 1];
-   buffer[i + 2] = pBuffer[radek_posun + i*iWidth*3 + 2];
+   buffer[i*3] = pBuffer[radek_posun + i*iWidth*3];
+   buffer[i*3 + 1] = pBuffer[radek_posun + i*iWidth*3 + 1];
+   buffer[i*3 + 2] = pBuffer[radek_posun + i*iWidth*3 + 2];
   }
  } else if (img_rotation == 2)
  {
@@ -42,9 +42,9 @@ int Kamera::Radek(unsigned char *&buffer)
   buffer = new unsigned char[ret];
   for (int i = iHeight -1; i > 0; i--)	//Prirazuje se po trech, kvuli subpixelum
   {
-   buffer[i] = pBuffer[radek_posun + i*iWidth*3];
-   buffer[i + 1] = pBuffer[radek_posun + i*iWidth*3 + 1];
-   buffer[i + 2] = pBuffer[radek_posun + i*iWidth*3 + 2];
+   buffer[i*3] = pBuffer[radek_posun + i*iWidth*3];
+   buffer[i*3 + 1] = pBuffer[radek_posun + i*iWidth*3 + 1];
+   buffer[i*3 + 2] = pBuffer[radek_posun + i*iWidth*3 + 2];
   }
  } 
  return ret;
@@ -479,8 +479,8 @@ Kamera::Kamera(SettingsManager *n_SetMan)
  pBuffer = NULL;
  oldBuffer = NULL;
  SetMan->GetSetting(SETT_CAM_N, device_number);
- SetMan->GetSetting(SETT_IMG_ROT, img_rotation);
- SetMan->GetSetting(SETT_IMG_OFS, radek_posun);
+ SetMan->GetSetting(SETT_CAM_ROT, img_rotation);
+ SetMan->GetSetting(SETT_LINE_POS, radek_posun);
  NastavKamery();
 }
 

@@ -153,8 +153,6 @@ SettingsManager::SettingsManager(void)
    case SETT_CAM_COM: sets[i].value = 0;	break;
    case SETT_CAM_WBA: sets[i].value = 6000;	break;
    case SETT_CAM_GAI: sets[i].value = 0;	break;
-   case SETT_IMG_ROT: sets[i].value = 2;	break;
-   case SETT_IMG_OFS: sets[i].value = 0;	break;
   }
  }
  if (!OpenSettingsFile())

@@ -11,6 +11,7 @@ public:
  
     void paintEvent(wxPaintEvent& evt);
     void paintNow();
+	void Align();
 	unsigned int selectedLine;
 	
  

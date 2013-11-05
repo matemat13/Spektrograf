@@ -7,12 +7,17 @@ wxPanel(parent)
  SetBackgroundColour(wxColor(80,100,255));
  SetDoubleBuffered(true);
  SetBackgroundStyle(wxBG_STYLE_PAINT);
- SetSize(640, 480);
- Centre();
+ Align();
  kamera = new Kamera(n_SetMan);
  kamObr = new wxImage();
  selectedLine = 0;
  
+}
+
+void GraphPanel::Align() {
+ wxSize size = GetParent()->GetSize();
+ SetSize(size.GetWidth()-160, size.GetHeight()-120);
+ Centre();
 }
  
  

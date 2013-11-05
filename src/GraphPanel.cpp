@@ -11,7 +11,6 @@ wxPanel(parent)
  kamera = new Kamera(n_SetMan);
  kamObr = new wxImage();
  selectedLine = 0;
- 
 }
 
 void GraphPanel::Align() {
@@ -46,26 +45,32 @@ void GraphPanel::render(wxDC& dc)
  //(image->Rotate180())
   
   
- if (kamera->Obrazek(kamObr) && kamObr->IsOk())
+ 
+
+ unsigned char* data = NULL;
+ const int width = kamera->Radek(data);
+ if(width!=0) 
+ {
+     DrawGraph(dc,data,width);
+     painted=true;
+ }
+ 
+ /*if (kamera->Obrazek(kamObr) && kamObr->IsOk())
  {
   wxSize imageSize = kamObr->GetSize();
   bitmap = wxBitmap(*kamObr);
   if (bitmap.IsOk())
   {
-     
-
-
      DrawGraph(dc, *kamObr);
      painted = true;
   }
- }
+ }*/
  if (!painted)
  {
   renderError(dc);
  }
 }
-
-void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
+void GraphPanel::DrawGraphUI(wxDC &dc) {
  dc.SetBackgroundMode(wxBG_STYLE_PAINT);
  dc.SetBackground(*wxBLACK_BRUSH);
 
@@ -93,8 +98,18 @@ void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
  /**Spodni radek**/
  dc.SetPen(wxPen(wxColor(255,255,255), 2, wxSOLID));
  dc.DrawLine(0, sz.GetHeight()-20, sz.GetWidth(), sz.GetHeight()-20);
+}
 
+
+void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
+
+ DrawGraphUI(dc);
  /**Graf**/
+ 
+ const int width = img.GetWidth();
+ const wxSize sz = GetSize();
+
+
  int lastyb = 0;
  int lastyg = 0;
  int lastyr = 0;
@@ -104,14 +119,13 @@ void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
  unsigned char lastred = 0;
  unsigned char lastwhite = 0;
  unsigned int lastx = 0;
- for(unsigned int i=0; i<(unsigned int)img.GetWidth(); i++) {
+ for(unsigned int i=0; i<width; i++) {
    int colorsum = img.GetRed(i, selectedLine)+img.GetGreen(i, selectedLine)+img.GetBlue(i, selectedLine);
    int x = sz.GetWidth()*((float)i/((float)img.GetWidth()));
 
    //int yb = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)img.GetBlue(i, selectedLine)/255.0));
    //int yr = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)img.GetRed(i, selectedLine)/255.0));
    //int yg = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)img.GetGreen(i, selectedLine)/255.0));
-
    int yall = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)(colorsum)/(765.0)));
 
    //DrawGradientLine(dc, wxPoint(lastx, lastyb), wxPoint(x, yb), wxColour(0,0, 64+(((float)lastblue)/4.0)*3.0) , wxColour(0,0,64+(((float)img.GetBlue(i, selectedLine))/4.0)*3.0));
@@ -121,6 +135,7 @@ void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
 
    unsigned char white_aspect = 64+(((float)colorsum)/12.0)*3.0;
    //DrawGradientLine(dc, wxPoint(lastx, lastyall), wxPoint(x, yall), wxColour(lastwhite, lastwhite, lastwhite), wxColour(white_aspect, white_aspect, white_aspect));
+   
    DrawGradientLine(dc, wxPoint(lastx, lastyall), wxPoint(x, yall), wxColour(lastred, lastgreen, lastblue), wxColour(img.GetRed(i, selectedLine), img.GetGreen(i, selectedLine), img.GetBlue(i, selectedLine)));
    //dc.SetPen(wxPen(*wxWHITE));
    //dc.DrawLine(lastx, lastyb, x, yb);
@@ -146,34 +161,50 @@ void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
    lastyall = yall;
 
  }
- 
+}
+void GraphPanel::DrawGraph(wxDC& dc, const unsigned char* data, const int &length) {
 
 
+ /**Graf**/
+ const wxSize sz = GetSize();
 
- //DrawGradientLine(dc, wxPoint(0, sz.GetHeight()-20), wxPoint(sz.GetWidth(), sz.GetHeight()-20), wxColor(255,255,255), wxColor(0,255,0));
- /*for(int i=0; i<360; i+=1) {
-	 float pos = x;//((float)x/180.0)*M_PI;
-	 DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200+(int)floor(50.0*(cos(pos))), 200+(int)(50.0*(sin(pos)))), wxColor(255,255,255), wxColor(0,255,0));
-     dc.SetPen(wxPen(wxColor(255,255,255), 1, wxSOLID));
-	 dc.DrawLine(400+x, 400, 400+(int)floor(50.0*(cos(pos))), 400+(int)(50.0*(sin(pos))));
- }*/
+ int lastyb = 0;
+ int lastyg = 0;
+ int lastyr = 0;
+ int lastyall = 0;
+ unsigned char lastblue = 0;
+ unsigned char lastgreen = 0;
+ unsigned char lastred = 0;
+ unsigned char lastwhite = 0;
+ unsigned int lastx = 0;
+ for(unsigned int i=0; i<length; i+=3) {
+   int colorsum = data[i]+data[i+1]+data[i+2];
+   int x = sz.GetWidth()*((float)i/((float)length));
 
- //int iter = 50;
- /*for(int x=0; x<200; x+=20) 
- {
-	 ///for(int y=-100; y<100; y+=20) 
-	 //{
-		  DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200+x, 200-x), wxColor(255,0,0), wxColor(0,255,0));
-          //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200-x, 200), wxColor(255,0,0), wxColor(0,255,0));
-		  //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200, 200+x), wxColor(255,0,0), wxColor(0,255,0));
-		  //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(200, 200-x), wxColor(255,0,0), wxColor(0,255,0));
-		  //iter+=100;
-	 ///}
- }*/
-  //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(190, 180), wxColor(255,255,255), wxColor(0,255,0));
-  //DrawGradientLine(dc,  wxPoint(200, 200),wxPoint(140, 100), wxColor(255,255,255), wxColor(0,255,0));
+   
 
- //DrawGradientLine(dc,  wxPoint(0, 110),wxPoint(50, 150), wxColor(255,255,255), wxColor(0,255,0));
+   int yall = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)(colorsum)/(765.0)));
+
+   unsigned char white_aspect = 64+(((float)colorsum)/12.0)*3.0;
+   DrawGradientLine(dc, wxPoint(lastx, lastyall), wxPoint(x, yall), wxColour(lastred, lastgreen, lastblue), wxColour(data[i], data[i+1], data[i+2]));
+
+   /**SPODNI RADEK**/
+   dc.SetBrush(wxBrush(wxColor(data[i], data[i+1], data[i+2])));
+   dc.SetPen(wxPen(*wxRED, 0, wxPENSTYLE_TRANSPARENT));
+   dc.DrawRectangle(lastx, sz.GetHeight()-18, x-lastx, 18);
+   /**PAMATOVAT SI POSLEDNI HODNOTY**/
+   lastx=x;
+   lastblue = data[i+2];
+   lastred = data[i];
+   lastgreen = data[i+1];
+   //lastcolorsum = colorsum;
+   lastwhite=white_aspect;
+   //lastyb = yb;
+   //lastyr = yr;
+   //lastyg = yg;
+   lastyall = yall;
+
+ }
 }
 void swap(int &a, int &b) {
 	int c = a;

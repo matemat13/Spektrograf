@@ -13,6 +13,8 @@ public:
  
     void paintEvent(wxPaintEvent& evt);
     void paintNow();
+	void Align();
+
 	void onClick(wxMouseEvent& WXUNUSED(event));
 
 	bool State(bool state);
@@ -22,6 +24,7 @@ public:
 private:
 	bool painting;
 	bool state;
+	int xpos;
 	void render(wxDC &dc);
 	void DrawLed(wxDC &dc, bool status=false, int x=0, int y=0);
 };

@@ -24,6 +24,7 @@ private:
     // any class wishing to process wxWidgets events must use this macro
 	BasicDrawPane *drawPane;
 	GraphPanel *graf;
+	UVStatusPanel *uvbut;
 	bool drawing;
 	QuitButton *quitBut;
 	MaxDemaxButton *maxBut;
@@ -114,10 +115,11 @@ FrameMain::FrameMain(const wxString& title)
 
   
   /**UV panely**/
-  UVStatusPanel *uvA = new UVStatusPanel(this, 100);
-  UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
+  uvbut = new UVStatusPanel(this, 100);
+  //UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
   /**Graf**/
   graf =  new GraphPanel(this, SetMan);
+  //graf->Hide();
   timer = new RenderTimer(graf);
   timer->start();
   /*
@@ -171,12 +173,13 @@ void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
   quitBut->Align();
   maxBut->Align();
   maxBut->ToggleState();
-
+  uvbut->Align();
 
  } else
  {
   Maximize(true);
   //drawPane->Centre();
+  uvbut->Align();
   graf->Align();
   quitBut->Align();
   maxBut->Align();

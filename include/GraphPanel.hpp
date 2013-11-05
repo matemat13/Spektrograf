@@ -21,7 +21,9 @@ private:
     void render(wxDC& dc);
 	void renderError(wxDC& dc);
 	void DrawGraph(wxDC& dc, wxImage &img);
-	
+	void DrawGraph(wxDC& dc, const unsigned char*data, const int &length);
+	void DrawGraphUI(wxDC& dc);
+
 	void DrawGradientLine(wxDC& dc,wxPoint a, wxPoint b, const wxColour&, const wxColour&);
 	Kamera *kamera;
 	wxImage *kamObr;

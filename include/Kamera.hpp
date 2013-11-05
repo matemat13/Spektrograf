@@ -26,7 +26,7 @@ public:
 	Kamera(SettingsManager *n_SetMan);
 	~Kamera();
 	bool Obrazek(wxImage *img);
-	int Radek(char *&buffer);
+	int Radek(unsigned char *&buffer);
 	const char *GetError() {return error_buf;};
 private:
 	//Moje fce

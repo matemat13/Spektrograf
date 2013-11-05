@@ -7,10 +7,16 @@ RenderTimer::RenderTimer(GraphPanel* pane) : wxTimer()
  
 void RenderTimer::Notify()
 {
-    pane->paintNow();
+	if(pane->IsShownOnScreen()&&pane->GetParent()->IsShownOnScreen())
+      pane->paintNow();
+	else 
+	{
+      //wxMessageBox("ble");
+	  //Stop();
+	}
 }
  
 void RenderTimer::start()
 {
-    wxTimer::Start(40);
+    wxTimer::Start(50);
 }

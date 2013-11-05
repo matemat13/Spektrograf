@@ -4,17 +4,18 @@ UVStatusPanel::UVStatusPanel(wxFrame* parent, int pos) :
 wxPanel(parent)
 {
  painting = false;
- const int padding = 8;
-
+ xpos = pos;
  SetBackgroundColour(wxColor(80,100,255));
  SetDoubleBuffered(true);
  SetBackgroundStyle(wxBG_STYLE_PAINT);
  SetSize(200, 48);
- SetPosition(wxPoint(pos, parent->GetSize().GetHeight()-padding-(this->GetSize().GetHeight())));
+ Align();
  //SetToolTip(_("Status UV"));
 
 
  Connect(wxEVT_LEFT_UP, wxMouseEventHandler(UVStatusPanel::onClick));
+
+ 
  //EVT_LEFT_UP(UVStatusPanel::onClick);
 
  /*Connect(this->m_windowId, wxEVT_COMMAND_LEFT_CLICK, 
@@ -39,6 +40,12 @@ void UVStatusPanel::paintNow()
   wxClientDC dc(this);
   render(dc);
  }
+}
+
+void UVStatusPanel::Align() {
+	SetPosition(wxPoint(xpos, GetParent()->GetSize().GetHeight()-UV_STATUS_P_PADDING-this->GetSize().GetHeight()));
+	//Centre();
+	Show();
 }
 
 void UVStatusPanel::render(wxDC &dc) 

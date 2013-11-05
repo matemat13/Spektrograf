@@ -1,13 +1,13 @@
 #include "../include/Kamera.hpp"
 
-int Kamera::Radek(char *&buffer)
+int Kamera::Radek(unsigned char *&buffer)
 {
  int ret = 0;
  if (buffer != NULL) delete buffer;
  if (img_rotation == 0)
  {
   ret = iWidth*3;
-  buffer = new char[ret];
+  buffer = new unsigned char[ret];
   for (int i = 0; i < ret; i++)
   {
    buffer[i] = pBuffer[radek_posun*iWidth*3 + i];
@@ -15,7 +15,7 @@ int Kamera::Radek(char *&buffer)
  } else if (img_rotation == 1)
  {
   ret = iHeight*3;
-  buffer = new char[ret];
+  buffer = new unsigned char[ret];
   for (int i = 0; i < iHeight; i++)	//Prirazuje se po trech, kvuli subpixelum
   {
    buffer[i] = pBuffer[radek_posun + i*iWidth*3];
@@ -25,7 +25,7 @@ int Kamera::Radek(char *&buffer)
  } else if (img_rotation == 2)
  {
   ret = iWidth*3;
-  buffer = new char[ret];
+  buffer = new unsigned char[ret];
   for (int i = ret -1; i >= 0; i--)
   {
    buffer[i] = pBuffer[radek_posun*iWidth*3 + i];
@@ -33,7 +33,7 @@ int Kamera::Radek(char *&buffer)
  } else if (img_rotation == 3)
  {
   ret = iHeight*3;
-  buffer = new char[ret];
+  buffer = new unsigned  char[ret];
   for (int i = iHeight -1; i > 0; i--)	//Prirazuje se po trech, kvuli subpixelum
   {
    buffer[i] = pBuffer[radek_posun + i*iWidth*3];

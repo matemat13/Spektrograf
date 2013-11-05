@@ -2,6 +2,7 @@
 #define KAMERA_HPP
 
 #include "wx/wx.h"
+#include <ctime>
 #include <windows.h>
 #include <dshow.h>
 #include <strmif.h>
@@ -19,23 +20,38 @@ EXTERN_C const CLSID CLSID_SampleGrabber;
 #include "include/SettingsManager.hpp"
 
 #define ERROR_STILL_IMGS 50
+#define FPS 30
+#define FRAME_CLOCK CLOCKS_PER_SEC/FPS
+
+enum
+{
+ STAV_NEINICIALIZOVANO,
+ STAV_CHYBA,
+ STAV_OK,
+ STAV_ODPOJENO
+};
 
 class Kamera
 {
 public:
 	Kamera(SettingsManager *n_SetMan);
 	~Kamera();
+  //Vrati true, pokud se podarilo vytvorit obrazek do argumentu img, jinak false
 	bool Obrazek(wxImage *img);
+  //Vrati pocet bytu, zapsanych do bufferu nebo nulu, pokud je kamera v chybnem stavu
 	int Radek(unsigned char *&buffer);
+  //Vrati error, jako cstring
 	const char *GetError() {return error_buf;};
 private:
 	//Moje fce
 	HRESULT EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum);
 	void NastavKamery();
 	void error_message(const char* error_message, int error);
+  bool KeepFPS();
 
 	//moje promenny
 	int stav;
+  clock_t last_frame_update;
 	SettingsManager *SetMan;
 
 	//IBaseFilter *camera_filter;

@@ -4,10 +4,16 @@ int Kamera::Radek(unsigned char *&buffer)
 {
  int ret = 0;
  if (buffer != NULL) delete buffer;
+
+ //Na pravidelne obnovovani bufferu s obrazkem
+ KeepFPS();
+ //Pokud je kamera neinicializovana nebo v chybnem stavu, vratim nulu
+ if (stav != STAV_OK) return ret;
+
  if (img_rotation == 0)
  {
   ret = iWidth*3;
-  buffer = new unsigned char[ret];
+  buffer = new char[ret];
   for (int i = 0; i < ret; i++)
   {
    buffer[i] = pBuffer[radek_posun*iWidth*3 + i];
@@ -15,7 +21,7 @@ int Kamera::Radek(unsigned char *&buffer)
  } else if (img_rotation == 1)
  {
   ret = iHeight*3;
-  buffer = new unsigned char[ret];
+  buffer = new char[ret];
   for (int i = 0; i < iHeight; i++)	//Prirazuje se po trech, kvuli subpixelum
   {
    buffer[i] = pBuffer[radek_posun + i*iWidth*3];
@@ -25,7 +31,7 @@ int Kamera::Radek(unsigned char *&buffer)
  } else if (img_rotation == 2)
  {
   ret = iWidth*3;
-  buffer = new unsigned char[ret];
+  buffer = new char[ret];
   for (int i = ret -1; i >= 0; i--)
   {
    buffer[i] = pBuffer[radek_posun*iWidth*3 + i];
@@ -33,7 +39,7 @@ int Kamera::Radek(unsigned char *&buffer)
  } else if (img_rotation == 3)
  {
   ret = iHeight*3;
-  buffer = new unsigned  char[ret];
+  buffer = new char[ret];
   for (int i = iHeight -1; i > 0; i--)	//Prirazuje se po trech, kvuli subpixelum
   {
    buffer[i] = pBuffer[radek_posun + i*iWidth*3];
@@ -71,38 +77,7 @@ void Kamera::NastavKamery()
  
  IAMVideoProcAmp *camera = 0;
  n = 0;
-// IMoniker *pMoniker = NULL;
-// IEnumMoniker *pEnum = NULL;
-// IBaseFilter *pCap = NULL;
- /*
- stav = -1;
- hr = EnumerateDevices(CLSID_VideoInputDeviceCategory, &pEnum);
- if (SUCCEEDED(hr))
- {
-  stav = 0;
-  while (pEnum->Next(1, &pMoniker, NULL) == S_OK)
-  {
-   pMoniker->BindToObject(0, 0, IID_IBaseFilter, (void**)&pCap);
-   pCap->QueryInterface(IID_IAMVideoProcAmp, (void**)&camera);
-   if (stav == 1 || true)
-   {
-    hr = camera->Set(VideoProcAmp_Brightness, 0, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set brightness", 1);
-    hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);
-    hr = camera->Set(VideoProcAmp_WhiteBalance, 6000, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set white balance", 1);
-    /*hr = camera->Set(VideoProcAmp_WhiteBalance, 6000, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);
-    hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set backlight compensation", 1);*//*
-    hr = camera->Set(VideoProcAmp_Gain, 0, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) exit_message("Could not set gain", 1);
-   }
-   stav++;
-  }
- }
- */
+
  
  // Create filter graph
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL,
@@ -150,42 +125,6 @@ void Kamera::NastavKamery()
 	 return;
 	}
 	
-	// If the user has included the "/list" command line
-	// argument, just list available devices, then exit.
-	/*
-	if (false)
-	{
-		fprintf(stderr, "Available capture devices:\n");
-		n = 0;
-		while(1)
-		{
-			// Find next device
-			hr = pEnum->Next(1, &pMoniker, NULL);
-			if (hr == S_OK)
-			{
-				// Increment device counter
-				n++;
-				
-				// Get device name
-				hr = pMoniker->BindToStorage(0, 0, IID_PPV_ARGS(&pPropBag));
-				VARIANT var;
-				VariantInit(&var);
-				hr = pPropBag->Read(L"FriendlyName", &var, 0);
-				fprintf(stderr, "  %d. %ls\n", n, var.bstrVal);
-				VariantClear(&var);
-			}
-			else
-			{
-				// Finished listing device, so exit program
-				if (n == 0) error_message("No devices found", 0);
-				else error_message("Device error", 0);
-			}
-		}
-	}
-	*/
-	// Get moniker for specified video input device,
-	// or for the first device if no device number
-	// was specified.
 	VARIANT var;
 	n = 0;
 	while(1)
@@ -213,34 +152,7 @@ void Kamera::NastavKamery()
 			error_message("Video capture device not found", 1);
 			return;
 		}
-		
-		// If device was specified by name rather than number...
-		/*if (device_number == 0)
-		{
-			// Get video input device name
-			hr = pMoniker->BindToStorage(0, 0, IID_PPV_ARGS(&pPropBag));
-			
-			if (hr == S_OK)
-			{
-				// Get current device name
-				VariantInit(&var);
-				hr = pPropBag->Read(L"FriendlyName", &var, 0);
-				
-				// Convert to a normal C string, i.e. char*
-				//sprintf(char_buffer, "%ls", var.bstrVal);
-				VariantClear(&var);
-				pPropBag->Release();
-				pPropBag = NULL;
-				
-				// Exit loop if current device name matched devname
-				//if (strcmp(device_name, char_buffer) == 0) break;
-			}
-			else
-			{
-				error_message("Error getting device names", 1);
-			}
-		}
-		else*/ if (n >= device_number) break;
+    if (n >= device_number) break;
 	}
 	
 	
@@ -462,63 +374,80 @@ void Kamera::NastavKamery()
 	}
  
 
- stav = 1;
+ stav = STAV_OK;
 }
 
 
-bool Kamera::Obrazek(wxImage *img)
+bool Kamera::KeepFPS()
 {
- if (stav != 1) return false;
+ if (stav != STAV_OK && stav != STAV_ODPOJENO) return false;
 
-
- // Retrieve image data from sample grabber buffer
- hr = pSampleGrabber->GetCurrentBuffer(&buffer_size, (long*)pBuffer);
- if (hr != S_OK)
+ clock_t curClock = clock();
+ if (curClock - last_frame_update > FRAME_CLOCK)
  {
-  exit_message("Could not get buffer data from sample grabber", 1);
-  return false;
- }
- 
-
- //Prohození R a B bytù
- unsigned char rgb = 0;
- unsigned char oldR = 0;
- bool unchanged = true;	//Jestli tohle zùstane true, tak je nìco asi špatnì
- for (long byte = 0; byte < buffer_size; byte++)
- {
-  if (rgb == 0)
+  // Retrieve image data from sample grabber buffer
+  hr = pSampleGrabber->GetCurrentBuffer(&buffer_size, (long*)pBuffer);
+  if (hr != S_OK)
   {
-   oldR = pBuffer[byte];
-   rgb++;
-   if (pBuffer[byte +2] != oldBuffer[byte]) unchanged = false;	//Protože oldBuffer je už prohozenej!
-  } else if (rgb == 1)
-  {
-   rgb++;
-   if (pBuffer[byte] != oldBuffer[byte]) unchanged = false;
-  } else  //rgb == 2
-  {
-   pBuffer[byte -2] = pBuffer[byte];
-   pBuffer[byte] = oldR;
-   rgb = 0;
-   if (pBuffer[byte] != oldBuffer[byte]) unchanged = false;
-  }
- }
-
- //Detekce odpojeny kamery
- if (unchanged)
- {
-  if (still_imgs <= ERROR_STILL_IMGS)	//Aby to nepretejkalo
-  {
-   still_imgs++;
-  } else  //Uz je to za hranici
-  {
+   exit_message("Could not get buffer data from sample grabber", 1);
    return false;
   }
- }
- else
- {
-  still_imgs = 0;
- }
+  
+  
+  //ProhozenÃ­ R a B bytÅ¯
+  unsigned char rgb = 0;
+  unsigned char oldR = 0;
+  bool unchanged = true;	//Jestli tohle zÅ¯stane true, tak je nÄ›co asi Å¡patnÄ›
+  for (long byte = 0; byte < buffer_size; byte++)
+  {
+   if (rgb == 0)
+   {
+    oldR = pBuffer[byte];
+    rgb++;
+    if (pBuffer[byte +2] != oldBuffer[byte]) unchanged = false;	//ProtoÅ¾e oldBuffer je uÅ¾ prohozenej!
+   } else if (rgb == 1)
+   {
+    rgb++;
+    if (pBuffer[byte] != oldBuffer[byte]) unchanged = false;
+   } else  //rgb == 2
+   {
+    pBuffer[byte -2] = pBuffer[byte];
+    pBuffer[byte] = oldR;
+    rgb = 0;
+    if (pBuffer[byte] != oldBuffer[byte]) unchanged = false;
+   }
+  }
+  
+  //Detekce odpojeny kamery
+  if (unchanged)
+  {
+   if (still_imgs <= ERROR_STILL_IMGS)	//Aby to nepretejkalo
+   {
+    still_imgs++;
+   } else  //Uz je to za hranici
+   {
+    stav = STAV_ODPOJENO;
+    return false;
+   }
+  }
+  else
+  {
+   still_imgs = 0;
+  }
+ } else return false;
+
+ stav = STAV_OK;
+ return true;
+}
+
+bool Kamera::Obrazek(wxImage *img)
+{
+
+ //Na pravidelne obnovovani bufferu s obrazkem
+ KeepFPS();
+
+ if (stav != STAV_OK) return false;
+
 
 
  img->Destroy();
@@ -532,8 +461,9 @@ bool Kamera::Obrazek(wxImage *img)
 Kamera::Kamera(SettingsManager *n_SetMan)
 {
  SetMan = n_SetMan;
- stav = -2;
+ stav = STAV_NEINICIALIZOVANO;
  still_imgs = iWidth = iHeight = 0;
+ last_frame_update = clock();
  pDevEnum = NULL;
  pEnum = NULL;
  pMoniker = NULL;
@@ -592,7 +522,7 @@ Kamera::~Kamera()
 
 void Kamera::error_message(const char* error_message, int error)
 {
- stav = -3;
+ stav = STAV_CHYBA;
  strcpy(error_buf, error_message);
  exit_message(error_message, error);
 }

@@ -32,8 +32,11 @@ private:
 	GraphPanel *graf;
 	UVStatusPanel *uvbut;
 	bool drawing;
+
+
 	QuitButton *quitBut;
 	MaxDemaxButton *maxBut;
+
 
 	bool dragged;
 	wxPoint dragPoint;
@@ -115,6 +118,7 @@ FrameMain::FrameMain(const wxString& title)
   maxBut = new MaxDemaxButton(this, BUTTON_Max, ST_MAXED);
 
   new ScreenshotButton(this, BUTTON_Screenshot);
+  
   /*drawPane = new BasicDrawPane(this, SetMan);
   timer = new RenderTimer(drawPane);
   timer->start();
@@ -133,6 +137,7 @@ FrameMain::FrameMain(const wxString& title)
   //UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
   /**Graf**/
   graf =  new GraphPanel(this, SetMan);
+  new GraphButton(this, wxID_ANY, &(graf->drawMode));
   //graf->Hide();
   timer = new RenderTimer(graf);
   timer->start();

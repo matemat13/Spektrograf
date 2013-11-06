@@ -13,6 +13,8 @@ public:
     void paintNow();
 	void Align();
 	unsigned int selectedLine;
+
+	bool drawMode;
 	
  
     DECLARE_EVENT_TABLE()

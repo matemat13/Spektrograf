@@ -18,6 +18,13 @@ RC_screenshoticon RCDATA "resources/screenshot_but.png"
 RC_screenshoticonF RCDATA "resources/screenshot_but_hover.png"
 RC_screenshoticonP RCDATA "resources/screenshot_but_press.png"
 
+RC_graphicon RCDATA "resources/graph_but.png"
+RC_graphiconF RCDATA "resources/graph_but_active.png"
+RC_bitmapicon RCDATA "resources/bitmap_but.png"
+RC_bitmapiconF RCDATA "resources/bitmap_but_active.png"
+
+
+
 RC_USBdiscon ICON "resources/USB_discon.ico"
 
 

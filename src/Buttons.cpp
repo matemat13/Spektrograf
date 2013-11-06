@@ -160,7 +160,50 @@ void ScreenshotButton::GetScreenshot(wxBitmap &screenshot) {
    return;
 }
 
-void ScreenshotButton::onClick(wxMouseEvent& WXUNUSED(event)) {
-	wxMessageBox(_("HW Click"));
-	return;
+
+
+GraphButton::GraphButton(wxFrame *parent, int id, bool *n_state) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
+{
+ normal1 = wxBitmap(wxT("RC_graphicon"), wxBITMAP_TYPE_PNG_RESOURCE);
+ hover1 = wxBitmap(wxT("RC_graphiconF"), wxBITMAP_TYPE_PNG_RESOURCE);
+
+ normal2 = wxBitmap(wxT("RC_bitmapicon"), wxBITMAP_TYPE_PNG_RESOURCE);
+ hover2 = wxBitmap(wxT("RC_bitmapiconF"), wxBITMAP_TYPE_PNG_RESOURCE);
+ state = n_state;
+ Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(GraphButton::onClick), NULL, this);
+ SetCursor(wxCursor(wxCURSOR_HAND));
+ ToggleState(*state);
+ SetBackgroundColour(APP_STYLE_MAINBG);
+ Align();
+}
+void GraphButton::Align()
+{
+ SetSize(60,60);
+ int x, y;
+ GetSize(&x, &y);
+ SetPosition(wxPoint(this->GetParent()->GetSize().x - x -BUT_BIG_BORDER, 2*60+BUT_BIG_BORDER));
+}
+void GraphButton::ToggleState(bool st)
+{
+ *state = st;
+ if (*state == true)
+ {
+  SetHelpText(wxString::FromUTF8("Zobrazit obraz."));
+  SetToolTip(wxString::FromUTF8("Zobrazit obraz."));
+  SetBitmap(normal1);
+  SetBitmapHover(hover1);
+ } else //state == ST_WINDO
+ {
+  SetHelpText(wxString::FromUTF8("Zobrazit graf."));
+  SetToolTip(wxString::FromUTF8("Zobrazit graf."));
+  SetBitmap(normal2);
+  SetBitmapHover(hover2);
+ }
+}
+void GraphButton::ToggleState()
+{
+    ToggleState(!*state);
+}
+void GraphButton::onClick(wxCommandEvent& WXUNUSED(event)) {
+	ToggleState();
 }

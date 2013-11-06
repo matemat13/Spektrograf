@@ -38,11 +38,26 @@ class ScreenshotButton : public wxButton
 public:
  ScreenshotButton(wxFrame *parent, int id);
  void onClick(wxCommandEvent& WXUNUSED(event));
- void onClick(wxMouseEvent& WXUNUSED(event));
  void GetScreenshot(wxBitmap &screenshot);
  void Align();
 private:
  wxBitmap normal;
  wxBitmap focus;
  wxBitmap press;
+};
+
+class GraphButton : public wxButton
+{
+public:
+ GraphButton(wxFrame *parent, int id, bool*);
+ void onClick(wxCommandEvent& WXUNUSED(event));
+ void ToggleState();
+ void ToggleState(bool);
+ void Align();
+private:
+ bool *state;
+ wxBitmap normal1;
+ wxBitmap hover1;
+ wxBitmap normal2;
+ wxBitmap hover2;
 };

@@ -24,9 +24,9 @@ int Kamera::Radek(unsigned char *&buffer)
   buffer = new unsigned char[ret];
   for (int i = 0; i < iHeight; i++)	//Prirazuje se po trech, kvuli subpixelum
   {
-   buffer[i*3] = pBuffer[radek_posun + i*iWidth*3];
-   buffer[i*3 + 1] = pBuffer[radek_posun + i*iWidth*3 + 1];
-   buffer[i*3 + 2] = pBuffer[radek_posun + i*iWidth*3 + 2];
+   buffer[i*3] = pBuffer[(radek_posun + i*iWidth)*3];	//Red
+   buffer[i*3 + 1] = pBuffer[(radek_posun + i*iWidth)*3 + 1];	//Green
+   buffer[i*3 + 2] = pBuffer[(radek_posun + i*iWidth)*3 + 2];	//Blue
   }
  } else if (img_rotation == 2)
  {
@@ -42,11 +42,11 @@ int Kamera::Radek(unsigned char *&buffer)
   buffer = new unsigned char[ret];
   for (int i = iHeight -1; i > 0; i--)	//Prirazuje se po trech, kvuli subpixelum
   {
-   buffer[i*3] = pBuffer[radek_posun + i*iWidth*3];
-   buffer[i*3 + 1] = pBuffer[radek_posun + i*iWidth*3 + 1];
-   buffer[i*3 + 2] = pBuffer[radek_posun + i*iWidth*3 + 2];
+   buffer[i*3] = pBuffer[(radek_posun + i*iWidth)*3];	//Red
+   buffer[i*3 + 1] = pBuffer[(radek_posun + i*iWidth)*3 + 1];	//Green
+   buffer[i*3 + 2] = pBuffer[(radek_posun + i*iWidth)*3 + 2];	//Blue
   }
- } 
+ }
  return ret;
 }
 
@@ -437,6 +437,7 @@ bool Kamera::KeepFPS()
  } else return false;
 
  stav = STAV_OK;
+ memcpy(oldBuffer, pBuffer, buffer_size);
  return true;
 }
 
@@ -448,12 +449,41 @@ bool Kamera::Obrazek(wxImage *img)
 
  if (stav != STAV_OK) return false;
 
-
+ if (img_rotation == 0)
+ {
+  int length = iWidth*3;
+  for (int i = 0; i < length; i++)
+  {
+   pBuffer[radek_posun*iWidth*3 + i] = 255;
+  }
+ } else if (img_rotation == 1)
+ {
+  for (int i = 0; i < iHeight; i++)	//Prirazuje se po trech, kvuli subpixelum
+  {
+   pBuffer[(radek_posun + i*iWidth)*3] = 255;	//Red
+   pBuffer[(radek_posun + i*iWidth)*3 + 1] = 255;	//Green
+   pBuffer[(radek_posun + i*iWidth)*3 + 2] = 255;	//Blue
+  }
+ } else if (img_rotation == 2)
+ {
+  int length = iWidth*3;
+  for (int i = length -1; i >= 0; i--)
+  {
+   pBuffer[radek_posun*iWidth*3 + i] = 255;
+  }
+ } else if (img_rotation == 3)
+ {
+  for (int i = iHeight -1; i > 0; i--)	//Prirazuje se po trech, kvuli subpixelum
+  {
+   pBuffer[(radek_posun + i*iWidth)*3] = 255;	//Red
+   pBuffer[(radek_posun + i*iWidth)*3 + 1] = 255;	//Green
+   pBuffer[(radek_posun + i*iWidth)*3 + 2] = 255;	//Blue
+  }
+ }
 
  img->Destroy();
  img->Create(pVih->bmiHeader.biWidth, pVih->bmiHeader.biHeight, (unsigned char*)pBuffer, true);
 
- memcpy(oldBuffer, pBuffer, buffer_size);
 
  return true;			
 }

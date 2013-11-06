@@ -58,7 +58,6 @@ void BasicDrawPane::reRender(wxDC& dc)
 
 void BasicDrawPane::render(wxDC& dc)
 {
- return;
  painting = true;
  bool painted = false; 
  //image->Mirror(true);

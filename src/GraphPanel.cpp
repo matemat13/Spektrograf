@@ -163,7 +163,7 @@ void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
  }
 }
 void GraphPanel::DrawGraph(wxDC& dc, const unsigned char* data, const int &length) {
-
+DrawGraphUI(dc);
 
  /**Graf**/
  const wxSize sz = GetSize();

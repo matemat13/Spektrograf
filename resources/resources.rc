@@ -13,7 +13,13 @@ RC_demaximizeiconP ICON "resources/demaximize_pressed.ico"
 RC_maximizeicon ICON "resources/maximize_normal.ico"
 RC_maximizeiconF ICON "resources/maximize_focus.ico"
 RC_maximizeiconP ICON "resources/maximize_pressed.ico"
+
+RC_screenshoticon RCDATA "resources/screenshot_but.png"
+RC_screenshoticonF RCDATA "resources/screenshot_but_hover.png"
+RC_screenshoticonP RCDATA "resources/screenshot_but_press.png"
+
 RC_USBdiscon ICON "resources/USB_discon.ico"
+
 
 // set this to 1 if you don't want to use manifest resource (manifest resource
 // is needed to enable visual styles on Windows XP - see docs/msw/winxp.txt

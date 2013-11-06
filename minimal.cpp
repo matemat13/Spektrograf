@@ -5,7 +5,8 @@ enum
 {
  BUTTON_Quit = wxID_EXIT,
  TIMER_NewImage = wxID_HIGHEST,
- BUTTON_Max
+ BUTTON_Max,
+ BUTTON_Screenshot
 };
 
 
@@ -18,6 +19,7 @@ public:
     // event handlers (these functions should _not_ be virtual)
     void OnQuit(wxCommandEvent& event);
     void OnMax(wxCommandEvent& event);
+	void Align(wxCommandEvent& WXUNUSED(event));
 	/*void OnPaint(wxPaintEvent& event);
 	void OnProgressTimer(wxTimerEvent& event);*/
 private:
@@ -83,6 +85,8 @@ FrameMain::FrameMain(const wxString& title)
  SetFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
  SetFocus();
 
+  //wxEVT_MAXIMIZE
+ Connect(wxEVT_MAXIMIZE, wxCommandEventHandler(FrameMain::Align), NULL, this);
  //wxImage::AddHandler( new wxPNGHandler );  //Neco hrozne dulezityho pro png...
  /*wxBitmap *bmp2 = new wxBitmap(wxT("RC_demaximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
  wxBitmap *bmp3 = new wxBitmap(wxT("RC_maximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
@@ -101,17 +105,19 @@ FrameMain::FrameMain(const wxString& title)
 
   quitBut = new QuitButton(this, BUTTON_Quit);
   maxBut = new MaxDemaxButton(this, BUTTON_Max, ST_MAXED);
+
+  new ScreenshotButton(this, BUTTON_Screenshot);
   /*drawPane = new BasicDrawPane(this, SetMan);
   timer = new RenderTimer(drawPane);
   timer->start();
   drawPane->Refresh();*/
   /**HLAVNI NADPIS**/
   //wxFont ;
-  wxStaticText *t = new wxStaticText(this, wxID_ANY, wxT("Spektrograf"), wxPoint(BUT_BORDER*2+32,BUT_BORDER));
+  wxStaticText *t = new wxStaticText(this, wxID_ANY, wxT("Spektrograf"), wxPoint(APP_LOGO_PADDING*2+32,APP_LOGO_PADDING));
   t->SetForegroundColour(wxColor(0,122,204));
   t->SetFont(wxFont(20, wxDEFAULT, wxNORMAL, wxBOLD));
   /**OBRAZEK**/
-  wxStaticBitmap *ikona = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("aaaa"), wxBITMAP_TYPE_ICO_RESOURCE), wxPoint(BUT_BORDER,BUT_BORDER));
+  new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("aaaa"), wxBITMAP_TYPE_ICO_RESOURCE), wxPoint(APP_LOGO_PADDING,APP_LOGO_PADDING));
 
   
   /**UV panely**/
@@ -173,14 +179,21 @@ void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
  {
   Maximize(true);
  }
+ Align((wxCommandEvent)NULL);
+}
+void FrameMain::Align(wxCommandEvent& WXUNUSED(event)) {
+ if(graf->IsShownOnScreen()) 
+ {
+   timer->Stop();
+   graf->Hide();
+ }
  uvbut->Align();
  graf->Align();
  quitBut->Align();
  maxBut->Align();
- maxBut->ToggleState();
+ maxBut->ToggleState(!IsMaximized(GetHWND()));
  graf->Show();
  timer->Start();
- //drawPane->SetFocus();
  graf->SetFocus();
 }
 
@@ -201,6 +214,7 @@ bool AppMain::OnInit()
     //Aditional image handlers
     wxImage::AddHandler(new wxBMPHandler); 
     wxImage::AddHandler(new wxPNGHandler);
+	wxImage::AddHandler(new wxJPEGHandler);
     // create the main application window
     frame = new FrameMain("Spektrograf");
 

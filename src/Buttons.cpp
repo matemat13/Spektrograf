@@ -38,23 +38,7 @@ MaxDemaxButton::MaxDemaxButton(wxFrame *parent, int id, bool n_state) : wxButton
  state = n_state;
 
  SetCursor(wxCursor(wxCURSOR_HAND));
- if (state == ST_MAXED)
- {
-  SetHelpText(wxString::FromUTF8("Minimalizuje aplikaci."));
-  SetToolTip(wxString::FromUTF8("Minimalizovat aplikaci."));
-  SetBitmap(normal1);
-  SetBitmapCurrent(focus1);
-  //SetBitmapFocus(focus1);
-  SetBitmapPressed(press1);
- } else //state == ST_WINDO
- {
-  SetHelpText(wxString::FromUTF8("Maximalizuje aplikaci."));
-  SetToolTip(wxString::FromUTF8("Maximalizovat aplikaci."));
-  SetBitmap(normal2);
-  SetBitmapCurrent(focus2);
-  //SetBitmapFocus(focus2);
-  SetBitmapPressed(press2);
- }
+ ToggleState(state);
  SetBackgroundColour(APP_STYLE_MAINBG);
  Align();
 }
@@ -64,24 +48,121 @@ void MaxDemaxButton::Align()
  GetSize(&x, &y);
  SetPosition(wxPoint(this->GetParent()->GetSize().x - 2*x - 2*BUT_BORDER, BUT_BORDER));
 }
-void MaxDemaxButton::ToggleState()
+void MaxDemaxButton::ToggleState(bool st)
 {
- state = !state;
+ state = st;
  if (state == ST_MAXED)
  {
   SetHelpText(wxString::FromUTF8("Minimalizuje aplikaci."));
   SetToolTip(wxString::FromUTF8("Minimalizovat aplikaci."));
   SetBitmap(normal1);
-  SetBitmapCurrent(focus1);
-  //SetBitmapFocus(focus1);
+  SetBitmapHover(focus1);
   SetBitmapPressed(press1);
  } else //state == ST_WINDO
  {
   SetHelpText(wxString::FromUTF8("Maximalizuje aplikaci."));
   SetToolTip(wxString::FromUTF8("Maximalizovat aplikaci."));
   SetBitmap(normal2);
-  SetBitmapCurrent(focus2);
-  //SetBitmapFocus(focus2);
+  SetBitmapHover(focus2);
   SetBitmapPressed(press2);
  }
+}
+void MaxDemaxButton::ToggleState()
+{
+  ToggleState(!state);
+}
+
+
+ScreenshotButton::ScreenshotButton(wxFrame *parent, int id) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
+{
+ normal = wxBitmap(wxT("RC_screenshoticon"), wxBITMAP_TYPE_PNG_RESOURCE);//wxBITMAP_TYPE_PNG
+ focus = wxBitmap(wxT("RC_screenshoticonF"), wxBITMAP_TYPE_PNG_RESOURCE);
+ press = wxBitmap(wxT("RC_screenshoticonP"), wxBITMAP_TYPE_PNG_RESOURCE);
+
+ SetCursor(wxCursor(wxCURSOR_HAND));
+ SetHelpText(wxString::FromUTF8("Uloží aktuální stav okna jako obrázek."));
+ SetToolTip(wxString::FromUTF8("Uložit screenshot"));
+ SetBitmap(normal);
+ SetBitmapHover(focus);
+ SetBitmapPressed(press);
+ SetBackgroundColour(APP_STYLE_MAINBG);
+ Align();
+ //wxEVT_COMMAND_RIGHT_DCLICK
+ Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ScreenshotButton::onClick), NULL, this);
+ //Connect(wxEVT_LEFT_UP, wxMouseEventHandler(ScreenshotButton::onClick));
+}
+void ScreenshotButton::Align()
+{
+ SetSize(60,60);
+ int x, y;
+ GetSize(&x, &y);
+ SetPosition(wxPoint(this->GetParent()->GetSize().x - x -BUT_BIG_BORDER, 60));
+}
+void ScreenshotButton::onClick(wxCommandEvent& WXUNUSED(event)) {
+   SetBitmapPressed(normal);  //nechci aby na screenshotu vypadal zmacknuty
+   Refresh();
+   wxBitmap screenshot;
+   GetScreenshot(screenshot);
+   SetBitmapPressed(press);
+   /**Ulozeni dp souboru**/
+   wxFileDialog fileDialog(this, _("Save a screenshot"), wxT(""), wxT("spektrograf.bmp"), wxT("Rastr (*.bmp) | *.bmp|Obrázek PNG (nedoporuèuje se) (*.png) | *.png|JPEG formát (*.jpg) | *.jpeg;*.jpg"), wxFD_SAVE);
+   if(fileDialog.ShowModal() == wxID_OK) {
+          wxFileName namePath(fileDialog.GetPath());
+          int fileType = wxBITMAP_TYPE_BMP;
+          if( namePath.GetExt().CmpNoCase(wxT("jpeg")) == 0 ) fileType = wxBITMAP_TYPE_JPEG;
+          if( namePath.GetExt().CmpNoCase(wxT("jpg")) == 0 )  fileType = wxBITMAP_TYPE_JPEG;
+          if( namePath.GetExt().CmpNoCase(wxT("png")) == 0 )  fileType = wxBITMAP_TYPE_PNG;
+		  if( namePath.GetExt().CmpNoCase(wxT("bmp")) == 0 )  fileType = wxBITMAP_TYPE_BMP;
+		  if(wxFileExists(fileDialog.GetPath())) 
+		  {
+			  // wxString choices = 
+		      //wxMultiChoiceDialog(this, _("Soubor existuje! Chcete jej pøepsat?"), _("Soubor existuje."), 2);
+			  wxMessageDialog potvrd(this, _("Soubor existuje! Chcete jej pøepsat?"), _("Soubor existuje"), wxYES_NO|wxNO_DEFAULT|wxICON_ERROR);
+			  if(potvrd.ShowModal()==wxID_YES)
+				  screenshot.SaveFile(fileDialog.GetPath(),(wxBitmapType)fileType);
+
+		  }
+		  else 
+		    screenshot.SaveFile(fileDialog.GetPath(),(wxBitmapType)fileType);
+   }
+   return;
+}
+void ScreenshotButton::GetScreenshot(wxBitmap &screenshot) {
+
+   //Create a DC for the main window
+   wxClientDC dcScreen(GetParent());
+
+   //Get the size of the screen/DC
+   wxCoord screenWidth, screenHeight;
+   dcScreen.GetSize(&screenWidth, &screenHeight);
+
+   //Create a Bitmap that will later on hold the screenshot image
+   //Note that the Bitmap must have a size big enough to hold the screenshot
+   //-1 means using the current default colour depth
+   screenshot.Create(screenWidth, screenHeight,-1);
+
+   //Create a memory DC that will be used for actually taking the screenshot
+   wxMemoryDC memDC;
+   //Tell the memory DC to use our Bitmap
+   //all drawing action on the memory DC will go to the Bitmap now
+   memDC.SelectObject(screenshot);
+   //Blit (in this case copy) the actual screen on the memory DC
+   //and thus the Bitmap
+   memDC.Blit( 0, //Copy to this X coordinate
+            0, //Copy to this Y coordinate
+            screenWidth, //Copy this width
+            screenHeight, //Copy this height
+            &dcScreen, //From where do we copy?
+            0, //What's the X offset in the original DC?
+            0  //What's the Y offset in the original DC?
+         );
+   //Select the Bitmap out of the memory DC by selecting a new
+   //uninitialized Bitmap
+   memDC.SelectObject(wxNullBitmap);
+   return;
+}
+
+void ScreenshotButton::onClick(wxMouseEvent& WXUNUSED(event)) {
+	wxMessageBox(_("HW Click"));
+	return;
 }

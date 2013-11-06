@@ -4,6 +4,7 @@
 #define ST_MAXED true
 #define ST_WINDO false
 #define BUT_BORDER 0
+#define BUT_BIG_BORDER 10
 
 class QuitButton : public wxButton
 {
@@ -21,6 +22,7 @@ class MaxDemaxButton : public wxButton
 public:
  MaxDemaxButton(wxFrame *parent, int id, bool n_state);
  void ToggleState();
+ void ToggleState(bool);
  void Align();
 private:
  bool state;
@@ -30,4 +32,17 @@ private:
  wxBitmap normal2;
  wxBitmap focus2;
  wxBitmap press2;
+};
+class ScreenshotButton : public wxButton
+{
+public:
+ ScreenshotButton(wxFrame *parent, int id);
+ void onClick(wxCommandEvent& WXUNUSED(event));
+ void onClick(wxMouseEvent& WXUNUSED(event));
+ void GetScreenshot(wxBitmap &screenshot);
+ void Align();
+private:
+ wxBitmap normal;
+ wxBitmap focus;
+ wxBitmap press;
 };

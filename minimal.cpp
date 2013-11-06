@@ -19,6 +19,10 @@ public:
     // event handlers (these functions should _not_ be virtual)
     void OnQuit(wxCommandEvent& event);
     void OnMax(wxCommandEvent& event);
+	void OnMousemove(wxMouseEvent& event);
+	void OnMousedown(wxMouseEvent& event);
+	void OnMouseup(wxMouseEvent& event);
+	void OnMouseout(wxMouseEvent& event);
 	void Align(wxCommandEvent& WXUNUSED(event));
 	/*void OnPaint(wxPaintEvent& event);
 	void OnProgressTimer(wxTimerEvent& event);*/
@@ -30,6 +34,9 @@ private:
 	bool drawing;
 	QuitButton *quitBut;
 	MaxDemaxButton *maxBut;
+
+	bool dragged;
+	wxPoint dragPoint;
 	//void DrawImage(wxDC &dc);
 	RenderTimer *timer;
     DECLARE_EVENT_TABLE()
@@ -87,6 +94,11 @@ FrameMain::FrameMain(const wxString& title)
 
   //wxEVT_MAXIMIZE
  Connect(wxEVT_MAXIMIZE, wxCommandEventHandler(FrameMain::Align), NULL, this);
+
+ Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(FrameMain::OnMousedown), NULL, this);
+ Connect(wxEVT_LEFT_UP, wxMouseEventHandler(FrameMain::OnMouseup), NULL, this);
+ Connect(wxEVT_MOTION, wxMouseEventHandler(FrameMain::OnMousemove), NULL, this);
+ Connect(wxEVT_LEAVE_WINDOW, wxMouseEventHandler(FrameMain::OnMouseout), NULL, this);
  //wxImage::AddHandler( new wxPNGHandler );  //Neco hrozne dulezityho pro png...
  /*wxBitmap *bmp2 = new wxBitmap(wxT("RC_demaximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
  wxBitmap *bmp3 = new wxBitmap(wxT("RC_maximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
@@ -133,6 +145,8 @@ FrameMain::FrameMain(const wxString& title)
   dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF_RESOURCE),0,0, false);*/
   Centre();
   SetIcon(wxICON(aaaa));
+
+  dragged = false;
   /*
   static const int INTERVAL = 300; // milliseconds
   timer = new wxTimer(this, TIMER_NewImage);
@@ -166,6 +180,25 @@ void FrameMain::DrawImage(wxDC &dc)
 }*/
 
 // event handlers
+void FrameMain::OnMousemove(wxMouseEvent& event) {
+	if(dragged) 
+	{
+		wxPoint pos = GetPosition();
+		SetPosition(wxPoint(pos.x+event.GetX()-dragPoint.x, pos.y+event.GetY()-dragPoint.y));
+	}
+}
+void FrameMain::OnMousedown(wxMouseEvent& event) {
+    dragged = true;
+    dragPoint = wxPoint(event.GetX(), event.GetY());
+}
+void FrameMain::OnMouseup(wxMouseEvent& event) {
+    dragged = false;
+}
+
+void FrameMain::OnMouseout(wxMouseEvent& event) {
+	dragged = false;
+}
+
 void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
 {
  timer->Stop();

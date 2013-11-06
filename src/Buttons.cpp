@@ -115,8 +115,6 @@ void ScreenshotButton::onClick(wxCommandEvent& WXUNUSED(event)) {
 		  if( namePath.GetExt().CmpNoCase(wxT("bmp")) == 0 )  fileType = wxBITMAP_TYPE_BMP;
 		  if(wxFileExists(fileDialog.GetPath())) 
 		  {
-			  // wxString choices = 
-		      //wxMultiChoiceDialog(this, _("Soubor existuje! Chcete jej pøepsat?"), _("Soubor existuje."), 2);
 			  wxMessageDialog potvrd(this, _("Soubor existuje! Chcete jej pøepsat?"), _("Soubor existuje"), wxYES_NO|wxNO_DEFAULT|wxICON_ERROR);
 			  if(potvrd.ShowModal()==wxID_YES)
 				  screenshot.SaveFile(fileDialog.GetPath(),(wxBitmapType)fileType);

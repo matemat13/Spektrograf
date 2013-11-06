@@ -92,18 +92,14 @@ FrameMain::FrameMain(const wxString& title)
  SetFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
  SetFocus();
 
-  //wxEVT_MAXIMIZE
+ //Zarovnat okno pri maximalizaci
  Connect(wxEVT_MAXIMIZE, wxCommandEventHandler(FrameMain::Align), NULL, this);
-
+ //Eventy pro posouvani
  Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(FrameMain::OnMousedown), NULL, this);
  Connect(wxEVT_LEFT_UP, wxMouseEventHandler(FrameMain::OnMouseup), NULL, this);
  Connect(wxEVT_MOTION, wxMouseEventHandler(FrameMain::OnMousemove), NULL, this);
  Connect(wxEVT_LEAVE_WINDOW, wxMouseEventHandler(FrameMain::OnMouseout), NULL, this);
- //wxImage::AddHandler( new wxPNGHandler );  //Neco hrozne dulezityho pro png...
- /*wxBitmap *bmp2 = new wxBitmap(wxT("RC_demaximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
- wxBitmap *bmp3 = new wxBitmap(wxT("RC_maximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
- wxBitmap *bmp4 = new wxBitmap(wxT("RC_USBdiscon"), wxBITMAP_TYPE_ICO_RESOURCE);*/
- 
+
   /*char *res = wxLoadUserResource(wxString::FromUTF8("WINICON"));
   SetIcon(wxIcon(res));
   //wxBitmap close = wxBITMAP_PNG(CLOSEICON);*/

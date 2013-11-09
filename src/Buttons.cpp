@@ -103,6 +103,7 @@ void ScreenshotButton::onClick(wxCommandEvent& WXUNUSED(event)) {
    Refresh();
    wxBitmap screenshot;
    GetScreenshot(screenshot);
+   //screenshot.ClearAlpha();
    SetBitmapPressed(press);
    /**Ulozeni dp souboru**/
    wxFileDialog fileDialog(this, _("Save a screenshot"), wxT(""), wxT("spektrograf.bmp"), wxT("Rastr (*.bmp) | *.bmp|Obrázek PNG (nedoporuèuje se) (*.png) | *.png|JPEG formát (*.jpg) | *.jpeg;*.jpg"), wxFD_SAVE);
@@ -113,15 +114,18 @@ void ScreenshotButton::onClick(wxCommandEvent& WXUNUSED(event)) {
           if( namePath.GetExt().CmpNoCase(wxT("jpg")) == 0 )  fileType = wxBITMAP_TYPE_JPEG;
           if( namePath.GetExt().CmpNoCase(wxT("png")) == 0 )  fileType = wxBITMAP_TYPE_PNG;
 		  if( namePath.GetExt().CmpNoCase(wxT("bmp")) == 0 )  fileType = wxBITMAP_TYPE_BMP;
+		  wxImage tosave(screenshot.ConvertToImage());
+		  tosave.ClearAlpha();
+
 		  if(wxFileExists(fileDialog.GetPath())) 
 		  {
-			  wxMessageDialog potvrd(this, _("Soubor existuje! Chcete jej pøepsat?"), _("Soubor existuje"), wxYES_NO|wxNO_DEFAULT|wxICON_ERROR);
+			  wxMessageDialog potvrd(this, _("Soubor existuje! Chcete jej pøepsat?"), _("Soubor existuje"), wxYES_NO|wxNO_DEFAULT|wxICON_WARNING);
 			  if(potvrd.ShowModal()==wxID_YES)
-				  screenshot.SaveFile(fileDialog.GetPath(),(wxBitmapType)fileType);
+				  tosave.SaveFile(fileDialog.GetPath(),(wxBitmapType)fileType);
 
 		  }
 		  else 
-		    screenshot.SaveFile(fileDialog.GetPath(),(wxBitmapType)fileType);
+		    tosave.SaveFile(fileDialog.GetPath(),(wxBitmapType)fileType);
    }
    return;
 }

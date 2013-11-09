@@ -189,8 +189,11 @@ void FrameMain::OnMousemove(wxMouseEvent& event) {
 	}
 }
 void FrameMain::OnMousedown(wxMouseEvent& event) {
-    dragged = true;
-    dragPoint = wxPoint(event.GetX(), event.GetY());
+	if(!IsMaximized(GetHWND()))
+	{
+        dragged = true;
+        dragPoint = wxPoint(event.GetX(), event.GetY());
+	}
 }
 void FrameMain::OnMouseup(wxMouseEvent& event) {
     dragged = false;

@@ -12,6 +12,10 @@ wxPanel(parent)
  kamera = new Kamera(n_SetMan);
  kamObr = new wxImage();
  selectedLine = 0;
+
+ render_count = 0;
+ render_time = 0;
+ fps = 0;
 }
 
 void GraphPanel::Align() {
@@ -95,7 +99,21 @@ void GraphPanel::DrawGraphUI(wxDC &dc) {
  wxString text = wxT("Vlnová délka:");
  dc.GetTextExtent (text, &x, &y);
  dc.DrawText(text, 2, 2);
+ 
 
+
+ /**FPS**/
+
+
+ /*dc.SetFont(wxFont(10, wxDEFAULT, wxNORMAL, wxBOLD));
+
+ std::stringstream text2("");
+ text2<<"FPS: "<<render_time<<" ("<<render_count<<")";//render_count;//(int)(render_time/((float)render_count*1000));
+
+ 
+ int x2, y2;
+ dc.GetTextExtent (text2.str().c_str(), &x2, &y2);
+ dc.DrawText(text2.str().c_str(), std::min((sz.GetWidth()-x2-2), (sz.GetWidth()-100)), 2);*/
  /**Oddeleni**/
  dc.SetPen(wxPen(wxColor(255,255,255), 0, wxDOT));
  dc.DrawLine(0, y+4, sz.GetWidth(), y+4);
@@ -175,10 +193,15 @@ void GraphPanel::DrawGraph(wxDC& dc, wxImage &img) {
 }
 void GraphPanel::DrawGraph(wxDC& dc, const unsigned char* data, const int &length) {
  DrawGraphUI(dc);
-
+ 
+ /**Pocitani casu vykresleni**/
+ //unsigned int time1 = time(0);
  /**Graf**/
  const wxSize sz = GetSize();
  //wxImage image = wxImage(sz.GetWidth(), sz.GetHeight()-52);
+ wxBitmap graf(sz.GetWidth(), sz.GetHeight()-52);
+ wxMemoryDC temp_dc;
+ temp_dc.SelectObject(graf);
 
  int lastyb = 0;
  int lastyg = 0;
@@ -194,20 +217,21 @@ void GraphPanel::DrawGraph(wxDC& dc, const unsigned char* data, const int &lengt
    int x = sz.GetWidth()*((float)i/((float)length));
 
    //int yall = image.GetHeight()*((float)(colorsum)/(765.0));
-   int yall = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)(colorsum)/(765.0)));
+   //int yall = (sz.GetHeight())-(23+(sz.GetHeight()-52)*((float)(colorsum)/(765.0)));
+   int yall = graf.GetHeight() - ((graf.GetHeight())*((float)(colorsum)/(765.0)));
 
    unsigned char white_aspect = 64+(((float)colorsum)/12.0)*3.0;
-   DrawGradientLine(dc, wxPoint(lastx, lastyall), wxPoint(x, yall), wxColour(lastred, lastgreen, lastblue), wxColour(data[i+1], data[i], data[i+2]));
+   DrawGradientLine(temp_dc, wxPoint(lastx, lastyall), wxPoint(x, yall), wxColour(lastred, lastgreen, lastblue), wxColour(data[i], data[i+1], data[i+2]));
 
    /**SPODNI RADEK**/
-   dc.SetBrush(wxBrush(wxColor(data[i+1], data[i], data[i+2])));
+   dc.SetBrush(wxBrush(wxColor(data[i], data[i+1], data[i+2])));
    dc.SetPen(wxPen(*wxRED, 0, wxPENSTYLE_TRANSPARENT));
    dc.DrawRectangle(lastx, sz.GetHeight()-18, x-lastx, 18);
    /**PAMATOVAT SI POSLEDNI HODNOTY**/
    lastx=x;
    lastblue = data[i+2];
-   lastred = data[i+1];
-   lastgreen = data[i];
+   lastred = data[i];
+   lastgreen = data[i+1];
    //lastcolorsum = colorsum;
    lastwhite=white_aspect;
    //lastyb = yb;
@@ -216,6 +240,14 @@ void GraphPanel::DrawGraph(wxDC& dc, const unsigned char* data, const int &lengt
    lastyall = yall;
 
  }
+ //temp_dc.SelectObject(wxNullBitmap);
+ //dc.DrawBitmap(graf, 0, 23);
+
+ dc.Blit(wxPoint(0,30),graf.GetSize(),(wxDC*)&temp_dc, wxPoint(0,0));
+
+ 
+ //render_time=time(0)-time1;
+ //render_count++;
 }
 void swap(int &a, int &b) {
 	int c = a;

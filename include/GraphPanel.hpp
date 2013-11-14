@@ -2,7 +2,12 @@
 #include "wx/wx.h"
 #include "Kamera.hpp"
 #include "SettingsManager.hpp"
+#include <sstream>
+#include <math.h>
 
+#include <algorithm>
+
+	 
 class GraphPanel : public wxPanel
 {
  
@@ -30,4 +35,9 @@ private:
 	Kamera *kamera;
 	wxImage *kamObr;
 	wxBitmap bitmap;
+
+	unsigned long render_time;
+	unsigned int render_count;
+	unsigned short fps;
+
 };

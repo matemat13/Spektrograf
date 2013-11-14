@@ -36,6 +36,8 @@ private:
 
 	QuitButton *quitBut;
 	MaxDemaxButton *maxBut;
+	ScreenshotButton *scrBut;
+	GraphButton *grBut;
 
 
 	bool dragged;
@@ -117,7 +119,7 @@ FrameMain::FrameMain(const wxString& title)
   quitBut = new QuitButton(this, BUTTON_Quit);
   maxBut = new MaxDemaxButton(this, BUTTON_Max, ST_MAXED);
 
-  new ScreenshotButton(this, BUTTON_Screenshot);
+  scrBut = new ScreenshotButton(this, BUTTON_Screenshot);
   
   /*drawPane = new BasicDrawPane(this, SetMan);
   timer = new RenderTimer(drawPane);
@@ -137,7 +139,7 @@ FrameMain::FrameMain(const wxString& title)
   //UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
   /**Graf**/
   graf =  new GraphPanel(this, SetMan);
-  new GraphButton(this, wxID_ANY, &(graf->drawMode));
+  grBut = new GraphButton(this, wxID_ANY, &(graf->drawMode));
   //graf->Hide();
   timer = new RenderTimer(graf);
   timer->start();
@@ -195,11 +197,11 @@ void FrameMain::OnMousedown(wxMouseEvent& event) {
         dragPoint = wxPoint(event.GetX(), event.GetY());
 	}
 }
-void FrameMain::OnMouseup(wxMouseEvent& event) {
+void FrameMain::OnMouseup(wxMouseEvent& WXUNUSED(event)) {
     dragged = false;
 }
 
-void FrameMain::OnMouseout(wxMouseEvent& event) {
+void FrameMain::OnMouseout(wxMouseEvent& WXUNUSED(event)) {
 	dragged = false;
 }
 
@@ -229,6 +231,9 @@ void FrameMain::Align(wxCommandEvent& WXUNUSED(event)) {
  quitBut->Align();
  maxBut->Align();
  maxBut->ToggleState(!IsMaximized(GetHWND()));
+ grBut->Align();
+ scrBut->Align();
+
  graf->Show();
  timer->Start();
  graf->SetFocus();

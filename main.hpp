@@ -37,6 +37,9 @@
 #include "wx/dcbuffer.h"
 #include "wx/timer.h"
 
+#include "wx/wxprec.h"
+#include "wx/cmdline.h"
+
 #if wxUSE_CLIPBOARD
     #include "wx/dataobj.h"
     #include "wx/clipbrd.h"

@@ -9,11 +9,11 @@ enum
  BUTTON_Screenshot
 };
 
-
+class AppMain;
 class FrameMain : public wxFrame
 {
 public:
-    // ctor(s)
+	//Constructor
     FrameMain(const wxString& title);
 
     // event handlers (these functions should _not_ be virtual)
@@ -23,11 +23,11 @@ public:
 	void OnMousedown(wxMouseEvent& event);
 	void OnMouseup(wxMouseEvent& event);
 	void OnMouseout(wxMouseEvent& event);
+
+	/**Layout initialisation**/
 	void Align(wxCommandEvent& WXUNUSED(event));
-	/*void OnPaint(wxPaintEvent& event);
-	void OnProgressTimer(wxTimerEvent& event);*/
+
 private:
-    // any class wishing to process wxWidgets events must use this macro
 	BasicDrawPane *drawPane;
 	GraphPanel *graf;
 	UVStatusPanel *uvbut;
@@ -39,10 +39,13 @@ private:
 	ScreenshotButton *scrBut;
 	GraphButton *grBut;
 
-
+	/**Window status**/
 	bool dragged;
 	wxPoint dragPoint;
-	//void DrawImage(wxDC &dc);
+	/**Application reference**/
+	AppMain application;
+
+	/**Moar events**/
 	RenderTimer *timer;
     DECLARE_EVENT_TABLE()
 };
@@ -56,11 +59,17 @@ public:
     // this one is called on application startup and is a good place for the app
     // initialization (doing it here and not in the ctor allows to have an error
     // return: if OnInit() returns false, the application terminates)
+	/**Command line parameter parsing**/
+	void OnInitCmdLine(wxCmdLineParser& parser);
+	bool OnCmdLineParsed(wxCmdLineParser &parser);
     virtual bool OnInit();
 private:
 	FrameMain *frame;
 	SettingsManager *setMgr;
-
+	/**Window status**/
+	bool start_maximized;
+	bool locked;
+	std::string password;
 	//void activateRenderLoop(bool on);
 };
 
@@ -260,6 +269,7 @@ bool AppMain::OnInit()
     // create the main application window
     frame = new FrameMain("Spektrograf");
 
+	password = std::string("heslo");
     // and show it (the frames, unlike simple controls, are not shown when
     // created initially)
   
@@ -273,6 +283,8 @@ bool AppMain::OnInit()
  
             //frame->SetSizer(sizer);
     frame->Show(true);
+	if(start_maximized)
+		frame->Maximize(true);
 	
 	//kamera = new Kamera();
 	
@@ -280,5 +292,27 @@ bool AppMain::OnInit()
     // success: wxApp::OnRun() will be called which will enter the main message
     // loop and the application will run. If we returned false here, the
     // application would exit immediately.
+    return true;
+}
+void AppMain::OnInitCmdLine(wxCmdLineParser& parser)
+{
+	static const wxCmdLineEntryDesc g_cmdLineDesc [] =
+    {
+
+        { wxCMD_LINE_SWITCH, (const char*)wxT("m"), (const char*)wxT("maximized"), (const char*)wxT("Program will start in full window.") },
+        { wxCMD_LINE_SWITCH, (const char*)wxT("l"), (const char*)wxT("locked"), (const char*)wxT("Program will start locked.") },
+        { wxCMD_LINE_SWITCH, (const char*)wxT("c"), (const char*)wxT("config"), (const char*)wxT("Configuration mode") },
+ 	   
+        { wxCMD_LINE_NONE }
+    };
+    parser.SetDesc (g_cmdLineDesc);
+    // must refuse '/' as parameter starter or cannot use "/path" style paths
+    parser.SetSwitchChars (wxT("-"));
+}
+
+bool AppMain::OnCmdLineParsed(wxCmdLineParser& parser)
+{
+
+	start_maximized = parser.Found(wxT("m"));
     return true;
 }

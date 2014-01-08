@@ -24,6 +24,13 @@
 #endif
 	*/
 
+#if !wxUSE_THREADS
+    #error "This sample requires thread support!"
+#endif // wxUSE_THREADS
+
+
+#include "wx/thread.h"
+#include "wx/event.h"
 #include "wx/image.h"
 #include "wx/file.h"
 #include "wx/filename.h"
@@ -36,6 +43,7 @@
 #include "wx/versioninfo.h"
 #include "wx/dcbuffer.h"
 #include "wx/timer.h"
+#include <ctime>
 
 #include "wx/wxprec.h"
 #include "wx/cmdline.h"
@@ -71,3 +79,61 @@
 //Definice vzhledu a textu:
 #define APP_STYLE_MAINBG wxColor(230,230,246)
 #define APP_LOGO_PADDING 10
+
+//Definice samplovani:
+#define DEFAULT_SAMPLE_LENGTH 1024
+#define SAMPLING_PERIOD 1000/20
+#define SAMPLE_MAX_VALUE 255*255*255/3
+
+
+
+
+/*Sampling thread*/
+
+//definice typu zobrazeni
+#define Z_CHYBA 0
+#define Z_OBRAZ 1
+#define Z_GRAF 2
+
+class FrameMain;
+
+class SamplingThread : public wxThread
+{
+private:
+	//state change crit section
+	wxCriticalSection state_CS;
+	int state, lastState;
+public:
+    SamplingThread(FrameMain *frame, SettingsManager *n_SetMan);
+    //virtual ~SamplingThread();
+
+    // thread execution starts here
+    virtual void *Entry();
+    virtual void OnExit();
+	//Slouzi ke zmene zobrazovani z grafu do obrazu a zpet
+	void setState(int n_state) {wxCriticalSectionLocker enter(state_CS); state = n_state;};
+	//Musi to byt pres Critical Section kvuli multithreadingu
+	int getState() {wxCriticalSectionLocker enter(state_CS); return state;};
+    ~SamplingThread();
+private:
+    FrameMain *m_frame;
+	Kamera *zdroj;
+	SettingsManager *n_SetMan;
+	
+    int sample_length;
+	
+    bool getSample();
+    bool getImage();
+    short *buffer;
+	unsigned char *imgData;
+};
+
+
+enum
+{
+ BUTTON_Quit = wxID_EXIT,
+ TIMER_NewImage = wxID_HIGHEST,
+ BUTTON_Max,
+ BUTTON_Screenshot,
+ STHREAD_EVENT
+};

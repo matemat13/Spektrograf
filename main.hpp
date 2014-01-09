@@ -82,8 +82,8 @@
 
 //Definice samplovani:
 #define DEFAULT_SAMPLE_LENGTH 1024
-#define SAMPLING_PERIOD 1000/20
-#define SAMPLE_MAX_VALUE 255*255*255/3
+#define SAMPLING_PERIOD (1000/20)
+#define SAMPLE_MAX_VALUE (255.0*3.0)
 
 
 
@@ -111,9 +111,13 @@ public:
     virtual void *Entry();
     virtual void OnExit();
 	//Slouzi ke zmene zobrazovani z grafu do obrazu a zpet
-	void setState(int n_state) {wxCriticalSectionLocker enter(state_CS); state = n_state;};
+	void setState(int n_state)
+	{
+	 wxCriticalSectionLocker lock(state_CS);
+  	 state = n_state;
+	};
 	//Musi to byt pres Critical Section kvuli multithreadingu
-	int getState() {wxCriticalSectionLocker enter(state_CS); return state;};
+	int getState() {wxCriticalSectionLocker lock(state_CS); return state;};
     ~SamplingThread();
 private:
     FrameMain *m_frame;

@@ -1,7 +1,7 @@
 #include "include/Buttons.hpp"
 #include "main.hpp"
 
-QuitButton::QuitButton(wxFrame *parent, int id) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
+QuitButton::QuitButton(wxFrame *parent, int id) : wxButton(parent, id, wxString::FromUTF8("Konec"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
 {
  normal = wxBitmap(wxT("RC_closeicon"), wxBITMAP_TYPE_ICO_RESOURCE);//wxBITMAP_TYPE_PNG
  //normal = wxBitmap(wxT("RC_closeicon"), wxBITMAP_TYPE_PNG_RESOURCE);
@@ -26,7 +26,7 @@ void QuitButton::Align()
 }
 
 
-MaxDemaxButton::MaxDemaxButton(wxFrame *parent, int id, bool n_state) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
+MaxDemaxButton::MaxDemaxButton(wxFrame *parent, int id, bool n_state) : wxButton(parent, id, wxString::FromUTF8("Konec"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
 {
  normal1 = wxBitmap(wxT("RC_maximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
  focus1 = wxBitmap(wxT("RC_maximizeiconF"), wxBITMAP_TYPE_ICO_RESOURCE);
@@ -53,8 +53,8 @@ void MaxDemaxButton::ToggleState(bool st)
  state = st;
  if (state == ST_MAXED)
  {
-  SetHelpText(wxString::FromUTF8("Minimalizuje aplikaci."));
-  SetToolTip(wxString::FromUTF8("Minimalizovat aplikaci."));
+  SetHelpText(wxString::FromUTF8("Obnoví aplikaci z maximalizace do okna."));
+  SetToolTip(wxString::FromUTF8("Obnovit z maximalizace."));
   SetBitmap(normal1);
   SetBitmapHover(focus1);
   SetBitmapPressed(press1);

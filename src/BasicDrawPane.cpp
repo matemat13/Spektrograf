@@ -1,7 +1,7 @@
 #include "../include/BasicDrawPane.hpp"
 
 //Konstruktor (v cestine to zni tvvrde)
-wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent)
+wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera)
 :wxGLCanvas(parent, (wxGLCanvas*)(NULL), wxID_ANY, wxDefaultPosition, wxSize(WIDTH + 4, HEIGHT + 4), wxSUNKEN_BORDER)
 {
   data = NULL;
@@ -9,7 +9,10 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent)
   data_length = 0;
   img_width = img_height = 0;
   data_to_screen_ratio = 0;
-  stav = Z_GRAF;
+  stav = stav_pred_chybou = Z_GRAF;
+
+  kamera = n_kamera;
+
   //initialized = false;
   
   m_glRC = new wxGLContext(this);
@@ -71,67 +74,118 @@ wxGLCanvasSubClass::~wxGLCanvasSubClass()
  delete m_glRC;
 }
 
-void wxGLCanvasSubClass::Graf(const short *n_data, int n_data_length)
+void wxGLCanvasSubClass::Align()
 {
- stav = Z_GRAF;
- //Delka dat je dynamicka, muze se zmenit za behu programu
- if (data_length != n_data_length)
- {
-  //promenna data uz ukazuje na nejakou pamet
-  if (data != NULL)
-   delete [] data; //Uvolnim starou pamet
-  data = new short[n_data_length];  //Alokuji pamet nove delky
-  data_length = n_data_length;  //Aktualizuji delku dat
-  //Pomer delky dat ku sirce obrazovky
-  //data_to_screen_ratio = data_length/WIDTH;
-  //if (data_to_screen_ratio == 0)
-  // data_to_screen_ratio = 1;
- }
- //Prekopiruji nova data do interniho bufferu (zde je jeste prevod z 10bitovych dat v poli na byty)
- memcpy(data, n_data, data_length*sizeof(short));
+ Centre();
+}
 
- //Vykreslit
+void wxGLCanvasSubClass::ToggleDisplay()
+{
+ if (stav == Z_CHYBA)
+ {
+  if (stav_pred_chybou == Z_GRAF)
+  {
+   stav_pred_chybou = Z_OBRAZ;
+  } else
+  {
+   stav_pred_chybou = Z_GRAF;
+  }
+ } else
+ {
+  if (stav == Z_GRAF)
+  {
+   stav = Z_OBRAZ;
+  } else
+  {
+   stav = Z_GRAF;
+  }
+ }
+}
+
+void wxGLCanvasSubClass::SetDisplay(int type)
+{
+ if (stav == Z_CHYBA)
+ {
+  stav_pred_chybou = type;
+ } else
+ {
+  stav = type;
+ }
+}
+
+void wxGLCanvasSubClass::Graf(short *n_data, int n_data_length)
+{
+ if (data != NULL)
+  delete [] data; //Uvolnim starou pamet
+
+ //Delka dat je dynamicka, muze se zmenit za behu programu
+ data_length = n_data_length;  //Aktualizuji delku dat
+
+ //Prekopiruji nova data do interniho bufferu
+ data = n_data;
+
+ //Vykreslit (pravdepodobne zavola paintEvent)
  Refresh(false);
 }
 
 
-void wxGLCanvasSubClass::Obraz(const unsigned char *n_data, short width, short height)
+void wxGLCanvasSubClass::Obraz(unsigned char *n_data, short width, short height)
 {
- stav = Z_OBRAZ;
  //Delka dat je dynamicka, muze se zmenit za behu programu
- if (img_width != width || img_height != height)
- {
-  //promenna data uz ukazuje na nejakou pamet
-  if (data != NULL)
-   delete [] data; //Uvolnim starou pamet
-  obr_data = new unsigned char[width * height * 3];  //Alokuji pamet nove delky
-  img_width = width;  //Aktualizuji sirku obrazku
-  img_height = height;  //Aktualizuji delku dat
-  //Pomer delky dat ku sirce obrazovky
-  //data_to_screen_ratio = data_length/WIDTH;
-  //if (data_to_screen_ratio == 0)
-  // data_to_screen_ratio = 1;
- }
- //Prekopiruji nova data do interniho bufferu (zde je jeste prevod z 10bitovych dat v poli na byty)
- memcpy(obr_data, n_data, width * height * 3);
+ if (obr_data != NULL)
+  delete [] obr_data; //Uvolnim starou pamet
+ img_width = width;  //Aktualizuji sirku obrazku
+ img_height = height;  //Aktualizuji delku dat
 
- //Vykreslit
+ //Prekopiruji nova data do interniho bufferu
+ obr_data = n_data;
+
+ //Vykreslit (pravdepodobne zavola paintEvent)
  Refresh(false);
 }
 
 void wxGLCanvasSubClass::Chyba()
 {
- stav = Z_CHYBA;	//chyba
  Refresh(false);
 }
 
 
-//Staci jenom prijit na to, jak zavolat podobnej event kdy budem potrebovat
-void wxGLCanvasSubClass::Paintit(wxPaintEvent& WXUNUSED(event))
+void wxGLCanvasSubClass::paintEvent(wxPaintEvent& WXUNUSED(event))
 {
  Render();
 }
- 
+
+void wxGLCanvasSubClass::paintNow()
+{
+ switch (stav)
+ {
+ case Z_CHYBA: Chyba(); break;
+ case Z_GRAF: {
+			   short *data;
+			   int data_length = kamera->Sample(data);
+			   if (data_length == 0)
+			   {
+			    stav = Z_CHYBA;
+			   } else
+			   {
+			    Graf(data, data_length);
+			   }
+			   break;
+			  }
+ case Z_OBRAZ: {
+				unsigned char *data;
+				if (!kamera->Obrazek(data))
+				{
+				 stav = Z_CHYBA;
+				} else
+				{
+				 Obraz(data, kamera->GetWidth(), kamera->GetHeight());
+				}
+				break;
+			   }
+ }
+}
+
 void wxGLCanvasSubClass::Render()
 {
   //Sracky, co tu asi musej bejt
@@ -147,7 +201,7 @@ void wxGLCanvasSubClass::Render()
  //    initialized = true;
  //}
 
- glClearColor(0.2, 0.9, 0.0, 0.0);
+ glClearColor(0.0, 0.0, 0.0, 0.0);
  glClear(GL_COLOR_BUFFER_BIT);
  //glViewport(0, 0, (GLint)GetSize().x, (GLint)GetSize().y);
  
@@ -178,7 +232,7 @@ void wxGLCanvasSubClass::Render()
   for (int i = 0; i < data_length; i++)
   {
    x = 2.0*double(i - data_length/2)/double(data_length);
-   y = 2.0*double(data[i] - SAMPLE_MAX_VALUE/2)/SAMPLE_MAX_VALUE;
+   y = 2.0*double(data[i] - SAMPLE_MAX_VALUE/2.0)/SAMPLE_MAX_VALUE;
    glVertex2d(x, y);
   }
   glEnd();

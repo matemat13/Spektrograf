@@ -9,7 +9,6 @@ int Kamera::Sample(short *&buffer)
  if (stav != STAV_OK) return 0;
 
  int ret = 0;
- if (buffer != NULL) delete buffer;
 
 
  if (img_rotation == 0)
@@ -18,7 +17,7 @@ int Kamera::Sample(short *&buffer)
   buffer = new short[ret];
   for (int i = 0; i < ret; i++)
   {
-   buffer[i] = (pBuffer[radek_posun*iWidth*3 + i*3] + pBuffer[radek_posun*iWidth*3 + i*3] + pBuffer[radek_posun*iWidth*3 + i*3])/3;
+   buffer[i] = (pBuffer[radek_posun*iWidth*3 + i*3] + pBuffer[radek_posun*iWidth*3 + i*3 +1] + pBuffer[radek_posun*iWidth*3 + i*3 +2]);
   }
  } else if (img_rotation == 1)
  {
@@ -26,7 +25,7 @@ int Kamera::Sample(short *&buffer)
   buffer = new short[ret];
   for (int i = 0; i < ret; i++)	//Prirazuje se po trech, kvuli subpixelum
   {
-   buffer[i] = (pBuffer[(radek_posun + i*iWidth)*3] + pBuffer[(radek_posun + i*iWidth)*3 + 1] + pBuffer[(radek_posun + i*iWidth)*3 + 2])/3;
+   buffer[i] = (pBuffer[(radek_posun + i*iWidth)*3] + pBuffer[(radek_posun + i*iWidth)*3 + 1] + pBuffer[(radek_posun + i*iWidth)*3 + 2]);
   }
  } else if (img_rotation == 2)
  {
@@ -34,7 +33,7 @@ int Kamera::Sample(short *&buffer)
   buffer = new short[ret];
   for (int i = ret -1; i >= 0; i--)
   {
-   buffer[i] = (pBuffer[radek_posun*iWidth*3 + i*3] + pBuffer[radek_posun*iWidth*3 + i*3] + pBuffer[radek_posun*iWidth*3 + i*3])/3;
+   buffer[i] = (pBuffer[radek_posun*iWidth*3 + i*3] + pBuffer[radek_posun*iWidth*3 + i*3 +1] + pBuffer[radek_posun*iWidth*3 + i*3 +2]);
   }
  } else if (img_rotation == 3)
  {
@@ -42,7 +41,7 @@ int Kamera::Sample(short *&buffer)
   buffer = new short[ret];
   for (int i = ret -1; i >= 0; i--)	//Prirazuje se po trech, kvuli subpixelum
   {
-   buffer[i] = (pBuffer[(radek_posun + i*iWidth)*3] + pBuffer[(radek_posun + i*iWidth)*3 + 1] + pBuffer[(radek_posun + i*iWidth)*3 + 2])/3;
+   buffer[i] = (pBuffer[(radek_posun + i*iWidth)*3] + pBuffer[(radek_posun + i*iWidth)*3 + 1] + pBuffer[(radek_posun + i*iWidth)*3 + 2]);
   }
  }
  return ret;
@@ -55,43 +54,43 @@ bool Kamera::Obrazek(unsigned char *&img)
 
  if (stav != STAV_OK) return false;
  
- if (img != NULL) delete img;
  img = new unsigned char[iWidth*iHeight*3];
 
+ memcpy(img, pBuffer, iWidth*iHeight*3);
+
+ 
  //Nakresleni cary, ze ktere se bere radek
  if (img_rotation == 0)
  {
   int length = iWidth*3;
   for (int i = 0; i < length; i++)
   {
-   pBuffer[radek_posun*iWidth*3 + i] = 255;
+   img[radek_posun*iWidth*3 + i] = 255;
   }
  } else if (img_rotation == 1)
  {
   for (int i = 0; i < iHeight; i++)	//Prirazuje se po trech, kvuli subpixelum
   {
-   pBuffer[(radek_posun + i*iWidth)*3] = 255;	//Red
-   pBuffer[(radek_posun + i*iWidth)*3 + 1] = 255;	//Green
-   pBuffer[(radek_posun + i*iWidth)*3 + 2] = 255;	//Blue
+   img[(radek_posun + i*iWidth)*3] = 255;	//Red
+   img[(radek_posun + i*iWidth)*3 + 1] = 255;	//Green
+   img[(radek_posun + i*iWidth)*3 + 2] = 255;	//Blue
   }
  } else if (img_rotation == 2)
  {
   int length = iWidth*3;
   for (int i = length -1; i >= 0; i--)
   {
-   pBuffer[radek_posun*iWidth*3 + i] = 255;
+   img[radek_posun*iWidth*3 + i] = 255;
   }
  } else if (img_rotation == 3)
  {
   for (int i = iHeight -1; i > 0; i--)	//Prirazuje se po trech, kvuli subpixelum
   {
-   pBuffer[(radek_posun + i*iWidth)*3] = 255;	//Red
-   pBuffer[(radek_posun + i*iWidth)*3 + 1] = 255;	//Green
-   pBuffer[(radek_posun + i*iWidth)*3 + 2] = 255;	//Blue
+   img[(radek_posun + i*iWidth)*3] = 255;	//Red
+   img[(radek_posun + i*iWidth)*3 + 1] = 255;	//Green
+   img[(radek_posun + i*iWidth)*3 + 2] = 255;	//Blue
   }
  }
- 
- memcpy(img, pBuffer, iWidth*iHeight*3);
 
  return true;
 }
@@ -531,6 +530,8 @@ bool Kamera::KeepFPS()
    still_imgs = 0;
   }
  } else return false;
+
+
 
  stav = STAV_OK;
  memcpy(oldBuffer, pBuffer, buffer_size);

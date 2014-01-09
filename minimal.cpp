@@ -1,7 +1,6 @@
 #include "main.hpp"
 //adsad
 
-
 class AppMain;
 class FrameMain : public wxFrame
 {
@@ -16,22 +15,16 @@ public:
 	void OnMousedown(wxMouseEvent& event);
 	void OnMouseup(wxMouseEvent& event);
 	void OnMouseout(wxMouseEvent& event);
-	void OnNewSample(wxThreadEvent& event);
 
 	/**Layout initialisation**/
 	void Align(wxCommandEvent& WXUNUSED(event));
-	
-	//General critical section for multithreading
-	wxCriticalSection m_sThreadCS;
-	SamplingThread *sThread;
+
 private:
-	void startSamplingThread();
-	
 	wxGLCanvasSubClass* GLcanvas;
 	UVStatusPanel *uvbut;
 	bool drawing;
 
-	SettingsManager *SetMan;
+
 	QuitButton *quitBut;
 	MaxDemaxButton *maxBut;
 	ScreenshotButton *scrBut;
@@ -41,7 +34,7 @@ private:
 	bool dragged;
 	wxPoint dragPoint;
 	/**Application reference**/
-	AppMain *application;
+//	AppMain application;
 
 	/**Moar events**/
 	RenderTimer *timer;
@@ -63,7 +56,7 @@ public:
     virtual bool OnInit();
 private:
 	FrameMain *frame;
-	//SettingsManager *setMgr;
+	SettingsManager *setMgr;
 	/**Window status**/
 	bool start_maximized;
 	bool locked;
@@ -77,13 +70,10 @@ private:
 BEGIN_EVENT_TABLE(FrameMain, wxFrame)
  EVT_BUTTON(BUTTON_Quit,  FrameMain::OnQuit)
  EVT_BUTTON(BUTTON_Max,  FrameMain::OnMax)
- //Sample event - redraw
- EVT_THREAD(STHREAD_EVENT, FrameMain::OnNewSample)
 END_EVENT_TABLE()
 
-//OpenGL canvas events
 BEGIN_EVENT_TABLE(wxGLCanvasSubClass, wxGLCanvas)
-    EVT_PAINT    (wxGLCanvasSubClass::Paintit)
+    EVT_PAINT    (wxGLCanvasSubClass::paintEvent)
 END_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
@@ -126,7 +116,7 @@ FrameMain::FrameMain(const wxString& title)
   //Png pokus
   //wxStaticBitmap *ikona2 = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("pokus"), wxBITMAP_TYPE_PNG_RESOURCE), wxPoint(0,0));
   //Inicializace nastaveni
-  SetMan = new SettingsManager();
+  SettingsManager *SetMan = new SettingsManager();
   //Maximize();
 
   quitBut = new QuitButton(this, BUTTON_Quit);
@@ -152,15 +142,18 @@ FrameMain::FrameMain(const wxString& title)
   //UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
   /**Graf**/
   /*graf =  new GraphPanel(this, SetMan);
-  grBut = new GraphButton(this, wxID_ANY, &(graf->drawMode));
+  grBut = new GraphButton(this, wxID_ANY, &(graf->drawMode));*/
   //graf->Hide();
-  timer = new RenderTimer(graf);
-  timer->start();*/
   
-  GLcanvas = new wxGLCanvasSubClass(this);
+
+  GLcanvas = new wxGLCanvasSubClass(this, new Kamera(SetMan));
   GLcanvas->Centre();
 
-  startSamplingThread();
+
+  timer = new RenderTimer(GLcanvas);
+  timer->start();
+
+  
 
   /*
   wxClientDC dc(this);
@@ -201,64 +194,7 @@ void FrameMain::DrawImage(wxDC &dc)
   dc.DrawBitmap(bitmap,0,0, false);
 }*/
 
- 
-
-void FrameMain::startSamplingThread()
-{
- sThread = new SamplingThread(this, SetMan);
- if (sThread->Create() != wxTHREAD_NO_ERROR)
- {
-  wxLogError(wxT("Can't create thread!"));
- }
-
- wxCriticalSectionLocker enter(m_sThreadCS);
-
- if (sThread->Run() != wxTHREAD_NO_ERROR)
- {
-  wxLogError(wxT("Can't start thread!"));
- }
-}
-
-
-
 // event handlers
-void FrameMain::OnNewSample(wxThreadEvent& event)
-{
-	switch (event.GetInt())
- {
- case 0: GLcanvas->Chyba();
-		 break;
- case 1: {
-		  short *data = event.GetPayload<short*>();
-		  int data_length = event.GetExtraLong();
-		  //Delat veci s datamami
-		  GLcanvas->Graf(data, data_length);
-		  delete [] data;
-		  break;
-		 }
- case 2: {
-	      unsigned char *data = event.GetPayload<unsigned char*>();
-		  short width = ((short*)data)[0];
-		  short height = ((short*)data)[1];
-		  data = data+sizeof(short)*2;
-		  //Delat veci s datamami
-		  GLcanvas->Obraz(data, width, height);
-		  delete [] data;
-		  break;
-		 }
- }
- //if ( n == -1 )
- //{
-
- // // the dialog is aborted because the event came from another thread, so
- // // we may need to wake up the main event loop for the dialog to be
- // // really closed
- // wxWakeUpIdle();
- //}
-}
-
-
-
 void FrameMain::OnMousemove(wxMouseEvent& event) {
 	if(dragged) 
 	{
@@ -283,7 +219,8 @@ void FrameMain::OnMouseout(wxMouseEvent& WXUNUSED(event)) {
 
 void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
 {
- //timer->Stop();
+ timer->Stop();
+ //GLcanvas->ToggleDisplay();
  //graf->Hide();
  if (IsMaximized(GetHWND()))
  {
@@ -300,48 +237,27 @@ void FrameMain::Align(wxCommandEvent& WXUNUSED(event)) {
  /*if(graf->IsShownOnScreen()) 
  {
    timer->Stop();
-   graf->Hide();
+   //graf->Hide();
  }*/
+ GLcanvas->Align();
+ timer->Start();
  uvbut->Align();
-
- //Tohle si potom predelej, kdyz budes potrebovat
- GLcanvas->Centre();
  //graf->Align();
  quitBut->Align();
  maxBut->Align();
  maxBut->ToggleState(!IsMaximized(GetHWND()));
  grBut->Align();
  scrBut->Align();
- //sThread->setState(sThread->getState()==Z_GRAF?Z_OBRAZ:Z_GRAF);
- /*graf->Show();
- timer->Start();
- graf->SetFocus();*/
+
+ //graf->Show();
+ //graf->SetFocus();
 }
 
 void FrameMain::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
- {
-  wxCriticalSectionLocker enter(m_sThreadCS);
-  if (sThread)         // does the thread still exist?
-  {
-   wxMessageOutputDebug().Printf("MYFRAME: deleting thread");
-   if (sThread->Delete() != wxTHREAD_NO_ERROR )
-   wxLogError("Can't delete the thread!");
-  }
- }       // exit from the critical section to give the thread
-         // the possibility to enter its destructor
-         // (which is guarded with m_pThreadCS critical section!)
- while (1)
- {
-  { // was the ~MyThread() function executed?
-   wxCriticalSectionLocker enter(m_sThreadCS);
-   if (!sThread) break;
-  }
-     // wait for thread completion
-  wxThread::This()->Sleep(1);
- }
- Destroy();
- //Close(true);
+ timer->Stop();
+ delete timer;
+ Close(true);
 }
 
 
@@ -404,120 +320,4 @@ bool AppMain::OnCmdLineParsed(wxCmdLineParser& parser)
 
 	start_maximized = parser.Found(wxT("m"));
     return true;
-}
-
-
-
-/**SAMPLING THREAD**/
-SamplingThread::SamplingThread(FrameMain *frame, SettingsManager *n_SetMan) : wxThread()
-{
- m_frame = frame;
- lastState = state = Z_GRAF;
- imgData = NULL;
- buffer = NULL;
- zdroj = new Kamera(n_SetMan);
-}
-
-void SamplingThread::OnExit()
-{
-}
-
-wxThread::ExitCode SamplingThread::Entry()
-{
-
- //Pocet cteni na jeden sample
- sample_length = DEFAULT_SAMPLE_LENGTH;
- 
- clock_t lastclock = clock();
- clock_t curclock = lastclock;
- clock_t sleeptime = SAMPLING_PERIOD;
- bool sample_ok;
- while (true)
- {
-  // check if we were asked to exit
-  if (TestDestroy())
-      break;
-
-  if (getState() == Z_GRAF)	//Zobrazujeme graf
-  {
-   //Takes some time, so we should check for exit after this
-   sample_ok = getSample();
-  } else
-  {
-   sample_ok = getImage();
-  }
-  
-  // check if we were asked to exit
-  if (TestDestroy())
-      break;
-  //Indicate fault
-  if (!sample_ok)
-  {
-   lastState = state;
-   state = Z_CHYBA;
-   // create any type of command event here
-   wxThreadEvent event( wxEVT_THREAD, STHREAD_EVENT);
-   event.SetInt(Z_CHYBA);
-   wxQueueEvent(m_frame, event.Clone());
-  } else
-  {
-   if (getState() == Z_CHYBA)
-   {
-    setState(lastState);
-   }
-   // create any type of command event here
-   wxThreadEvent event( wxEVT_THREAD, STHREAD_EVENT);
-   event.SetInt(getState());
-   if (getState() == Z_GRAF)
-   {
-    event.SetExtraLong(sample_length);
-    event.SetPayload<short*>(buffer);
-   } else if (getState() == Z_OBRAZ)
-   {
-	unsigned char *tmp = imgData;
-	short sirka = zdroj->GetWidth();
-	short vyska = zdroj->GetHeight();
-    imgData = new unsigned char[sirka*vyska*3+2*sizeof(short)];
-	memcpy(imgData+2*sizeof(short), tmp, sirka*vyska*3);
-	((short*)imgData)[0] = sirka;
-	((short*)imgData)[1] = vyska;
-    event.SetPayload<unsigned char*>(imgData);
-   }
-   // send in a thread-safe way
-   wxQueueEvent(m_frame, event.Clone());
-  }
-  curclock = clock();
-  sleeptime = SAMPLING_PERIOD - (curclock-lastclock)*1000/CLOCKS_PER_SEC;
-  lastclock = curclock;
-  if (sleeptime > 0)
-   wxMilliSleep(sleeptime);
-  else
-   continue;
- }
-
- return NULL;
-}
-
-bool SamplingThread::getSample()
-{
- bool ok = true;
-
- if ((sample_length = zdroj->Sample(buffer)) == 0)
- {
-  ok = false;
- }
-
- return ok;
-}
-
-bool SamplingThread::getImage()
-{
- return zdroj->Obrazek(imgData);
-}
-
-SamplingThread::~SamplingThread()
-{
- wxCriticalSectionLocker enter(m_frame->m_sThreadCS);
- // the thread is being destroyed; make sure not to leave dangling pointers around
- m_frame->sThread = NULL;
 }

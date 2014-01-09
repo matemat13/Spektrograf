@@ -18,27 +18,32 @@
 #define WIDTH 640
 #define HEIGHT 480
 
-class CBitmapFont;
 
 class wxGLCanvasSubClass: public wxGLCanvas {
 public:
-    wxGLCanvasSubClass(wxFrame* parent);
-    void Paintit(wxPaintEvent& event);
-    void Graf(const short *n_data, int n_data_length);
-    void Obraz(const unsigned char *n_data, short width, short height);
-	void Chyba();
+    wxGLCanvasSubClass(wxFrame* parent, Kamera *n_kamera);
+    void paintEvent(wxPaintEvent& event);
+	void paintNow();
+	void Align();
+	//Zmenit typ zobrazeni - graf/obraz
+	void SetDisplay(int type);
+	void ToggleDisplay();
     ~wxGLCanvasSubClass();
     DECLARE_EVENT_TABLE()
 private:
+  void Graf(short *n_data, int n_data_length);
+  void Obraz(unsigned char *n_data, short width, short height);
+  void Chyba();
+  void Render();
   //bool initialized;
+  Kamera *kamera;
   wxGLContext *m_glRC;
   unsigned char *chyba_obr;
-  void Render();
   short* data;
   unsigned char* obr_data;
   int data_length, data_to_screen_ratio;
   short img_width, img_height;
-  int stav;
+  int stav, stav_pred_chybou;
 };
  
  
@@ -66,8 +71,3 @@ private:
 	wxImage *kamObr;
 	wxBitmap bitmap;
 };
-
-
-// COutlineFont is a class which encapsulates the details necessary
-// to draw outline font text in OpenGL on the Windows platform.
-

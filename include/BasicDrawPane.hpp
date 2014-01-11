@@ -44,6 +44,13 @@ private:
   int data_length, data_to_screen_ratio;
   short img_width, img_height;
   int stav, stav_pred_chybou;
+
+  bool dragged;
+  
+	void OnMousemove(wxMouseEvent& event);
+	void OnMousedown(wxMouseEvent& event);
+	void OnMouseup(wxMouseEvent& event);
+	void OnMouseout(wxMouseEvent& event);
 };
  
  

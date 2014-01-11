@@ -32,6 +32,7 @@ void SettingsManager::SetSetting(int id, int set)
  if (id < SETS::SETS_LAST)
  {
   sets[id].value = set;
+  //Doopravdy se zapise jen, pokud je flag set.save true
   WriteSetting(sets[id]);
  }
 }
@@ -40,7 +41,8 @@ bool SettingsManager::LoadSettingsFile()
 {
  for (int i = 0; i < SETS::SETS_LAST; i++)
  {
-  SettingsFile >> sets[i].value;
+  if (sets[i].save)
+   SettingsFile >> sets[i].value;
  }
 
 
@@ -130,9 +132,15 @@ bool SettingsManager::CreateSettingsFile()
 
 bool SettingsManager::WriteSetting(setting &set)
 {
- SettingsFile.seekp(set.fpos);
- SettingsFile << set.value;
- return SettingsFile.good();
+ if (set.save)
+ {
+  SettingsFile.seekp(set.fpos);
+  SettingsFile << set.value;
+  return SettingsFile.good();
+ } else
+ {
+  return false;
+ }
 }
 
 
@@ -145,6 +153,7 @@ SettingsManager::SettingsManager(void)
   sets[i].fpos = i*sizeof(setting().value);
   switch (i)
   {
+   default: sets[i].save = true;
    case SETT_CAM_N: sets[i].value = 1;	break;
    case SETT_LINE_POS: sets[i].value = 320;	break;
    case SETT_CAM_ROT: sets[i].value = 1;	break;
@@ -153,6 +162,7 @@ SettingsManager::SettingsManager(void)
    case SETT_CAM_COM: sets[i].value = 0;	break;
    case SETT_CAM_WBA: sets[i].value = 6000;	break;
    case SETT_CAM_GAI: sets[i].value = 0;	break;
+   case SETT_GEN_CFG: sets[i].value = 0; sets[i].save = false; break;
   }
  }
  if (!OpenSettingsFile())

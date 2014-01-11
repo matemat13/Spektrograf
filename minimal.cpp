@@ -6,7 +6,7 @@ class FrameMain : public wxFrame
 {
 public:
 	//Constructor
-    FrameMain(const wxString& title);
+    FrameMain(const wxString& title, SettingsManager *n_SetMan);
 
     // event handlers (these functions should _not_ be virtual)
     void OnQuit(wxCommandEvent& event);
@@ -22,6 +22,7 @@ public:
 private:
 	wxGLCanvasSubClass* GLcanvas;
 	UVStatusPanel *uvbut;
+	SettingsManager *SetMan;
 	bool drawing;
 
 
@@ -57,8 +58,14 @@ public:
 private:
 	FrameMain *frame;
 	SettingsManager *setMgr;
+	/**Command line init switches**/
+	//-m found -> start maximized
+	bool cmd_start_maximized;
+	//-c found -> start in config mode
+	bool cmd_config_mode;
+
+	
 	/**Window status**/
-	bool start_maximized;
 	bool locked;
 	std::string password;
 	//void activateRenderLoop(bool on);
@@ -94,7 +101,7 @@ IMPLEMENT_APP(AppMain)
 
 
 // frame constructor
-FrameMain::FrameMain(const wxString& title)
+FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
        : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(800,600), 0)
 {
  SetFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
@@ -116,7 +123,7 @@ FrameMain::FrameMain(const wxString& title)
   //Png pokus
   //wxStaticBitmap *ikona2 = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("pokus"), wxBITMAP_TYPE_PNG_RESOURCE), wxPoint(0,0));
   //Inicializace nastaveni
-  SettingsManager *SetMan = new SettingsManager();
+  SetMan = n_SetMan;
   //Maximize();
 
   quitBut = new QuitButton(this, BUTTON_Quit);
@@ -209,18 +216,18 @@ void FrameMain::OnMousedown(wxMouseEvent& event) {
         dragPoint = wxPoint(event.GetX(), event.GetY());
 	}
 }
-void FrameMain::OnMouseup(wxMouseEvent& WXUNUSED(event)) {
+void FrameMain::OnMouseup(wxMouseEvent& event) {
     dragged = false;
 }
 
-void FrameMain::OnMouseout(wxMouseEvent& WXUNUSED(event)) {
+void FrameMain::OnMouseout(wxMouseEvent& event) {
 	dragged = false;
 }
 
 void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
 {
  timer->Stop();
- //GLcanvas->ToggleDisplay();
+ GLcanvas->ToggleDisplay();
  //graf->Hide();
  if (IsMaximized(GetHWND()))
  {
@@ -233,6 +240,8 @@ void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
  }
  Align((wxCommandEvent)NULL);
 }
+
+
 void FrameMain::Align(wxCommandEvent& WXUNUSED(event)) {
  /*if(graf->IsShownOnScreen()) 
  {
@@ -272,7 +281,9 @@ bool AppMain::OnInit()
     wxImage::AddHandler(new wxPNGHandler);
 	wxImage::AddHandler(new wxJPEGHandler);
     // create the main application window
-    frame = new FrameMain("Spektrograf");
+
+	setMgr = new SettingsManager();
+    frame = new FrameMain("Spektrograf", setMgr);
 
 	password = std::string("heslo");
     // and show it (the frames, unlike simple controls, are not shown when
@@ -287,10 +298,13 @@ bool AppMain::OnInit()
             //sizer->Add(drawPane, 1, wxEXPAND);
  
             //frame->SetSizer(sizer);
-    frame->Show(true);
-	if(start_maximized)
-		frame->Maximize(true);
+	if(cmd_start_maximized)
+	 frame->Maximize(true);
 	
+	if (cmd_config_mode)
+	 setMgr->SetSetting(SETT_GEN_CFG, 1);
+
+    frame->Show(true);
 	//kamera = new Kamera();
 	
     //kamera->Obrazek(img);
@@ -318,6 +332,7 @@ void AppMain::OnInitCmdLine(wxCmdLineParser& parser)
 bool AppMain::OnCmdLineParsed(wxCmdLineParser& parser)
 {
 
-	start_maximized = parser.Found(wxT("m"));
+	cmd_start_maximized = parser.Found(wxT("m"));
+	cmd_config_mode = parser.Found(wxT("c"));
     return true;
 }

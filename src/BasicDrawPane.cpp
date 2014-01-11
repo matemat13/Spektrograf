@@ -10,12 +10,16 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera)
   img_width = img_height = 0;
   data_to_screen_ratio = 0;
   stav = stav_pred_chybou = Z_GRAF;
+  dragged = false;
 
   kamera = n_kamera;
-
-  //initialized = false;
-  
   m_glRC = new wxGLContext(this);
+
+  //Eventy pro posouvani zdrojove cary
+  Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(wxGLCanvasSubClass::OnMousedown), NULL, this);
+  Connect(wxEVT_LEFT_UP, wxMouseEventHandler(wxGLCanvasSubClass::OnMouseup), NULL, this);
+  Connect(wxEVT_MOTION, wxMouseEventHandler(wxGLCanvasSubClass::OnMousemove), NULL, this);
+  Connect(wxEVT_LEAVE_WINDOW, wxMouseEventHandler(wxGLCanvasSubClass::OnMouseout), NULL, this);
   
   
   wxBitmap img(640, 480, 24);
@@ -184,6 +188,31 @@ void wxGLCanvasSubClass::paintNow()
 				break;
 			   }
  }
+}
+
+// event handlers
+void wxGLCanvasSubClass::OnMousemove(wxMouseEvent& event)
+{
+ if(dragged) 
+ {
+  kamera->SetSourceLine(event.GetX(), event.GetY());
+ }
+}
+void wxGLCanvasSubClass::OnMousedown(wxMouseEvent& event)
+{
+ if(stav == Z_OBRAZ)
+ {
+  dragged = true;
+ }
+}
+void wxGLCanvasSubClass::OnMouseup(wxMouseEvent& WXUNUSED(event))
+{
+ dragged = false;
+}
+
+void wxGLCanvasSubClass::OnMouseout(wxMouseEvent& WXUNUSED(event))
+{
+ dragged = false;
 }
 
 void wxGLCanvasSubClass::Render()

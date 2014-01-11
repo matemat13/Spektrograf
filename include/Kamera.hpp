@@ -41,11 +41,12 @@ public:
 	bool Obrazek(wxImage *img);
   //Vrati true, pokud se podarilo ziskat data obrazku, jinak false
 	bool Obrazek(unsigned char *&img);
-
   //Vrati pocet hodnot, zapsanych do bufferu nebo nulu, pokud je kamera v chybnem stavu
 	int Sample(short *&buffer);
   //Vrati pocet bytu, zapsanych do bufferu nebo nulu, pokud je kamera v chybnem stavu
 	int Radek(unsigned char *&buffer);
+  //Nastavi zdrojovou caru
+  	void SetSourceLine(int x, int y);
   //Vrati error, jako cstring
 	const char *GetError() {return error_buf;};
 	int GetWidth() {return iWidth;};
@@ -84,8 +85,8 @@ private:
  IMediaControl *pMediaControl;
  AM_MEDIA_TYPE mt;
  VIDEOINFOHEADER *pVih;
- char *pBuffer;
- char *oldBuffer;
+ unsigned char *pBuffer;
+ unsigned char *oldBuffer;
 };
 
 #endif

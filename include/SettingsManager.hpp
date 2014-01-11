@@ -15,6 +15,7 @@ enum SETS
  SETT_CAM_COM,	//kompenzace backlightu
  SETT_CAM_WBA,	//white balance
  SETT_CAM_GAI,	//gain
+ SETT_GEN_CFG,	//config mode set
  SETS_LAST
 };
 
@@ -22,6 +23,7 @@ struct setting
 {
  unsigned int fpos;
  int value;
+ bool save;
  //int id;
 };
 

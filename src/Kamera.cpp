@@ -10,7 +10,6 @@ int Kamera::Sample(short *&buffer)
 
  int ret = 0;
 
-
  if (img_rotation == 0)
  {
   ret = iWidth;
@@ -58,6 +57,7 @@ bool Kamera::Obrazek(unsigned char *&img)
 
  memcpy(img, pBuffer, iWidth*iHeight*3);
 
+ SetMan->GetSetting(SETT_LINE_POS, radek_posun);
  
  //Nakresleni cary, ze ktere se bere radek
  if (img_rotation == 0)
@@ -98,7 +98,7 @@ bool Kamera::Obrazek(unsigned char *&img)
 int Kamera::Radek(unsigned char *&buffer)
 {
  int ret = 0;
- if (buffer != NULL) delete buffer;
+ //if (buffer != NULL) delete [] buffer;
 
  //Na pravidelne obnovovani bufferu s obrazkem
  KeepFPS();
@@ -164,6 +164,33 @@ HRESULT Kamera::EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum)
         pDevEnum->Release();
     }
     return hr;
+}
+
+void Kamera::SetSourceLine(int x, int y)
+{
+ if (y > iHeight)
+  y = iHeight -1;
+ else if (y <= 0)
+  y = 0;
+ if (x > iWidth)
+  x = iWidth -1;
+ else if (x <= 0)
+  x = 0;
+ switch (img_rotation)
+ {
+ case 0: //0°
+		 SetMan->SetSetting(SETT_LINE_POS, radek_posun = y);
+		 break;
+ case 1: //90°
+		 SetMan->SetSetting(SETT_LINE_POS, radek_posun = x);
+		 break;
+ case 2: //180°
+		 SetMan->SetSetting(SETT_LINE_POS, radek_posun = -y);
+		 break;
+ case 3: //270°
+		 SetMan->SetSetting(SETT_LINE_POS, radek_posun = -x);
+		 break;
+ }
 }
 
 void Kamera::NastavKamery()
@@ -275,24 +302,19 @@ void Kamera::NastavKamery()
 	Sleep(1000);
 	SetMan->GetSetting(SETT_CAM_BRI, tmp);
     hr = camera->Set(VideoProcAmp_Brightness, tmp, VideoProcAmp_Flags_Manual);
- //   if (hr != S_OK) error_message("Could not set brightness", 1);
+    if (hr != S_OK) error_message("Could not set brightness", 1);
 
 	SetMan->GetSetting(SETT_CAM_COM, tmp);
     hr = camera->Set(VideoProcAmp_BacklightCompensation, tmp, VideoProcAmp_Flags_Manual);
- //   if (hr != S_OK) error_message("Could not set backlight compensation", 1);
+    if (hr != S_OK) error_message("Could not set backlight compensation", 1);
 
 	SetMan->GetSetting(SETT_CAM_WBA, tmp);
     hr = camera->Set(VideoProcAmp_WhiteBalance, tmp, VideoProcAmp_Flags_Manual);
- //   if (hr != S_OK) error_message("Could not set white balance", 1);
-
-    /*hr = camera->Set(VideoProcAmp_WhiteBalance, 6000, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) error_message("Could not set backlight compensation", 1);
-    hr = camera->Set(VideoProcAmp_BacklightCompensation, 0, VideoProcAmp_Flags_Manual);
-    if (hr != S_OK) error_message("Could not set backlight compensation", 1);*/
+    if (hr != S_OK) error_message("Could not set white balance", 1);
 
 	SetMan->GetSetting(SETT_CAM_GAI, tmp);
     hr = camera->Set(VideoProcAmp_Gain, tmp, VideoProcAmp_Flags_Manual);
- //   if (hr != S_OK) error_message("Could not set gain", 1);
+    //if (hr != S_OK) error_message("Could not set gain", 1);
 
 	// Add capture filter to graph
 	hr = pGraph->AddFilter(pCap, L"Capture Filter");
@@ -434,8 +456,8 @@ void Kamera::NastavKamery()
 
 
 	// Allocate buffer for image
-	pBuffer = new char[buffer_size];
-	oldBuffer = new char[buffer_size];
+	pBuffer = new unsigned char[buffer_size];
+	oldBuffer = new unsigned char[buffer_size];
 	if (!pBuffer || !oldBuffer)
 	{
 	 error_message("Could not allocate data buffer for image", 1);
@@ -480,6 +502,7 @@ bool Kamera::KeepFPS()
  clock_t curClock = clock();
  if (curClock - last_frame_update > FRAME_CLOCK)
  {
+  SetMan->GetSetting(SETT_CAM_ROT, img_rotation);
   // Retrieve image data from sample grabber buffer
   hr = pSampleGrabber->GetCurrentBuffer(&buffer_size, (long*)pBuffer);
   if (hr != S_OK)
@@ -547,6 +570,8 @@ bool Kamera::Obrazek(wxImage *img)
  KeepFPS();
 
  if (stav != STAV_OK) return false;
+ 
+ SetMan->GetSetting(SETT_LINE_POS, radek_posun);
 
  //Nakresleni cary, ze ktere se bere radek
  if (img_rotation == 0)

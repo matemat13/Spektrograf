@@ -94,8 +94,11 @@
 #define Z_CHYBA 0
 #define Z_OBRAZ 1
 #define Z_GRAF 2
+#define Z_GRAF_BAR 3
 
 class FrameMain;
+class Kamera;
+class SettingsManager;
 
 class SamplingThread : public wxThread
 {

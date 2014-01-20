@@ -166,17 +166,19 @@ void ScreenshotButton::GetScreenshot(wxBitmap &screenshot) {
 
 
 
-GraphButton::GraphButton(wxFrame *parent, int id, bool *n_state) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
+GraphButton::GraphButton(wxFrame *parent, int id, SettingsManager *n_SetMan) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
 {
+ SetMan = n_SetMan;
  normal1 = wxBitmap(wxT("RC_graphicon"), wxBITMAP_TYPE_PNG_RESOURCE);
  hover1 = wxBitmap(wxT("RC_graphiconF"), wxBITMAP_TYPE_PNG_RESOURCE);
 
  normal2 = wxBitmap(wxT("RC_bitmapicon"), wxBITMAP_TYPE_PNG_RESOURCE);
  hover2 = wxBitmap(wxT("RC_bitmapiconF"), wxBITMAP_TYPE_PNG_RESOURCE);
- state = n_state;
+
  Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(GraphButton::onClick), NULL, this);
  SetCursor(wxCursor(wxCURSOR_HAND));
- ToggleState(*state);
+ SetMan->GetSetting(SETT_DIS_TYPE, state);
+ ToggleState(state);
  SetBackgroundColour(APP_STYLE_MAINBG);
  Align();
 }
@@ -187,16 +189,17 @@ void GraphButton::Align()
  GetSize(&x, &y);
  SetPosition(wxPoint(this->GetParent()->GetSize().x - x -BUT_BIG_BORDER, 2*60+BUT_BIG_BORDER));
 }
-void GraphButton::ToggleState(bool st)
+void GraphButton::ToggleState(int st)
 {
- *state = st;
- if (*state == true)
+ state = st;
+ SetMan->SetSetting(SETT_DIS_TYPE, st);
+ if (st == Z_GRAF)
  {
   SetHelpText(wxString::FromUTF8("Zobrazit obraz."));
   SetToolTip(wxString::FromUTF8("Zobrazit obraz."));
   SetBitmap(normal1);
   SetBitmapHover(hover1);
- } else //state == ST_WINDO
+ } else //state == Z_OBRAZ
  {
   SetHelpText(wxString::FromUTF8("Zobrazit graf."));
   SetToolTip(wxString::FromUTF8("Zobrazit graf."));
@@ -206,7 +209,10 @@ void GraphButton::ToggleState(bool st)
 }
 void GraphButton::ToggleState()
 {
-    ToggleState(!*state);
+ if (state == Z_GRAF)
+  ToggleState(Z_OBRAZ);
+ else //state == Z_OBRAZ
+  ToggleState(Z_GRAF);
 }
 void GraphButton::onClick(wxCommandEvent& WXUNUSED(event)) {
 	ToggleState();

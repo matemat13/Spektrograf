@@ -1,10 +1,11 @@
 #include "../include/BasicDrawPane.hpp"
 
 //Konstruktor (v cestine to zni tvvrde)
-wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera)
+wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera, SettingsManager *n_SetMan)
 :wxGLCanvas(parent, (wxGLCanvas*)(NULL), wxID_ANY, wxDefaultPosition, wxSize(WIDTH + 4, HEIGHT + 4), wxSUNKEN_BORDER)
 {
   data = NULL;
+  uchar_data = NULL;
   obr_data = NULL;
   data_length = 0;
   img_width = img_height = 0;
@@ -14,6 +15,7 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera)
 
   kamera = n_kamera;
   m_glRC = new wxGLContext(this);
+  SetMan = n_SetMan;
 
   //Eventy pro posouvani zdrojove cary
   Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(wxGLCanvasSubClass::OnMousedown), NULL, this);
@@ -132,6 +134,20 @@ void wxGLCanvasSubClass::Graf(short *n_data, int n_data_length)
  Refresh(false);
 }
 
+void wxGLCanvasSubClass::GrafBarevny(unsigned char *n_data, int n_data_length)
+{
+ if (data != NULL)
+  delete [] data; //Uvolnim starou pamet
+
+ //Delka dat je dynamicka, muze se zmenit za behu programu
+ data_length = n_data_length;  //Aktualizuji delku dat
+
+ //Prekopiruji nova data do interniho bufferu
+ uchar_data = n_data;
+
+ //Vykreslit (pravdepodobne zavola paintEvent)
+ Refresh(false);
+}
 
 void wxGLCanvasSubClass::Obraz(unsigned char *n_data, short width, short height)
 {
@@ -161,6 +177,10 @@ void wxGLCanvasSubClass::paintEvent(wxPaintEvent& WXUNUSED(event))
 
 void wxGLCanvasSubClass::paintNow()
 {
+ //Nacteni aktualniho nastaveni zobrazeni
+ int set;
+ SetMan->GetSetting(SETT_DIS_TYPE, set);
+ SetDisplay(set);
  switch (stav)
  {
  case Z_CHYBA: Chyba(); break;
@@ -176,6 +196,18 @@ void wxGLCanvasSubClass::paintNow()
 			   }
 			   break;
 			  }
+ case Z_GRAF_BAR: {
+			       unsigned char *data;
+			       int data_length = kamera->Radek(data);
+			       if (data_length == 0)
+			       {
+			        stav = Z_CHYBA;
+			       } else
+			       {
+			        GrafBarevny(data, data_length);
+			       }
+			       break;
+			      }
  case Z_OBRAZ: {
 				unsigned char *data;
 				if (!kamera->Obrazek(data))
@@ -243,13 +275,15 @@ void wxGLCanvasSubClass::Render()
  //if (data_to_screen_ratio == 0)
  //  return;
  
- if (stav == Z_CHYBA)
+
+ if (stav == Z_CHYBA) //Vykreslit chybovou hlasku
  {
+  //Vykresleni obrazku z pameti
   glDrawPixels(640, 480, GL_RGB, GL_UNSIGNED_BYTE, chyba_obr);
- } else if (stav == Z_OBRAZ)
+ } else if (stav == Z_OBRAZ) //Vykreslit obraz z kamery
  {
   glDrawPixels(img_width, img_height, GL_RGB, GL_UNSIGNED_BYTE, obr_data);
- } else if (stav == Z_GRAF)
+ } else if (stav == Z_GRAF)	//Vykreslit cernobilej graf
  {
 
   GLdouble x;

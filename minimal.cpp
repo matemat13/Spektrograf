@@ -148,12 +148,9 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
   uvbut = new UVStatusPanel(this, 100);
   //UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
   /**Graf**/
-  /*graf =  new GraphPanel(this, SetMan);
-  grBut = new GraphButton(this, wxID_ANY, &(graf->drawMode));*/
-  //graf->Hide();
+  grBut = new GraphButton(this, wxID_ANY, SetMan);
   
-
-  GLcanvas = new wxGLCanvasSubClass(this, new Kamera(SetMan));
+  GLcanvas = new wxGLCanvasSubClass(this, new Kamera(SetMan), SetMan);
   GLcanvas->Centre();
 
 
@@ -227,7 +224,7 @@ void FrameMain::OnMouseout(wxMouseEvent& event) {
 void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
 {
  timer->Stop();
- GLcanvas->ToggleDisplay();
+
  //graf->Hide();
  if (IsMaximized(GetHWND()))
  {

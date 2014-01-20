@@ -23,6 +23,7 @@ EXTERN_C const CLSID CLSID_SampleGrabber;
 #define FPS 30
 #define FRAME_CLOCK CLOCKS_PER_SEC/FPS
 
+class SettingsManager;
 
 enum
 {

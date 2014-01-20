@@ -155,14 +155,15 @@ SettingsManager::SettingsManager(void)
   {
    default: sets[i].save = true;
    case SETT_CAM_N: sets[i].value = 1;	break;
-   case SETT_LINE_POS: sets[i].value = 320;	break;
    case SETT_CAM_ROT: sets[i].value = 1;	break;
    case SETT_CAM_EXP: sets[i].value = 0;	break;
    case SETT_CAM_BRI: sets[i].value = 0;	break;
    case SETT_CAM_COM: sets[i].value = 0;	break;
    case SETT_CAM_WBA: sets[i].value = 6000;	break;
    case SETT_CAM_GAI: sets[i].value = 0;	break;
+   case SETT_LINE_POS: sets[i].value = 320;	break;
    case SETT_GEN_CFG: sets[i].value = 0; sets[i].save = false; break;
+   case SETT_DIS_TYPE: sets[i].value = Z_GRAF; break;
   }
  }
  if (!OpenSettingsFile())

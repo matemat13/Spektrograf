@@ -7,7 +7,9 @@
 
 #include <algorithm>
 
-	 
+class SettingsManager;
+class Kamera;	 
+
 class GraphPanel : public wxPanel
 {
  

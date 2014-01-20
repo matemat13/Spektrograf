@@ -18,10 +18,12 @@
 #define WIDTH 640
 #define HEIGHT 480
 
+class Kamera;
+class SettingsManager;
 
 class wxGLCanvasSubClass: public wxGLCanvas {
 public:
-    wxGLCanvasSubClass(wxFrame* parent, Kamera *n_kamera);
+    wxGLCanvasSubClass(wxFrame* parent, Kamera *n_kamera, SettingsManager *n_SetMan);
     void paintEvent(wxPaintEvent& event);
 	void paintNow();
 	void Align();
@@ -32,14 +34,17 @@ public:
     DECLARE_EVENT_TABLE()
 private:
   void Graf(short *n_data, int n_data_length);
+  void GrafBarevny(unsigned char *n_data, int n_data_length);
   void Obraz(unsigned char *n_data, short width, short height);
   void Chyba();
   void Render();
   //bool initialized;
   Kamera *kamera;
   wxGLContext *m_glRC;
+  SettingsManager *SetMan;
   unsigned char *chyba_obr;
   short* data;
+  unsigned char* uchar_data;
   unsigned char* obr_data;
   int data_length, data_to_screen_ratio;
   short img_width, img_height;

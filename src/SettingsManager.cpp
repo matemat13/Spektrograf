@@ -1,6 +1,31 @@
 #include "../include/SettingsManager.hpp"
 
-bool SettingsManager::GetSetting(int id, int &set)
+unsigned int CountLines(std::ifstream &file)
+{
+ file.seekg(std::ifstream::beg);
+ std::string s;
+ unsigned int ret = 0;
+ while (!file.eof())
+ {
+  std::getline(file, s);
+  ret++;
+ }
+ return ret;
+}
+
+unsigned int GoToLine(std::fstream &file, unsigned int line)
+{
+ file.seekg(std::fstream::beg);
+ std::string s;
+ for (unsigned int i = 0; i < line; ++i)
+ {
+  std::getline(file, s);
+  //file.ignore((long long)(std::numeric_limits<std::streamsize>::max), '\n');
+ }
+ return int(file.tellg());
+}
+
+bool SettingsManager::GetSetting(unsigned int id, int &set)
 {
 /*
  switch (id)
@@ -16,9 +41,13 @@ bool SettingsManager::GetSetting(int id, int &set)
  default: exit_message("Inexistent setting asked for.", 2); return false;
  }
  */
- if (id < SETS::SETS_LAST)
+ if (id < S_SETS_LAST)
  {
-  set = sets[id].value;
+  set = s_sets[id].value;
+  return true;
+ } else if (id < U_SETS_LAST)
+ {
+  set = u_sets[id].value;
   return true;
  } else
  {
@@ -26,23 +55,52 @@ bool SettingsManager::GetSetting(int id, int &set)
  }
 }
 
-
-void SettingsManager::SetSetting(int id, int set)
+int SettingsManager::GetSetting(unsigned int id)
 {
- if (id < SETS::SETS_LAST)
+/*
+ switch (id)
  {
-  sets[id].value = set;
-  //Doopravdy se zapise jen, pokud je flag set.save true
-  WriteSetting(sets[id]);
+ case SETT_CAM_N: set = cislo_kamery.value; break;
+ case SETT_LINE_POS: set = otoceni_kamery.value; break;
+ case SETT_CAM_ROT: set = cislo_kamery.value; break;
+ case SETT_CAM_EXP: set = cislo_kamery.value; break;
+ case SETT_CAM_BRI: set = cislo_kamery.value; break;
+ case SETT_CAM_COM: set = cislo_kamery.value; break;
+ case SETT_CAM_WBA: set = cislo_kamery.value; break;
+ case SETT_CAM_GAI: set = cislo_kamery.value; break;
+ default: exit_message("Inexistent setting asked for.", 2); return false;
+ }
+ */
+ if (id < S_SETS_LAST)
+ {
+  return s_sets[id].value;
+ } else if (id < U_SETS_LAST)
+ {
+  return u_sets[id].value;
+ } else
+ {
+  return -1;
+ }
+}
+
+void SettingsManager::SetSetting(unsigned int id, int set)
+{
+ if (id < S_SETS_LAST)
+ {
+  s_sets[id].value = set;
+  //Rovnou se i ulozi
+  WriteSetting(s_sets[id]);
+ } else if (id < U_SETS_LAST)
+ {
+  u_sets[id].value = set;
  }
 }
 
 bool SettingsManager::LoadSettingsFile()
 {
- for (int i = 0; i < SETS::SETS_LAST; i++)
+ for (int i = 0; i < S_N_SETS; i++)
  {
-  if (sets[i].save)
-   SettingsFile >> sets[i].value;
+  SettingsFile >> s_sets[i].value;
  }
 
 
@@ -63,11 +121,17 @@ bool SettingsManager::LoadSettingsFile()
 bool SettingsManager::OpenSettingsFile()
 {
  std::ifstream ifile("settings.bin");
- if (ifile.good())
+ if (ifile && ifile.good())
  {
+  unsigned line_count = CountLines(ifile);
   ifile.close();
+  //Neshoduje se pocet radku s poctem nastaveni
+  if (line_count != S_N_SETS +2)
+  {
+   return false;
+  }
 
-  SettingsFile.open("settings.bin", std::ios::in | std::ios::out | std::ios::binary);
+  SettingsFile.open("settings.bin", std::fstream::in | std::fstream::out);
   return true;
  } else
  {
@@ -78,13 +142,15 @@ bool SettingsManager::OpenSettingsFile()
 
 bool SettingsManager::CreateSettingsFile()
 {
- SettingsFile.open("settings.bin", std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+ SettingsFile.open("settings.bin", std::fstream::in | std::fstream::out | std::fstream::trunc);
  if (SettingsFile.good())
  {
-  for (int i = 0; i < SETS::SETS_LAST; i++)
+  SettingsFile << VERSION << '\n';
+  for (int i = 0; i < S_N_SETS; i++)
   {
-   WriteSetting(sets[i]);
+   WriteSetting(s_sets[i]);
   }
+  SettingsFile << "Spektrometr";
 	 /*
   cislo_kamery.fpos = 0*sizeof(setting().value);
   cislo_kamery.value = 0;
@@ -132,15 +198,10 @@ bool SettingsManager::CreateSettingsFile()
 
 bool SettingsManager::WriteSetting(setting &set)
 {
- if (set.save)
- {
-  SettingsFile.seekp(set.fpos);
-  SettingsFile << set.value;
-  return SettingsFile.good();
- } else
- {
-  return false;
- }
+ SettingsFile.seekp(GoToLine(SettingsFile, set.fpos), std::fstream::beg);
+ int a = SettingsFile.tellp();
+ SettingsFile << set.value << '\n';
+ return SettingsFile.good();
 }
 
 
@@ -148,26 +209,38 @@ SettingsManager::SettingsManager(void)
 {
  stav = 0;
 
- for (int i = 0; i < SETS::SETS_LAST; i++)
+ //Inicializace ukladanych nastaveni na defaultni hodnoty
+ for (int i = 0; i < S_N_SETS; i++)
  {
-  sets[i].fpos = i*sizeof(setting().value);
+  s_sets[i].fpos = i+1;
   switch (i)
   {
-   default: sets[i].save = true;
-   case SETT_CAM_N: sets[i].value = 1;	break;
-   case SETT_CAM_ROT: sets[i].value = 1;	break;
-   case SETT_CAM_EXP: sets[i].value = 0;	break;
-   case SETT_CAM_BRI: sets[i].value = 0;	break;
-   case SETT_CAM_COM: sets[i].value = 0;	break;
-   case SETT_CAM_WBA: sets[i].value = 6000;	break;
-   case SETT_CAM_GAI: sets[i].value = 0;	break;
-   case SETT_LINE_POS: sets[i].value = 320;	break;
-   case SETT_GEN_CFG: sets[i].value = 0; sets[i].save = false; break;
-   case SETT_DIS_TYPE: sets[i].value = Z_GRAF; break;
+   case SETT_CAM_N: s_sets[i].value = 1;	break;
+   case SETT_CAM_ROT: s_sets[i].value = 1;	break;
+   case SETT_CAM_EXP: s_sets[i].value = 0;	break;
+   case SETT_CAM_BRI: s_sets[i].value = 0;	break;
+   case SETT_CAM_COM: s_sets[i].value = 0;	break;
+   case SETT_CAM_WBA: s_sets[i].value = 6000;	break;
+   case SETT_CAM_GAI: s_sets[i].value = 0;	break;
+   case SETT_LINE_POS: s_sets[i].value = 320;	break;
+   case SETT_DIS_TYPE: s_sets[i].value = Z_GRAF; break;
   }
  }
+ 
+ //Inicializace neukladanych nastaveni
+ for (int set = S_SETS_LAST, i = 0; set < U_SETS_LAST; set++, i++)
+ {
+  switch (set)
+  {
+   case SETT_GEN_CFG: u_sets[i].value = 0;	break;
+   case SETT_CAM_NMAX: u_sets[i].value = 0;	break;
+  }
+ }
+
+ //Pokus o otevreni souboru s ulozenymi nastavenimi
  if (!OpenSettingsFile())
  {
+  //Pokus o vytvoreni souboru
   if (!CreateSettingsFile())
   {
    stav = -1;	//Failed to open and failed to create settings file
@@ -180,6 +253,7 @@ SettingsManager::SettingsManager(void)
   stav = 2;		//Settings file exists
  }
 
+ //Nacteni ulozenych nastaveni
  if (stav == 2)
  {
   LoadSettingsFile();

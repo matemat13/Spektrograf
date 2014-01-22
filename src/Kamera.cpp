@@ -193,6 +193,42 @@ void Kamera::SetSourceLine(int x, int y)
  }
 }
 
+void Kamera::UvolniKameru()
+{
+ //Stop the graph
+ pMediaControl->Stop();
+ 
+	// Free the format block
+	if (mt.cbFormat != 0)
+	{
+		CoTaskMemFree((PVOID)mt.pbFormat);
+		mt.cbFormat = 0;
+		mt.pbFormat = NULL;
+	}
+	if (mt.pUnk != NULL)
+	{
+		// pUnk should not be used.
+		mt.pUnk->Release();
+		mt.pUnk = NULL;
+	}
+ // Clean up DirectShow / COM stuff
+ if (pBuffer != NULL) delete[] pBuffer;
+ if (pBuffer != NULL) delete[] oldBuffer;
+ if (pMediaControl != NULL) pMediaControl->Release();	
+ if (pNullRenderer != NULL) pNullRenderer->Release();
+ if (pSampleGrabber != NULL) pSampleGrabber->Release();
+ if (pSampleGrabberFilter != NULL)
+ 		pSampleGrabberFilter->Release();
+ if (pCap != NULL) pCap->Release();
+ if (pBuilder != NULL) pBuilder->Release();
+ if (pGraph != NULL) pGraph->Release();
+ if (pPropBag != NULL) pPropBag->Release();
+ if (pMoniker != NULL) pMoniker->Release();
+ if (pEnum != NULL) pEnum->Release();
+ if (pDevEnum != NULL) pDevEnum->Release();
+ CoUninitialize();
+}
+
 void Kamera::NastavKamery()
 {
 // HRESULT hr = NULL;
@@ -248,33 +284,40 @@ void Kamera::NastavKamery()
 	}
 	
 	VARIANT var;
+
+	//Find the number of devices
 	n = 0;
 	while(1)
 	{
-		// Access next device
-		hr = pEnum->Next(1, &pMoniker, NULL);
-		if (hr == S_OK)
-		{
-			n++; // increment device count
-		}
-		else
-		{
-			if (device_number == 0)
-			{
-				fprintf(stderr,
-					"Video capture device %s not found\n",
-					device_name);
-			}
-			else
-			{
-				fprintf(stderr,
-					"Video capture device %d not found\n",
-					device_number);
-			}
-			error_message("Video capture device not found", 1);
-			return;
-		}
-    if (n >= device_number) break;
+	 // Access next device
+	 hr = pEnum->Next(1, &pMoniker, NULL);
+	 if (hr == S_OK)
+	 {
+	  n++; // increment device count
+	 }
+	 else
+	 {
+	  break;
+	 }
+	}
+	//Save the number of devices
+	SetMan->SetSetting(SETT_CAM_NMAX, n);
+
+	//Reset the enumerator
+	pEnum->Reset();
+
+	//The desired device number is higher than the number of available devices...
+	if (n < device_number)
+	{
+	 error_message("Video capture device not found", 1);
+	 return;
+	}
+
+
+	for (int i = 0; i < device_number; i++)
+	{
+	 // Access next device
+	 hr = pEnum->Next(1, &pMoniker, NULL);
 	}
 	
 	
@@ -440,7 +483,7 @@ void Kamera::NastavKamery()
 		hr = pSampleGrabber->GetCurrentBuffer(&buffer_size, NULL);
 		
 		// Keep trying until buffer_size is set to non-zero value.
-		if (hr == S_OK && buffer_size != 0) break;
+		if (hr == S_OK && buffer_size > 0) break;
 		
 		// If the return value isn't S_OK or VFW_E_WRONG_STATE
 		// then something has gone wrong. VFW_E_WRONG_STATE just
@@ -498,6 +541,12 @@ void Kamera::NastavKamery()
 bool Kamera::KeepFPS()
 {
  if (stav != STAV_OK && stav != STAV_ODPOJENO) return false;
+
+ if (SetMan->GetSetting(SETT_CAM_N) != device_number)
+ {
+  UvolniKameru();
+  NastavKamery();
+ }
 
  clock_t curClock = clock();
  if (curClock - last_frame_update > FRAME_CLOCK)
@@ -633,6 +682,7 @@ Kamera::Kamera(SettingsManager *n_SetMan)
  pVih = NULL;
  pBuffer = NULL;
  oldBuffer = NULL;
+ //Nacteni nastaveni rovnou do promennych
  SetMan->GetSetting(SETT_CAM_N, device_number);
  SetMan->GetSetting(SETT_CAM_ROT, img_rotation);
  SetMan->GetSetting(SETT_LINE_POS, radek_posun);
@@ -679,5 +729,5 @@ void Kamera::error_message(const char* error_message, int error)
 {
  stav = STAV_CHYBA;
  strcpy(error_buf, error_message);
- exit_message(error_message, error);
+// exit_message(error_message, error);
 }

@@ -12,6 +12,8 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera, Settin
   data_to_screen_ratio = 0;
   stav = stav_pred_chybou = Z_GRAF;
   dragged = false;
+  cur_width = GetParent()->GetSize().GetWidth() - 160;
+  cur_height = GetParent()->GetSize().GetHeight() - 120;
 
   kamera = n_kamera;
   m_glRC = new wxGLContext(this);
@@ -66,7 +68,7 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera, Settin
   //Nastaveni nejakejch zobrazovacich sracek
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(0, WIDTH, HEIGHT, 0, 0, 1);
+  glOrtho(0, cur_width, cur_height, 0, 0, 1);
   glDisable(GL_DEPTH_TEST);
   glMatrixMode(GL_MODELVIEW);
   
@@ -80,8 +82,23 @@ wxGLCanvasSubClass::~wxGLCanvasSubClass()
  delete m_glRC;
 }
 
+void wxGLCanvasSubClass::SetViewport()
+{
+ switch (stav)
+ {
+  case Z_CHYBA: glViewport(0, 0, 640, 480); break;
+  case Z_OBRAZ: glViewport(0, 0, img_width, img_height); break;
+  case Z_GRAF:
+  case Z_GRAF_BAR: glViewport(0, 0, cur_width, cur_height); break;
+ }
+}
+
 void wxGLCanvasSubClass::Align()
 {
+ cur_width = GetParent()->GetSize().GetWidth() - 160;
+ cur_height = GetParent()->GetSize().GetHeight() - 120;
+ SetSize(cur_width +4, cur_height +4);  //Nastaveni nejakejch zobrazovacich sracek
+ SetViewport();
  Centre();
 }
 
@@ -115,6 +132,7 @@ void wxGLCanvasSubClass::SetDisplay(int type)
   stav_pred_chybou = type;
  } else
  {
+  SetViewport();
   stav = type;
  }
 }
@@ -189,7 +207,7 @@ void wxGLCanvasSubClass::paintNow()
 			   int data_length = kamera->Sample(data);
 			   if (data_length == 0)
 			   {
-			    stav = Z_CHYBA;
+			    SetDisplay(Z_CHYBA);
 			   } else
 			   {
 			    Graf(data, data_length);
@@ -201,7 +219,7 @@ void wxGLCanvasSubClass::paintNow()
 			       int data_length = kamera->Radek(data);
 			       if (data_length == 0)
 			       {
-			        stav = Z_CHYBA;
+			        SetDisplay(Z_CHYBA);
 			       } else
 			       {
 			        GrafBarevny(data, data_length);
@@ -212,7 +230,7 @@ void wxGLCanvasSubClass::paintNow()
 				unsigned char *data;
 				if (!kamera->Obrazek(data))
 				{
-				 stav = Z_CHYBA;
+				 SetDisplay(Z_CHYBA);
 				} else
 				{
 				 Obraz(data, kamera->GetWidth(), kamera->GetHeight());

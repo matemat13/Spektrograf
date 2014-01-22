@@ -30,6 +30,8 @@ private:
 	MaxDemaxButton *maxBut;
 	ScreenshotButton *scrBut;
 	GraphButton *grBut;
+	PreviousButton *prevBut;
+	NextButton *nextBut;
 
 	/**Window status**/
 	bool dragged;
@@ -125,12 +127,34 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
   //Inicializace nastaveni
   SetMan = n_SetMan;
   //Maximize();
+  
+  /**Graf**/
+  GLcanvas = new wxGLCanvasSubClass(this, new Kamera(SetMan), SetMan);
+  GLcanvas->Centre();
+
 
   quitBut = new QuitButton(this, BUTTON_Quit);
   maxBut = new MaxDemaxButton(this, BUTTON_Max, ST_MAXED);
 
+  prevBut = new PreviousButton(this, BUTTON_Quit, SetMan);
+  nextBut = new NextButton(this, BUTTON_Quit, prevBut, SetMan);
+  prevBut->SetNextBut(nextBut);
+
   scrBut = new ScreenshotButton(this, BUTTON_Screenshot);
-  
+  grBut = new GraphButton(this, wxID_ANY, SetMan);
+  if (SetMan->GetSetting(SETT_GEN_CFG) == 0)
+  {
+   scrBut->Enable(false);
+   scrBut->Hide();
+   grBut->Enable(false);
+   grBut->Hide();
+   prevBut->Enable(false);
+   prevBut->Hide();
+   nextBut->Enable(false);
+   nextBut->Hide();
+  }
+
+
   /*drawPane = new BasicDrawPane(this, SetMan);
   timer = new RenderTimer(drawPane);
   timer->start();
@@ -147,11 +171,8 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
   /**UV panely**/
   uvbut = new UVStatusPanel(this, 100);
   //UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
-  /**Graf**/
-  grBut = new GraphButton(this, wxID_ANY, SetMan);
-  
-  GLcanvas = new wxGLCanvasSubClass(this, new Kamera(SetMan), SetMan);
-  GLcanvas->Centre();
+
+
 
 
   timer = new RenderTimer(GLcanvas);
@@ -240,11 +261,11 @@ void FrameMain::OnMax(wxCommandEvent& WXUNUSED(event))
 
 
 void FrameMain::Align(wxCommandEvent& WXUNUSED(event)) {
- /*if(graf->IsShownOnScreen()) 
+ timer->Stop();
+ if(GLcanvas->IsShownOnScreen()) 
  {
-   timer->Stop();
-   //graf->Hide();
- }*/
+   GLcanvas->Hide();
+ }
  GLcanvas->Align();
  timer->Start();
  uvbut->Align();
@@ -252,11 +273,16 @@ void FrameMain::Align(wxCommandEvent& WXUNUSED(event)) {
  quitBut->Align();
  maxBut->Align();
  maxBut->ToggleState(!IsMaximized(GetHWND()));
+ 
  grBut->Align();
  scrBut->Align();
 
- //graf->Show();
- //graf->SetFocus();
+ prevBut->Align();
+ nextBut->Align();
+
+ GLcanvas->Show();
+ GLcanvas->SetFocus();
+ timer->Start();
 }
 
 void FrameMain::OnQuit(wxCommandEvent& WXUNUSED(event))
@@ -280,6 +306,10 @@ bool AppMain::OnInit()
     // create the main application window
 
 	setMgr = new SettingsManager();
+
+	if (cmd_config_mode)
+	 setMgr->SetSetting(SETT_GEN_CFG, 1);
+
     frame = new FrameMain("Spektrograf", setMgr);
 
 	password = std::string("heslo");
@@ -298,8 +328,6 @@ bool AppMain::OnInit()
 	if(cmd_start_maximized)
 	 frame->Maximize(true);
 	
-	if (cmd_config_mode)
-	 setMgr->SetSetting(SETT_GEN_CFG, 1);
 
     frame->Show(true);
 	//kamera = new Kamera();

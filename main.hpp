@@ -142,5 +142,7 @@ enum
  TIMER_NewImage = wxID_HIGHEST,
  BUTTON_Max,
  BUTTON_Screenshot,
+ BUTTON_PrevCam,
+ BUTTON_NextCam,
  STHREAD_EVENT
 };

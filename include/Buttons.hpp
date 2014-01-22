@@ -64,3 +64,36 @@ private:
  wxBitmap normal2;
  wxBitmap hover2;
 };
+
+class NextButton;
+
+class PreviousButton : public wxButton
+{
+public:
+ PreviousButton(wxFrame *parent, int id, SettingsManager*);
+ void SetNextBut(NextButton *n_NextBut) {NextBut = n_NextBut;};
+ void onClick(wxCommandEvent& WXUNUSED(event));
+ void Align();
+private:
+ SettingsManager *SetMan;
+ NextButton *NextBut;
+ int state;
+ wxBitmap normal;
+ wxBitmap focus;
+ wxBitmap press;
+};
+
+class NextButton : public wxButton
+{
+public:
+ NextButton(wxFrame *parent, int id, PreviousButton*, SettingsManager*);
+ void onClick(wxCommandEvent& WXUNUSED(event));
+ void Align();
+private:
+ SettingsManager *SetMan;
+ PreviousButton *PrevBut;
+ int state;
+ wxBitmap normal;
+ wxBitmap focus;
+ wxBitmap press;
+};

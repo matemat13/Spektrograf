@@ -22,7 +22,14 @@ RC_graphicon RCDATA "resources/graph_but.png"
 RC_graphiconF RCDATA "resources/graph_but_active.png"
 RC_bitmapicon RCDATA "resources/bitmap_but.png"
 RC_bitmapiconF RCDATA "resources/bitmap_but_active.png"
-
+//Cudlik na vybrani dalsi kamery
+RC_nexticon RCDATA "resources/next.png"
+RC_nexticonF RCDATA "resources/next_focus.png"
+RC_nexticonP RCDATA "resources/next_press.png"
+//Cudlik na vybrani predchozi kamery
+RC_previcon RCDATA "resources/prev.png"
+RC_previconF RCDATA "resources/prev_focus.png"
+RC_previconP RCDATA "resources/prev_press.png"
 
 
 RC_USBdiscon ICON "resources/USB_discon.ico"

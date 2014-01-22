@@ -217,3 +217,94 @@ void GraphButton::ToggleState()
 void GraphButton::onClick(wxCommandEvent& WXUNUSED(event)) {
 	ToggleState();
 }
+
+
+PreviousButton::PreviousButton(wxFrame *parent, int id, SettingsManager *n_SetMan) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
+{
+ normal = wxBitmap(wxT("RC_previcon"), wxBITMAP_TYPE_PNG_RESOURCE);//wxBITMAP_TYPE_PNG
+ focus = wxBitmap(wxT("RC_previconF"), wxBITMAP_TYPE_PNG_RESOURCE);
+ press = wxBitmap(wxT("RC_previconP"), wxBITMAP_TYPE_PNG_RESOURCE);
+ SetMan = n_SetMan;
+
+ //Dal doleva uz posouvat nejde
+ if (SetMan->GetSetting(SETT_CAM_N) <= 1)
+  Enable(false);
+
+ SetCursor(wxCursor(wxCURSOR_HAND));
+ SetHelpText(wxString::FromUTF8("Použije pøedchozí kameru."));
+ SetToolTip(wxString::FromUTF8("Pøedchozí kamera"));
+ SetBitmap(normal);
+ SetBitmapHover(focus);
+ SetBitmapPressed(press);
+ SetBackgroundColour(APP_STYLE_MAINBG);
+ Align();
+ //wxEVT_COMMAND_RIGHT_DCLICK
+ Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(PreviousButton::onClick), NULL, this);
+ //Connect(wxEVT_LEFT_UP, wxMouseEventHandler(ScreenshotButton::onClick));
+}
+void PreviousButton::Align()
+{
+ SetSize(60,60);
+ int x, y;
+ GetSize(&x, &y);
+ SetPosition(wxPoint(this->GetParent()->GetSize().x - x -BUT_BIG_BORDER, 3*60+2*BUT_BIG_BORDER));
+}
+void PreviousButton::onClick(wxCommandEvent& WXUNUSED(event))
+{
+ int n = SetMan->GetSetting(SETT_CAM_N);
+ if (n-- > 0)
+ {
+  SetMan->SetSetting(SETT_CAM_N, n);
+  NextBut->Enable(true);
+  if (n == 1)
+  {
+   Enable(false);
+  }
+ }
+}
+
+NextButton::NextButton(wxFrame *parent, int id, PreviousButton *n_PrevBut, SettingsManager *n_SetMan) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
+{
+ normal = wxBitmap(wxT("RC_nexticon"), wxBITMAP_TYPE_PNG_RESOURCE);//wxBITMAP_TYPE_PNG
+ focus = wxBitmap(wxT("RC_nexticonF"), wxBITMAP_TYPE_PNG_RESOURCE);
+ press = wxBitmap(wxT("RC_nexticonP"), wxBITMAP_TYPE_PNG_RESOURCE);
+ SetMan = n_SetMan;
+ PrevBut = n_PrevBut;
+ 
+ //Dal doprava uz posouvat nejde
+ if (SetMan->GetSetting(SETT_CAM_N) >= SetMan->GetSetting(SETT_CAM_NMAX) -1)
+  Enable(false);
+
+ SetCursor(wxCursor(wxCURSOR_HAND));
+ SetHelpText(wxString::FromUTF8("Použije další kameru."));
+ SetToolTip(wxString::FromUTF8("Další kamera"));
+ SetBitmap(normal);
+ SetBitmapHover(focus);
+ SetBitmapPressed(press);
+ SetBackgroundColour(APP_STYLE_MAINBG);
+ Align();
+ //wxEVT_COMMAND_RIGHT_DCLICK
+ Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(NextButton::onClick), NULL, this);
+ //Connect(wxEVT_LEFT_UP, wxMouseEventHandler(ScreenshotButton::onClick));
+}
+void NextButton::Align()
+{
+ SetSize(60,60);
+ int x, y;
+ GetSize(&x, &y);
+ SetPosition(wxPoint(this->GetParent()->GetSize().x - x -BUT_BIG_BORDER, 4*60+2*BUT_BIG_BORDER));
+}
+void NextButton::onClick(wxCommandEvent& WXUNUSED(event))
+{
+ int n = SetMan->GetSetting(SETT_CAM_N);
+ int maxn = SetMan->GetSetting(SETT_CAM_NMAX);
+ if (++n < maxn)
+ {
+  SetMan->SetSetting(SETT_CAM_N, n);
+  PrevBut->Enable(true);
+  if (n == maxn -1)
+  {
+   Enable(false);
+  }
+ }
+}

@@ -55,6 +55,7 @@ public:
 private:
 	//Moje fce
 	HRESULT EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum);
+	void UvolniKameru();
 	void NastavKamery();
 	void error_message(const char* error_message, int error);
   bool KeepFPS();

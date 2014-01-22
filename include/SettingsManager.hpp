@@ -5,8 +5,9 @@
 #include "include/debug_exit.hpp"
 #include "include/BasicDrawPane.hpp"
 
+#define VERSION "0.9-22.1.2014"
 
-enum SETS
+enum SAVED_SETS
 {
  SETT_CAM_N,	//cislo zarizeni
  SETT_CAM_ROT,	//otoceni
@@ -16,16 +17,23 @@ enum SETS
  SETT_CAM_WBA,	//white balance
  SETT_CAM_GAI,	//gain
  SETT_LINE_POS,	//pozice cary
- SETT_GEN_CFG,	//config mode set
  SETT_DIS_TYPE,	//typ zobrazeni - graf/obraz
- SETS_LAST
+ S_SETS_LAST,		//toto musi byt vzdy predposledni prvek!
+ S_N_SETS = S_SETS_LAST	//pocet ukladanych nastaveni
+};
+
+enum UNSAVED_SETS
+{
+ SETT_GEN_CFG = S_SETS_LAST,	//config mode set
+ SETT_CAM_NMAX,	//pocet kamer, pripojenych k pocitaci
+ U_SETS_LAST,		//toto musi byt vzdy predposledni posledni prvek!
+ U_N_SETS = U_SETS_LAST - S_SETS_LAST	//pocet neukladanych nastaveni
 };
 
 struct setting
 {
  unsigned int fpos;
  int value;
- bool save;
  //int id;
 };
 
@@ -40,7 +48,8 @@ private:
 	bool WriteSetting(setting &set);
 
 	//Setting variables
-	setting sets[SETS::SETS_LAST];
+	setting s_sets[S_N_SETS];	//ukladana nastaveni
+	setting u_sets[U_N_SETS];	//neukladana nastaveni
 	/*
 	setting cislo_kamery;
 	setting pozice_vstupni_cary_kamery;
@@ -56,8 +65,9 @@ public:
 	~SettingsManager(void);
 
 	//bool GetSetting(setting &set);
-	bool GetSetting(int id, int &set);
+	bool GetSetting(unsigned int id, int &set);
+	int GetSetting(unsigned int id);
 	//void SetSetting(setting set);
-	void SetSetting(int id, int set);
+	void SetSetting(unsigned int id, int set);
 };
 

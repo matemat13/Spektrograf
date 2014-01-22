@@ -38,6 +38,7 @@ private:
   void Obraz(unsigned char *n_data, short width, short height);
   void Chyba();
   void Render();
+  void SetViewport();
   //bool initialized;
   Kamera *kamera;
   wxGLContext *m_glRC;
@@ -49,6 +50,8 @@ private:
   int data_length, data_to_screen_ratio;
   short img_width, img_height;
   int stav, stav_pred_chybou;
+  int cur_width, cur_height;
+
 
   bool dragged;
   

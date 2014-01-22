@@ -38,7 +38,7 @@ private:
   void Obraz(unsigned char *n_data, short width, short height);
   void Chyba();
   void Render();
-  void SetViewport();
+  void SetZoom();
   //bool initialized;
   Kamera *kamera;
   wxGLContext *m_glRC;

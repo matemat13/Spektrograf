@@ -41,11 +41,12 @@ class SettingsManager
 {
 private:
 	int stav;
-	std::fstream SettingsFile;
+	//std::fstream SettingsFile;
 	bool CreateSettingsFile();
 	bool OpenSettingsFile();
 	bool LoadSettingsFile();
 	bool WriteSetting(setting &set);
+	bool RewriteSetting(setting &set);
 
 	//Setting variables
 	setting s_sets[S_N_SETS];	//ukladana nastaveni

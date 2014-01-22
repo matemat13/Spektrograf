@@ -75,6 +75,7 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera, Settin
  /* glShadeModel(GL_FLAT);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glViewport(0, 0, 640, 480);*/
+  Align();
 }
  
 wxGLCanvasSubClass::~wxGLCanvasSubClass()
@@ -82,14 +83,14 @@ wxGLCanvasSubClass::~wxGLCanvasSubClass()
  delete m_glRC;
 }
 
-void wxGLCanvasSubClass::SetViewport()
+void wxGLCanvasSubClass::SetZoom()
 {
  switch (stav)
  {
-  case Z_CHYBA: glViewport(0, 0, 640, 480); break;
-  case Z_OBRAZ: glViewport(0, 0, img_width, img_height); break;
+  case Z_CHYBA: glPixelZoom(cur_width / (double) 640, cur_height / (double) 480); break;
+  case Z_OBRAZ: glPixelZoom(cur_width / (double) img_width, cur_height / (double) img_height); break;
   case Z_GRAF:
-  case Z_GRAF_BAR: glViewport(0, 0, cur_width, cur_height); break;
+  case Z_GRAF_BAR: glPixelZoom(1.0, 1.0); glViewport(0, 0, cur_width, cur_height); break;
  }
 }
 
@@ -97,8 +98,8 @@ void wxGLCanvasSubClass::Align()
 {
  cur_width = GetParent()->GetSize().GetWidth() - 160;
  cur_height = GetParent()->GetSize().GetHeight() - 120;
+ SetZoom();
  SetSize(cur_width +4, cur_height +4);  //Nastaveni nejakejch zobrazovacich sracek
- SetViewport();
  Centre();
 }
 
@@ -132,7 +133,7 @@ void wxGLCanvasSubClass::SetDisplay(int type)
   stav_pred_chybou = type;
  } else
  {
-  SetViewport();
+  SetZoom();
   stav = type;
  }
 }
@@ -245,7 +246,7 @@ void wxGLCanvasSubClass::OnMousemove(wxMouseEvent& event)
 {
  if(dragged) 
  {
-  kamera->SetSourceLine(event.GetX(), event.GetY());
+  kamera->SetSourceLine(event.GetX()*img_width/cur_width, event.GetY()*img_height/cur_height);
  }
 }
 void wxGLCanvasSubClass::OnMousedown(wxMouseEvent& event)
@@ -255,7 +256,7 @@ void wxGLCanvasSubClass::OnMousedown(wxMouseEvent& event)
   dragged = true;
  }
 }
-void wxGLCanvasSubClass::OnMouseup(wxMouseEvent& WXUNUSED(event))
+void wxGLCanvasSubClass::OnMouseup(wxMouseEvent& event)
 {
  dragged = false;
 }

@@ -57,6 +57,7 @@ public:
 	void OnInitCmdLine(wxCmdLineParser& parser);
 	bool OnCmdLineParsed(wxCmdLineParser &parser);
     virtual bool OnInit();
+	int OnExit();
 private:
 	FrameMain *frame;
 	SettingsManager *setMgr;
@@ -292,6 +293,11 @@ void FrameMain::OnQuit(wxCommandEvent& WXUNUSED(event))
  Close(true);
 }
 
+int AppMain::OnExit()
+{
+ delete setMgr;
+ return 0;
+}
 
 bool AppMain::OnInit()
 {

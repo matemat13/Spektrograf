@@ -89,7 +89,7 @@ void SettingsManager::SetSetting(unsigned int id, int set)
  {
   s_sets[id].value = set;
   //Rovnou se i ulozi
-  WriteSetting(s_sets[id]);
+  RewriteSetting(s_sets[id]);
  } else if (id < U_SETS_LAST)
  {
   u_sets[id].value = set;
@@ -98,9 +98,13 @@ void SettingsManager::SetSetting(unsigned int id, int set)
 
 bool SettingsManager::LoadSettingsFile()
 {
+ std::ifstream ifile("settings.bin");
+ std::string s;
+ std::getline(ifile, s);	//preskocit prvni radek
  for (int i = 0; i < S_N_SETS; i++)
  {
-  SettingsFile >> s_sets[i].value;
+  
+  ifile >> s_sets[i].value;
  }
 
 
@@ -131,7 +135,7 @@ bool SettingsManager::OpenSettingsFile()
    return false;
   }
 
-  SettingsFile.open("settings.bin", std::fstream::in | std::fstream::out);
+  //SettingsFile.open("settings.bin", std::fstream::in | std::fstream::out);
   return true;
  } else
  {
@@ -142,15 +146,17 @@ bool SettingsManager::OpenSettingsFile()
 
 bool SettingsManager::CreateSettingsFile()
 {
- SettingsFile.open("settings.bin", std::fstream::in | std::fstream::out | std::fstream::trunc);
- if (SettingsFile.good())
+ std::ofstream ofile("settings.bin", std::ofstream::trunc);
+ if (ofile && ofile.good())
  {
-  SettingsFile << VERSION << '\n';
+  ofile << VERSION << '\n';
   for (int i = 0; i < S_N_SETS; i++)
   {
-   WriteSetting(s_sets[i]);
+   ofile << s_sets[i].value << '\n';
+   //WriteSetting(s_sets[i]);
   }
-  SettingsFile << "Spektrometr";
+  ofile << "Spektrometr";
+  ofile.close();
 	 /*
   cislo_kamery.fpos = 0*sizeof(setting().value);
   cislo_kamery.value = 0;
@@ -196,12 +202,54 @@ bool SettingsManager::CreateSettingsFile()
  }
 }
 
+bool SettingsManager::RewriteSetting(setting &set)
+{
+ /*if (set.fpos > S_N_SETS +2)
+  return false;
+ static std::fstream file;
+ static std::string buffer[S_N_SETS +2];
+ static int filepos, fileend;
+
+ file.open("settings.bin", std::ios::out | std::ios::in);
+
+ for (unsigned int i = 0; i < S_N_SETS +2; i++)
+ {
+  if (i == set.fpos)
+  {
+   filepos = file.tellg();	//zapamatuju si misto v souboru
+  }
+  std::getline(file, buffer[i]);
+  if (i != S_N_SETS +1)	//Za poslednim radkem uz \n nebude
+   buffer[i] += '\n';
+ }
+
+ //Nahrazeni radku
+ std::stringstream a;
+ a << (set.value);
+ buffer[set.fpos] = a.str() + std::string("\n");
+
+ //Zapsani do souboru
+ file.seekp(filepos, std::fstream::beg);
+ for (int i = set.fpos; i < S_N_SETS +2; i++)
+  file << buffer[i];
+
+ //Kontrola, jestli neprebyvaji nejaka data
+ filepos = file.tellp();
+ file.seekp(0, std::fstream::end);
+ fileend = file.tellp();
+ file.seekp(filepos, std::fstream::beg);
+ file.(filepos - file.tellp())*/
+ return true;
+}
+
 bool SettingsManager::WriteSetting(setting &set)
 {
+/*
  SettingsFile.seekp(GoToLine(SettingsFile, set.fpos), std::fstream::beg);
- int a = SettingsFile.tellp();
- SettingsFile << set.value << '\n';
- return SettingsFile.good();
+ int a = SettingsFile.tellp();*/
+ //SettingsFile << set.value << '\n';
+ //return SettingsFile.good();
+	return false;
 }
 
 
@@ -263,9 +311,18 @@ SettingsManager::SettingsManager(void)
 
 SettingsManager::~SettingsManager()
 {
- if (SettingsFile.is_open())
+ //Ulozeni nastaveni
+ std::ofstream ofile("settings.bin", std::fstream::trunc);
+ ofile << VERSION << '\n';
+ for (int i = 0; i < S_N_SETS; i++)
+ {
+  ofile << s_sets[i].value << '\n';
+ }
+ ofile << "Spektrometr";
+ ofile.close();
+ /*if (SettingsFile.is_open())
  {
   SettingsFile.close();
- }
+ }*/
 }
 

@@ -272,7 +272,7 @@ NextButton::NextButton(wxFrame *parent, int id, PreviousButton *n_PrevBut, Setti
  PrevBut = n_PrevBut;
  
  //Dal doprava uz posouvat nejde
- if (SetMan->GetSetting(SETT_CAM_N) >= SetMan->GetSetting(SETT_CAM_NMAX) -1)
+ if (SetMan->GetSetting(SETT_CAM_N) >= SetMan->GetSetting(SETT_CAM_NMAX))
   Enable(false);
 
  SetCursor(wxCursor(wxCURSOR_HAND));
@@ -298,11 +298,12 @@ void NextButton::onClick(wxCommandEvent& WXUNUSED(event))
 {
  int n = SetMan->GetSetting(SETT_CAM_N);
  int maxn = SetMan->GetSetting(SETT_CAM_NMAX);
- if (++n < maxn)
+ if (n < maxn)
  {
+  n++;
   SetMan->SetSetting(SETT_CAM_N, n);
   PrevBut->Enable(true);
-  if (n == maxn -1)
+  if (n == maxn)
   {
    Enable(false);
   }

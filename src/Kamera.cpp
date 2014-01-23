@@ -213,7 +213,7 @@ void Kamera::UvolniKameru()
 	}
  // Clean up DirectShow / COM stuff
  if (pBuffer != NULL) delete[] pBuffer;
- if (pBuffer != NULL) delete[] oldBuffer;
+ if (oldBuffer != NULL) delete[] oldBuffer;
  if (pMediaControl != NULL) pMediaControl->Release();	
  if (pNullRenderer != NULL) pNullRenderer->Release();
  if (pSampleGrabber != NULL) pSampleGrabber->Release();
@@ -226,7 +226,6 @@ void Kamera::UvolniKameru()
  if (pMoniker != NULL) pMoniker->Release();
  if (pEnum != NULL) pEnum->Release();
  if (pDevEnum != NULL) pDevEnum->Release();
- CoUninitialize();
 }
 
 void Kamera::NastavKamery()
@@ -533,7 +532,7 @@ void Kamera::NastavKamery()
 		return;
 	}
  
-
+ camera->Release();
  stav = STAV_OK;
 }
 
@@ -544,8 +543,13 @@ bool Kamera::KeepFPS()
 
  if (SetMan->GetSetting(SETT_CAM_N) != device_number)
  {
+  device_number = SetMan->GetSetting(SETT_CAM_N);
   UvolniKameru();
   NastavKamery();
+  if (stav == STAV_CHYBA)
+  {
+   return false;
+  }
  }
 
  clock_t curClock = clock();
@@ -691,37 +695,7 @@ Kamera::Kamera(SettingsManager *n_SetMan)
 
 Kamera::~Kamera()
 {
- //Stop the graph
- pMediaControl->Stop();
- 
-	// Free the format block
-	if (mt.cbFormat != 0)
-	{
-		CoTaskMemFree((PVOID)mt.pbFormat);
-		mt.cbFormat = 0;
-		mt.pbFormat = NULL;
-	}
-	if (mt.pUnk != NULL)
-	{
-		// pUnk should not be used.
-		mt.pUnk->Release();
-		mt.pUnk = NULL;
-	}
- // Clean up DirectShow / COM stuff
- if (pBuffer != NULL) delete[] pBuffer;
- if (pBuffer != NULL) delete[] oldBuffer;
- if (pMediaControl != NULL) pMediaControl->Release();	
- if (pNullRenderer != NULL) pNullRenderer->Release();
- if (pSampleGrabber != NULL) pSampleGrabber->Release();
- if (pSampleGrabberFilter != NULL)
- 		pSampleGrabberFilter->Release();
- if (pCap != NULL) pCap->Release();
- if (pBuilder != NULL) pBuilder->Release();
- if (pGraph != NULL) pGraph->Release();
- if (pPropBag != NULL) pPropBag->Release();
- if (pMoniker != NULL) pMoniker->Release();
- if (pEnum != NULL) pEnum->Release();
- if (pDevEnum != NULL) pDevEnum->Release();
+ UvolniKameru();
  CoUninitialize();
 }
 

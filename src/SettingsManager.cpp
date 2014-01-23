@@ -47,7 +47,7 @@ bool SettingsManager::GetSetting(unsigned int id, int &set)
   return true;
  } else if (id < U_SETS_LAST)
  {
-  set = u_sets[id].value;
+  set = u_sets[id - S_SETS_LAST].value;
   return true;
  } else
  {
@@ -76,7 +76,7 @@ int SettingsManager::GetSetting(unsigned int id)
   return s_sets[id].value;
  } else if (id < U_SETS_LAST)
  {
-  return u_sets[id].value;
+  return u_sets[id - S_SETS_LAST].value;
  } else
  {
   return -1;
@@ -89,10 +89,10 @@ void SettingsManager::SetSetting(unsigned int id, int set)
  {
   s_sets[id].value = set;
   //Rovnou se i ulozi
-  RewriteSetting(s_sets[id]);
+  //RewriteSetting(s_sets[id]);
  } else if (id < U_SETS_LAST)
  {
-  u_sets[id].value = set;
+  u_sets[id - S_SETS_LAST].value = set;
  }
 }
 

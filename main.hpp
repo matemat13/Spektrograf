@@ -71,6 +71,7 @@
 #include "include/RenderTimer.hpp"
 #include "include/SettingsManager.hpp"
 #include "include/Buttons.hpp"
+#include "include/Wavelength.hpp"
 
 #include <String>
 #include <math.h>
@@ -96,9 +97,16 @@
 #define Z_GRAF 2
 #define Z_GRAF_BAR 3
 
+//Vlnovy delky krajnich hodnot
+#define WAVELENGTH_UV 380
+#define WAVELENGTH_IR 649
+
+
 class FrameMain;
 class Kamera;
 class SettingsManager;
+class wxGLCanvasSubClass;
+class RenderTimer;
 
 class SamplingThread : public wxThread
 {
@@ -136,6 +144,7 @@ private:
 };
 
 
+
 enum
 {
  BUTTON_Quit = wxID_EXIT,
@@ -146,3 +155,94 @@ enum
  BUTTON_NextCam,
  STHREAD_EVENT
 };
+
+class WavelengthPanel;
+class AppMain;
+class FrameMain : public wxFrame
+{
+public:
+	//Constructor
+    FrameMain(const wxString& title, SettingsManager *n_SetMan);
+
+    // event handlers (these functions should _not_ be virtual)
+    void OnQuit(wxCommandEvent& event);
+    void OnMax(wxCommandEvent& event);
+	void OnMousemove(wxMouseEvent& event);
+	void OnMousedown(wxMouseEvent& event);
+	void OnMouseup(wxMouseEvent& event);
+	void OnMouseout(wxMouseEvent& event);
+
+	/**Layout initialisation**/
+	void Align(wxCommandEvent& WXUNUSED(event));
+	/*comment placeholder*/
+	void setUVStatus(const bool status);
+	//Kdyz se zmeni pozice UV nebo IR linky
+	void SpectrumBoundsChanged();
+
+private:
+
+	wxGLCanvasSubClass* GLcanvas;
+	UVStatusPanel *uvbut;
+	SettingsManager *SetMan;
+	bool drawing;
+
+
+	QuitButton *quitBut;
+	MaxDemaxButton *maxBut;
+	ScreenshotButton *scrBut;
+	GraphButton *grBut;
+	PreviousButton *prevBut;
+	NextButton *nextBut;
+    
+	WavelengthPanel *wavlen;
+	/**Window status**/
+	bool dragged;
+	wxPoint dragPoint;
+	/**Application reference**/
+//	AppMain application;
+
+	/**Moar events**/
+	RenderTimer *timer;
+    DECLARE_EVENT_TABLE()
+};
+class AppMain : public wxApp
+{
+public:
+    // override base class virtuals
+    // ----------------------------
+
+    // this one is called on application startup and is a good place for the app
+    // initialization (doing it here and not in the ctor allows to have an error
+    // return: if OnInit() returns false, the application terminates)
+	/**Command line parameter parsing**/
+	void OnInitCmdLine(wxCmdLineParser& parser);
+	bool OnCmdLineParsed(wxCmdLineParser &parser);
+    virtual bool OnInit();
+	int OnExit();
+private:
+	FrameMain *frame;
+	SettingsManager *setMgr;
+	/**Command line init switches**/
+	//-m found -> start maximized
+	bool cmd_start_maximized;
+	//-c found -> start in config mode
+	bool cmd_config_mode;
+
+	
+	/**Window status**/
+	bool locked;
+	std::string password;
+	//void activateRenderLoop(bool on);
+};
+
+/**Random**/
+//To string
+template<typename T>
+std::string toString(const T& value)
+{
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+//Konverze barev do RGB
+

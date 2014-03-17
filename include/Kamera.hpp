@@ -23,6 +23,7 @@ EXTERN_C const CLSID CLSID_SampleGrabber;
 #define FPS 30
 #define FRAME_CLOCK CLOCKS_PER_SEC/FPS
 
+#define UV_TRESHOLD 20
 class SettingsManager;
 
 enum
@@ -46,13 +47,23 @@ public:
 	int Sample(short *&buffer);
   //Vrati pocet bytu, zapsanych do bufferu nebo nulu, pokud je kamera v chybnem stavu
 	int Radek(unsigned char *&buffer);
+  //Zprumeruje data, pak je vrati
+	int Sample_Kalman(short *&buffer);
   //Nastavi zdrojovou caru
   	void SetSourceLine(int x, int y);
+  //Najde UV spike, jeho maximalni hodnotu (a jeji pozici) a prumerny jas v oblasti UV, vraci true, pokud je UV detekovano, jinak false
+	bool findUVSpike(int &max, float &avg, unsigned short &max_pos);
+  //Vrati vlnovou delku na danem pixelu (pocita se z nastaveni krajnich hodnot)
+	double Kamera::WavelengthAt(const int pos);
   //Vrati error, jako cstring
 	const char *GetError() {return error_buf;};
 	int GetWidth() {return iWidth;};
 	int GetHeight() {return iHeight;};
+
 private:
+	//Zpracovani dat
+	static short PrumerOkenko(short *&buffer, unsigned short buffsize,unsigned short range, unsigned short pos);
+	
 	//Moje fce
 	HRESULT EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum);
 	void UvolniKameru();
@@ -89,6 +100,7 @@ private:
  VIDEOINFOHEADER *pVih;
  unsigned char *pBuffer;
  unsigned char *oldBuffer;
+ unsigned char *avgBuffer;
 };
 
 #endif

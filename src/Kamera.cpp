@@ -144,7 +144,35 @@ int Kamera::Radek(unsigned char *&buffer)
  }
  return ret;
 }
+int Kamera::Sample_Kalman(short *&buffer) {
+	int size = Sample(buffer);
+	int K;
 
+	short *buffer2 = new short[size];
+	memcpy(buffer2, buffer, size*sizeof(short));
+	//Nejdriv jen prumer
+	const short okenko = 4;
+	for(unsigned short i=0; i<size; i++) {
+		short old = buffer[i];
+		buffer[i] = Kamera::PrumerOkenko(buffer2, size,okenko, i);
+		/*if(i>180) {
+			int b = (int)i + 5;
+		}*/
+	}
+	//Smazat docasnej buffer
+	delete[] buffer2;
+    return size;
+}
+short Kamera::PrumerOkenko(short *&buffer, unsigned short buffsize,unsigned short range, unsigned short pos) {
+	unsigned short start = std::max(pos-range, 0);
+	unsigned short stop = std::min(pos+range, 0+buffsize);
+	int sum = 0;
+	
+	for(unsigned short i=start; i<stop; i++)
+		sum+=buffer[i];
+
+	return sum/(stop-start);
+}
 
 HRESULT Kamera::EnumerateDevices(REFGUID category, IEnumMoniker **ppEnum)
 {
@@ -704,4 +732,46 @@ void Kamera::error_message(const char* error_message, int error)
  stav = STAV_CHYBA;
  strcpy(error_buf, error_message);
 // exit_message(error_message, error);
+}
+
+bool Kamera::findUVSpike(int &max, float &avg, unsigned short &max_pos) {
+	short *data;
+	unsigned short length = Sample_Kalman(data);
+	//Rovnice primky
+	double smernice, konstanta;
+	const int rozsah = 20;
+	bool ret = false;
+	int threshold = SetMan->GetSetting(SETT_UV_TRESHOLD);
+
+	//avg = 0;
+	unsigned short stred = SetMan->GetSetting(SETT_LINE_UV);
+	max = 0;
+	max_pos = 0;
+	//vypocet rovnice primky
+	smernice = (data[stred+rozsah/2] - data[stred+rozsah/2])/(rozsah);
+	konstanta = data[stred-rozsah]-smernice*(stred-rozsah);
+	
+
+	for(char i=-rozsah/2; i<rozsah/2;i++) {
+      //avg += data[start+i];
+	  if(max<data[stred+i])
+	  {
+		  max = data[stred+i];
+		  max_pos = stred+i;
+	  }
+	  if (data[stred+i] > (smernice*i + konstanta) + threshold)
+	  {
+	   ret = true;
+	  }
+	}
+	
+	avg = avg/20;
+	//Vypis debug
+
+	delete [] data;
+	return ret;
+}
+double Kamera::WavelengthAt(const int pos) {
+	double nmperpixel = (SetMan->GetSetting(SETT_LINE_UV)-SetMan->GetSetting(SETT_LINE_RED))/(double)(WAVELENGTH_UV-WAVELENGTH_IR);
+    return nmperpixel*pos;
 }

@@ -14,12 +14,14 @@
 #include "Kamera.hpp"
 #include "SettingsManager.hpp"
 #include "main.hpp"
+//#include "include/XYZtoRGB.h"
 
 #define WIDTH 640
 #define HEIGHT 480
 
 class Kamera;
 class SettingsManager;
+class FrameMain;
 
 class wxGLCanvasSubClass: public wxGLCanvas {
 public:
@@ -33,7 +35,7 @@ public:
     ~wxGLCanvasSubClass();
     DECLARE_EVENT_TABLE()
 private:
-  void Graf(short *n_data, int n_data_length);
+  void Graf(short *n_data, short*data_pr, int n_data_length);
   void GrafBarevny(unsigned char *n_data, int n_data_length);
   void Obraz(unsigned char *n_data, short width, short height);
   void Chyba();
@@ -44,7 +46,9 @@ private:
   wxGLContext *m_glRC;
   SettingsManager *SetMan;
   unsigned char *chyba_obr;
+
   short* data;
+   short* data_prumer;
   unsigned char* uchar_data;
   unsigned char* obr_data;
   int data_length, data_to_screen_ratio;
@@ -52,16 +56,21 @@ private:
   int stav, stav_pred_chybou;
   int cur_width, cur_height;
 
+  //Line that is being moved - if any
+  //unsigned int selected_line;
+  unsigned int drag_button;
 
-  bool dragged;
+  //bool dragged;
   
 	void OnMousemove(wxMouseEvent& event);
 	void OnMousedown(wxMouseEvent& event);
 	void OnMouseup(wxMouseEvent& event);
 	void OnMouseout(wxMouseEvent& event);
+	void OnScroll(wxMouseEvent& event);
 };
  
- 
+
+bool detect_UV(short *data, int IR_edge, int UV_edge);
 
 class BasicDrawPane : public wxPanel
 {
@@ -86,3 +95,5 @@ private:
 	wxImage *kamObr;
 	wxBitmap bitmap;
 };
+
+void glCircle(float x, float y, float r, bool filled, int subdivs);

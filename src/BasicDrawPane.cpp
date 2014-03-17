@@ -1,17 +1,32 @@
 #include "../include/BasicDrawPane.hpp"
 
+bool detect_UV(short *data, int IR_edge, int UV_edge)
+{
+ #define THRESHOLD 64
+ if (data[UV_edge] > THRESHOLD)
+  return true;
+ else
+  return false;
+}
+
+
 //Konstruktor (v cestine to zni tvvrde)
 wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera, SettingsManager *n_SetMan)
 :wxGLCanvas(parent, (wxGLCanvas*)(NULL), wxID_ANY, wxDefaultPosition, wxSize(WIDTH + 4, HEIGHT + 4), wxSUNKEN_BORDER)
 {
   data = NULL;
+  data_prumer = NULL;
+
   uchar_data = NULL;
   obr_data = NULL;
   data_length = 0;
   img_width = img_height = 0;
   data_to_screen_ratio = 0;
   stav = stav_pred_chybou = Z_GRAF;
-  dragged = false;
+  //selected_line = 0;
+  //dragged = false;
+  drag_button = 0;
+
   cur_width = GetParent()->GetSize().GetWidth() - 160;
   cur_height = GetParent()->GetSize().GetHeight() - 120;
 
@@ -22,7 +37,14 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera, Settin
   //Eventy pro posouvani zdrojove cary
   Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(wxGLCanvasSubClass::OnMousedown), NULL, this);
   Connect(wxEVT_LEFT_UP, wxMouseEventHandler(wxGLCanvasSubClass::OnMouseup), NULL, this);
+  Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(wxGLCanvasSubClass::OnMousedown), NULL, this);
+  Connect(wxEVT_RIGHT_UP, wxMouseEventHandler(wxGLCanvasSubClass::OnMouseup), NULL, this);
   Connect(wxEVT_MOTION, wxMouseEventHandler(wxGLCanvasSubClass::OnMousemove), NULL, this);
+  Connect(wxEVT_LEAVE_WINDOW, wxMouseEventHandler(wxGLCanvasSubClass::OnMouseout), NULL, this);
+
+  Connect(wxEVT_MOUSEWHEEL, wxMouseEventHandler(wxGLCanvasSubClass::OnScroll), NULL, this);
+  
+
   Connect(wxEVT_LEAVE_WINDOW, wxMouseEventHandler(wxGLCanvasSubClass::OnMouseout), NULL, this);
   
   
@@ -87,8 +109,8 @@ void wxGLCanvasSubClass::SetZoom()
 {
  switch (stav)
  {
-  case Z_CHYBA: glPixelZoom(cur_width / (double) 640, cur_height / (double) 480); break;
-  case Z_OBRAZ: glPixelZoom(cur_width / (double) img_width, cur_height / (double) img_height); break;
+  case Z_CHYBA: glPixelZoom(cur_width / (double) 640, cur_height / (double) 480); glViewport(0, 0, cur_width, cur_height); break;
+  case Z_OBRAZ: glPixelZoom(cur_width / (double) img_width, cur_height / (double) img_height); glViewport(0, 0, cur_width, cur_height); break;
   case Z_GRAF:
   case Z_GRAF_BAR: glPixelZoom(1.0, 1.0); glViewport(0, 0, cur_width, cur_height); break;
  }
@@ -138,10 +160,16 @@ void wxGLCanvasSubClass::SetDisplay(int type)
  }
 }
 
-void wxGLCanvasSubClass::Graf(short *n_data, int n_data_length)
+void wxGLCanvasSubClass::Graf(short *n_data, short*data_pr, int n_data_length)
 {
- if (data != NULL)
+ if (data != NULL) {
   delete [] data; //Uvolnim starou pamet
+ }
+ if(data_prumer != NULL) {
+  delete [] data_prumer;
+  data_prumer = NULL;
+ }
+
 
  //Delka dat je dynamicka, muze se zmenit za behu programu
  data_length = n_data_length;  //Aktualizuji delku dat
@@ -149,6 +177,8 @@ void wxGLCanvasSubClass::Graf(short *n_data, int n_data_length)
  //Prekopiruji nova data do interniho bufferu
  data = n_data;
 
+ //Prekopiruju odkaz na prumer 
+ data_prumer = data_pr;
  //Vykreslit (pravdepodobne zavola paintEvent)
  Refresh(false);
 }
@@ -187,8 +217,6 @@ void wxGLCanvasSubClass::Chyba()
 {
  Refresh(false);
 }
-
-
 void wxGLCanvasSubClass::paintEvent(wxPaintEvent& WXUNUSED(event))
 {
  Render();
@@ -205,13 +233,15 @@ void wxGLCanvasSubClass::paintNow()
  case Z_CHYBA: Chyba(); break;
  case Z_GRAF: {
 			   short *data;
-			   int data_length = kamera->Sample(data);
+			   short *data_old;
+			   int data_length = kamera->Sample(data_old);
+			   kamera->Sample_Kalman(data);
 			   if (data_length == 0)
 			   {
 			    SetDisplay(Z_CHYBA);
 			   } else
 			   {
-			    Graf(data, data_length);
+			    Graf(data_old, data, data_length);
 			   }
 			   break;
 			  }
@@ -240,30 +270,59 @@ void wxGLCanvasSubClass::paintNow()
 			   }
  }
 }
-
 // event handlers
 void wxGLCanvasSubClass::OnMousemove(wxMouseEvent& event)
 {
- if(dragged) 
+ if (drag_button!=0) 
  {
-  kamera->SetSourceLine(event.GetX()*img_width/cur_width, event.GetY()*img_height/cur_height);
+  int x, y;
+  x = event.GetX()*img_width/cur_width;
+  y = img_height - event.GetY()*img_height/cur_height;
+  kamera->SetSourceLine(x, y);
+
+
+  SetMan->SetSetting(wxMOUSE_BTN_LEFT!=drag_button ?SETT_LINE_RED:SETT_LINE_UV, y);
+  ((FrameMain*)GetParent())->SpectrumBoundsChanged();
+  //DODELAT: posouvani horizontalnich car (IR a UV)
+  
  }
 }
 void wxGLCanvasSubClass::OnMousedown(wxMouseEvent& event)
 {
  if(stav == Z_OBRAZ)
  {
-  dragged = true;
+   drag_button = event.GetButton();
  }
 }
 void wxGLCanvasSubClass::OnMouseup(wxMouseEvent& event)
 {
- dragged = false;
+  drag_button = 0;
 }
-
-void wxGLCanvasSubClass::OnMouseout(wxMouseEvent& WXUNUSED(event))
+void wxGLCanvasSubClass::OnMouseout(wxMouseEvent &event)
 {
- dragged = false;
+ //dragged = false;
+  drag_button = 0;
+}
+void wxGLCanvasSubClass::OnScroll(wxMouseEvent &event)
+{
+    /*std::stringstream ss;
+    ss << "Delta:" << event.m_wheelDelta;
+    wxMessageDialog pokus(GetParent(), (wxString)ss.str().c_str(), "Nasrat");
+	pokus.ShowModal();*/
+    //selected_line = selected_line==0?1:0;
+	
+	//Vypis debug
+
+	int max;
+	float sum;
+	unsigned short max_pos;
+    kamera->findUVSpike(max, sum, max_pos);
+    std::stringstream ss;
+    ss << "Prumer: " << sum<< "\nMax "<<max<<" na pozici " <<(int)max_pos;
+    wxMessageDialog pokus(GetParent(), (wxString)ss.str().c_str(), "Nasrat");
+	pokus.ShowModal();
+
+	
 }
 
 void wxGLCanvasSubClass::Render()
@@ -272,6 +331,25 @@ void wxGLCanvasSubClass::Render()
  
  wxPaintDC(this);
  SetCurrent(*m_glRC);
+
+ //Stav UV
+  float avg;
+  int uv_max;
+  unsigned short uv_max_pos;
+  //unsigned int uv_treshold = SetMan->GetSetting(SETT_UV_TRESHOLD);
+  int uv_mid = SetMan->GetSetting(SETT_LINE_UV);
+
+  bool state = kamera->findUVSpike(uv_max, avg, uv_max_pos);
+  
+  /**Vykopirovat do Kamera()**/
+  //bool state = uv_max-avg>uv_treshold;
+  static bool last_uv_state = (!state);
+  if(last_uv_state != (state)) {
+    ((FrameMain*)GetParent())->setUVStatus(!state);
+	last_uv_state = state;
+  }
+  
+
 
  
  //if (!initialized)
@@ -301,20 +379,92 @@ void wxGLCanvasSubClass::Render()
   glDrawPixels(640, 480, GL_RGB, GL_UNSIGNED_BYTE, chyba_obr);
  } else if (stav == Z_OBRAZ) //Vykreslit obraz z kamery
  {
+	//DODELAT: otaceni obrazu
   glDrawPixels(img_width, img_height, GL_RGB, GL_UNSIGNED_BYTE, obr_data);
+  glLineWidth(1.0); 
+  
+  glColor3f(1.0, 0.0, 0.0);
+  //glPixelZoom(cur_width / (double) 640, cur_height / (double) 480);
+
+  glBegin(GL_LINE_STRIP);
+  glVertex2d(-1.0, double(2*SetMan->GetSetting(SETT_LINE_RED)/(double)img_height-1.0));//( 1.0/double(SetMan->GetSetting(SETT_LINE_RED))));
+  glVertex2d(1.0, double(2*SetMan->GetSetting(SETT_LINE_RED)/(double)img_height-1.0));//( 1.0/double(SetMan->GetSetting(SETT_LINE_RED))));
+  glEnd();
+  glBegin(GL_LINE_STRIP);
+  glColor3f(0.0, 0.1, 0.9);
+  glVertex2d(-1.0, double(2*SetMan->GetSetting(SETT_LINE_UV)/(double)img_height-1.0));//( 1.0/double(SetMan->GetSetting(SETT_LINE_RED))));
+  glVertex2d(1.0, double(2*SetMan->GetSetting(SETT_LINE_UV)/(double)img_height-1.0));//( 1.0/double(SetMan->GetSetting(SETT_LINE_RED))));
+  glEnd();
+  
+/*
+  glBegin(GL_LINE_STRIP);
+  glColor3f(0.0, 0.5, 0.0);
+  glVertex2d(0,0
+  glVertex2d(0,1.0);
+  glColor3f(0.0, 0.9, 0.0);
+  glVertex2d(1.0,1.0);
+  glVertex2d(-1.0,-1.0);
+  glEnd();
+  */
  } else if (stav == Z_GRAF)	//Vykreslit cernobilej graf
  {
 
   GLdouble x;
   GLdouble y;
 
+  //Barvy dle vlnove delky
+  double bx, by, bz, r, g, b;
+  GLdouble x1, y1, x2, y2;
+  x1 = (uv_mid - 10 - data_length/2)/double(data_length)*2;
+  y1 = -1;
+  x2 = (uv_mid + 10 - data_length/2)/double(data_length)*2;
+  y2 = 1;
+
+  glBegin(GL_POLYGON);
+  glColor3f(0.0125, 0.025, 0.1125);
+  glVertex2d(x1, y1);
+  glVertex2d(x2, y1);
+  glVertex2d(x2, y2);
+  glVertex2d(x1, y2);
+  glEnd();
+
   glBegin(GL_LINE_STRIP);
-  glColor3f(1.0, 1.0, 1.0);
-  
+  glColor3f(0.1, .1, .1);
+  //Vykreslit data A
+  for (int i = 0; i < data_length; i++)
+  {
+
+   //Vypocet barvy
+   //spectrum_to_xyz(kamera->WavelengthAt(i), &bx, &by, &bz);
+   //xyz_to_rgb(&HDTVsystem, bx, by, bz, &r, &g, &b);
+
+   //Vypocet pozice
+   x = 2.0*double(i - data_length/2)/double(data_length);
+   y = 2.0*double(data[i] - SAMPLE_MAX_VALUE/2.0)/SAMPLE_MAX_VALUE;
+   //Vykresleni UV hranice
+   if(i==uv_max_pos) {
+
+	   glEnd();
+       glBegin(GL_LINE_STRIP);
+
+	   glColor3f(0.0, 0.2, 0.9);
+	   glVertex2d(x, 1.0);
+       glVertex2d(x, -1.0);
+
+	   glEnd();
+       glBegin(GL_LINE_STRIP);
+       glColor3f(.1,.1,.1);
+   }
+   glVertex2d(x, y);
+  }
+  glEnd();
+  //TEST prumeru
+  glBegin(GL_LINE_STRIP);
+  glColor3f(0.1, 0.2, 0.9);
   for (int i = 0; i < data_length; i++)
   {
    x = 2.0*double(i - data_length/2)/double(data_length);
-   y = 2.0*double(data[i] - SAMPLE_MAX_VALUE/2.0)/SAMPLE_MAX_VALUE;
+   y = 2.0*double(data_prumer[i] - SAMPLE_MAX_VALUE/2.0)/SAMPLE_MAX_VALUE;
    glVertex2d(x, y);
   }
   glEnd();
@@ -325,6 +475,8 @@ void wxGLCanvasSubClass::Render()
  SwapBuffers();
  //Konec dalsich sracek
 }
+
+
 
 BasicDrawPane::BasicDrawPane(wxFrame* parent, SettingsManager *n_SetMan) :
 wxPanel(parent)
@@ -339,8 +491,6 @@ wxPanel(parent)
  kamObr = new wxImage();
  buffer = new unsigned char[WIDTH*HEIGHT*3];
 }
- 
- 
 void BasicDrawPane::paintEvent(wxPaintEvent& WXUNUSED(evt))
 {
  if (!painting)
@@ -349,8 +499,6 @@ void BasicDrawPane::paintEvent(wxPaintEvent& WXUNUSED(evt))
   reRender(dc);
  }
 }
-
-
 void BasicDrawPane::paintNow()
 {
  if (!painting)
@@ -359,7 +507,6 @@ void BasicDrawPane::paintNow()
   render(dc);
  }
 }
-
 void BasicDrawPane::paintNow(unsigned char *data, int data_length)
 {
  if (!painting)
@@ -368,8 +515,6 @@ void BasicDrawPane::paintNow(unsigned char *data, int data_length)
   renderData(dc, data, data_length);
  }
 }
-
-
 void BasicDrawPane::renderData(wxDC& dc, unsigned char* data, int data_length)
 {
  painting = true;
@@ -427,7 +572,6 @@ void BasicDrawPane::renderData(wxDC& dc, unsigned char* data, int data_length)
 
  painting = false;
 }
- 
 void BasicDrawPane::reRender(wxDC& dc)
 {
  painting = true;
@@ -450,7 +594,6 @@ void BasicDrawPane::reRender(wxDC& dc)
 
  painting = false;
 }
-
 void BasicDrawPane::render(wxDC& dc)
 {
  return;
@@ -484,7 +627,6 @@ void BasicDrawPane::render(wxDC& dc)
  painting = false;
 
 }
-
 void BasicDrawPane::renderError(wxDC& dc)
 {
 	
@@ -523,4 +665,19 @@ void BasicDrawPane::renderError(wxDC& dc)
 		*/
 }
 
+void glCircle(float x, float y, float r, bool filled, int subdivs) 
+{ 
+    if( filled ) {
+        glBegin( GL_TRIANGLE_FAN );
+        glVertex2f( x, y );
+    } else {
+        glBegin( GL_LINE_STRIP );
+    }
 
+    for( unsigned int i = 0; i <= subdivs; ++i ) {
+        float angle = i * ((2.0f * 3.14159f) / subdivs);
+        glVertex2f( x + r * cos(angle), y + r * sin(angle) );
+    }
+
+    glEnd();
+}

@@ -43,7 +43,7 @@ void UVStatusPanel::paintNow()
 }
 
 void UVStatusPanel::Align() {
-	SetPosition(wxPoint(xpos, GetParent()->GetSize().GetHeight()-UV_STATUS_P_PADDING-this->GetSize().GetHeight()));
+	SetPosition(wxPoint(GetParent()->GetSize().GetWidth()/2+UV_STATUS_P_PADDING-this->GetSize().GetWidth()/2, /*GetParent()->GetSize().GetHeight()-UV_STATUS_P_PADDING-this->GetSize().GetHeight()*/7));
 	//Centre();
 	Show();
 }
@@ -55,17 +55,17 @@ void UVStatusPanel::render(wxDC &dc)
 	dc.Clear();
 
 	dc.SetFont(wxFont(17, wxDEFAULT, wxNORMAL, wxBOLD));
-	if(state) 
+	if(!state) 
 	{
         dc.SetTextForeground(*wxRED);
 		wxSize size = dc.GetTextExtent(_("!"));
-		dc.DrawText(_("!"), UV_STATUS_P_PADDING*2, (this->GetSize().GetHeight()-size.GetHeight())/2);
+		dc.DrawText(_("!"), UV_STATUS_P_PADDING*2+44, (this->GetSize().GetHeight()-size.GetHeight())/2);
 	}
 	else
 	{
         dc.SetTextForeground(wxColor(0,128,0));
 		wxSize size = dc.GetTextExtent(_("OK"));
-		dc.DrawText(_("OK"), UV_STATUS_P_PADDING*2, (this->GetSize().GetHeight()-size.GetHeight())/2);
+		dc.DrawText(_("OK"), UV_STATUS_P_PADDING*2+44, (this->GetSize().GetHeight()-size.GetHeight())/2);
 	}
 	DrawLed(dc, state);
 	/*if(state) {
@@ -115,7 +115,12 @@ void UVStatusPanel::render(wxDC &dc)
 }
 
 bool UVStatusPanel::State(bool st) {
+	bool changed = state!=st;
 	state = st;
+	if(changed) {
+		wxClientDC dc(this);
+		render(dc);
+	}
 	return st;
 }
 bool UVStatusPanel::State() {
@@ -123,7 +128,7 @@ bool UVStatusPanel::State() {
 }
 
 void UVStatusPanel::onClick(wxMouseEvent& WXUNUSED(event)) {
-	state=!state;
+	//state=!state;
 	paintNow();
 	return;
 }

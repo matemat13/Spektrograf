@@ -1,79 +1,6 @@
 #include "main.hpp"
 //adsad
 
-class AppMain;
-class FrameMain : public wxFrame
-{
-public:
-	//Constructor
-    FrameMain(const wxString& title, SettingsManager *n_SetMan);
-
-    // event handlers (these functions should _not_ be virtual)
-    void OnQuit(wxCommandEvent& event);
-    void OnMax(wxCommandEvent& event);
-	void OnMousemove(wxMouseEvent& event);
-	void OnMousedown(wxMouseEvent& event);
-	void OnMouseup(wxMouseEvent& event);
-	void OnMouseout(wxMouseEvent& event);
-
-	/**Layout initialisation**/
-	void Align(wxCommandEvent& WXUNUSED(event));
-
-private:
-	wxGLCanvasSubClass* GLcanvas;
-	UVStatusPanel *uvbut;
-	SettingsManager *SetMan;
-	bool drawing;
-
-
-	QuitButton *quitBut;
-	MaxDemaxButton *maxBut;
-	ScreenshotButton *scrBut;
-	GraphButton *grBut;
-	PreviousButton *prevBut;
-	NextButton *nextBut;
-
-	/**Window status**/
-	bool dragged;
-	wxPoint dragPoint;
-	/**Application reference**/
-//	AppMain application;
-
-	/**Moar events**/
-	RenderTimer *timer;
-    DECLARE_EVENT_TABLE()
-};
-
-class AppMain : public wxApp
-{
-public:
-    // override base class virtuals
-    // ----------------------------
-
-    // this one is called on application startup and is a good place for the app
-    // initialization (doing it here and not in the ctor allows to have an error
-    // return: if OnInit() returns false, the application terminates)
-	/**Command line parameter parsing**/
-	void OnInitCmdLine(wxCmdLineParser& parser);
-	bool OnCmdLineParsed(wxCmdLineParser &parser);
-    virtual bool OnInit();
-	int OnExit();
-private:
-	FrameMain *frame;
-	SettingsManager *setMgr;
-	/**Command line init switches**/
-	//-m found -> start maximized
-	bool cmd_start_maximized;
-	//-c found -> start in config mode
-	bool cmd_config_mode;
-
-	
-	/**Window status**/
-	bool locked;
-	std::string password;
-	//void activateRenderLoop(bool on);
-};
-
 
 
 
@@ -98,6 +25,10 @@ BEGIN_EVENT_TABLE(GraphPanel, wxPanel)
  EVT_PAINT(GraphPanel::paintEvent)
 END_EVENT_TABLE()
 
+BEGIN_EVENT_TABLE(WavelengthPanel, wxPanel)
+ EVT_PAINT(WavelengthPanel::paintEvent)
+END_EVENT_TABLE()
+
 IMPLEMENT_APP(AppMain)
 
 
@@ -118,6 +49,7 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
  Connect(wxEVT_MOTION, wxMouseEventHandler(FrameMain::OnMousemove), NULL, this);
  Connect(wxEVT_LEAVE_WINDOW, wxMouseEventHandler(FrameMain::OnMouseout), NULL, this);
 
+
   /*char *res = wxLoadUserResource(wxString::FromUTF8("WINICON"));
   SetIcon(wxIcon(res));
   //wxBitmap close = wxBITMAP_PNG(CLOSEICON);*/
@@ -127,18 +59,22 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
   //wxStaticBitmap *ikona2 = new wxStaticBitmap(this, wxID_ANY, wxBitmap(wxT("pokus"), wxBITMAP_TYPE_PNG_RESOURCE), wxPoint(0,0));
   //Inicializace nastaveni
   SetMan = n_SetMan;
+  Kamera* kam = new Kamera(SetMan);
   //Maximize();
-  
+  /**Vlnove lenghty*/
+  wavlen = new WavelengthPanel(this,SetMan ,666, kam);
+  wavlen->Align();
   /**Graf**/
-  GLcanvas = new wxGLCanvasSubClass(this, new Kamera(SetMan), SetMan);
+  
+  GLcanvas = new wxGLCanvasSubClass(this, kam, SetMan);
   GLcanvas->Centre();
 
 
   quitBut = new QuitButton(this, BUTTON_Quit);
   maxBut = new MaxDemaxButton(this, BUTTON_Max, ST_MAXED);
 
-  prevBut = new PreviousButton(this, BUTTON_Quit, SetMan);
-  nextBut = new NextButton(this, BUTTON_Quit, prevBut, SetMan);
+  prevBut = new PreviousButton(this, BUTTON_PrevCam, SetMan);
+  nextBut = new NextButton(this, BUTTON_NextCam, prevBut, SetMan);
   prevBut->SetNextBut(nextBut);
 
   scrBut = new ScreenshotButton(this, BUTTON_Screenshot);
@@ -170,16 +106,16 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
 
   
   /**UV panely**/
-  uvbut = new UVStatusPanel(this, 100);
+  uvbut = new UVStatusPanel(this, this->GetSize().GetWidth()-180);
   //UVStatusPanel *uvB = new UVStatusPanel(this, this->GetSize().GetWidth()-200);
 
+ 
 
 
 
   timer = new RenderTimer(GLcanvas);
   timer->start();
 
-  
 
   /*
   wxClientDC dc(this);
@@ -219,7 +155,11 @@ void FrameMain::DrawImage(wxDC &dc)
   //delete image;
   dc.DrawBitmap(bitmap,0,0, false);
 }*/
-
+void FrameMain::SpectrumBoundsChanged()
+{
+  wavlen->paintNow();
+ 
+}
 // event handlers
 void FrameMain::OnMousemove(wxMouseEvent& event) {
 	if(dragged) 
@@ -284,7 +224,15 @@ void FrameMain::Align(wxCommandEvent& WXUNUSED(event)) {
  GLcanvas->Show();
  GLcanvas->SetFocus();
  timer->Start();
+
+ wavlen->Align();
+
 }
+void FrameMain::setUVStatus(const bool status) {
+  uvbut->State(status);
+
+}
+
 
 void FrameMain::OnQuit(wxCommandEvent& WXUNUSED(event))
 {

@@ -271,7 +271,10 @@ SettingsManager::SettingsManager(void)
    case SETT_CAM_WBA: s_sets[i].value = 6000;	break;
    case SETT_CAM_GAI: s_sets[i].value = 0;	break;
    case SETT_LINE_POS: s_sets[i].value = 320;	break;
+   case SETT_LINE_RED: s_sets[i].value = 200;	break;
+   case SETT_LINE_UV: s_sets[i].value = 400;	break;
    case SETT_DIS_TYPE: s_sets[i].value = Z_GRAF; break;
+   case SETT_UV_TRESHOLD: s_sets[i].value = 20; break;
   }
  }
  

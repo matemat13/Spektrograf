@@ -8,7 +8,7 @@ wxPanel(parent)
  SetBackgroundColour(wxColor(80,100,255));
  SetDoubleBuffered(true);
  SetBackgroundStyle(wxBG_STYLE_PAINT);
- SetSize(200, 48);
+ SetSize(150, 48);
  Align();
  //SetToolTip(_("Status UV"));
 
@@ -43,8 +43,11 @@ void UVStatusPanel::paintNow()
 }
 
 void UVStatusPanel::Align() {
-	SetPosition(wxPoint(GetParent()->GetSize().GetWidth()/2+UV_STATUS_P_PADDING-this->GetSize().GetWidth()/2, /*GetParent()->GetSize().GetHeight()-UV_STATUS_P_PADDING-this->GetSize().GetHeight()*/7));
+	SetPosition(
+		 wxPoint(GetParent()->GetSize().GetWidth()-UV_STATUS_P_PADDING-this->GetSize().GetWidth()-40, 
+		/*GetParent()->GetSize().GetHeight()-UV_STATUS_P_PADDING-this->GetSize().GetHeight()*/7));
 	//Centre();
+
 	Show();
 }
 

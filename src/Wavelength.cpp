@@ -15,19 +15,16 @@ void WavelengthPanel::onClick(wxMouseEvent& WXUNUSED(event)) {
 	return;
 }
 void WavelengthPanel::render(wxDC &dc) {
-	dc.SetBackground(wxBrush (wxColor(0,0,0)));
+ dc.SetBackground(wxBrush (APP_STYLE_MAINBG));
  dc.Clear();
  //Draw dark blue background
- dc.SetBrush(wxColor(001,01,007));
- dc.DrawRectangle (0, 0, cur_width, cur_height);
+ //dc.SetBrush(wxColor(001,01,007));
+ //dc.DrawRectangle (0, 0, cur_width, cur_height);
  //Draw dashed line
- dc.SetPen(wxPen(wxColor(20,20,80), 1, wxLONG_DASH));
+ //dc.SetPen(wxPen(wxColor(20,20,80), 1, wxLONG_DASH));
 
  //glPixelZoom(cur_width / (double) 640, cur_height / (double) 480);
- dc.DrawLine(wxPoint(0, cur_height-1),wxPoint(cur_width, cur_height-1));
- //sinusovka
- 
-
+ //dc.DrawLine(wxPoint(0, cur_height-1),wxPoint(cur_width, cur_height-1));
 
  //Draw the inportant shit
 
@@ -63,11 +60,33 @@ void WavelengthPanel::render(wxDC &dc) {
  //Provedeni transformace
  uv = (uv)*transform;
  ir = (ir)*transform;
- //Kresleni
+
+ //Sinusovka
+ wxPoint last;
+ wxPoint current;
+ 
+ short distance = abs(uv-ir);
+ short direction = sgn(-ir+uv);
+ float percent;
+
+ dc.SetPen(wxPen(wxColor(100,110,130), 1, wxSOLID));
+ for(short i=0; i<distance; i++) {
+	 percent = (i/(float)distance)*100;
+	 current = wxPoint(i*direction+ir, cos(pow(percent+5,1.9)/15.0)*15+15);
+	 if(i!=0) {
+       dc.DrawLine(last,current);
+	 }
+	 //Skok o bod
+	 last = current;
+ }
+ //Hranice UV a IR
+ dc.SetPen(wxPen(wxColor(180,0,240), 2, wxSOLID));
  dc.DrawLine(wxPoint(uv, 0),wxPoint(uv, cur_height-17));
  dc.SetPen(wxPen(wxColor(250,30,0), 2, wxSOLID));
  
  dc.DrawLine(wxPoint(ir, 0),wxPoint(ir, cur_height-17));
+
+
  //Neser
  const int mezera = 30;
  const int tsirka = 50;
@@ -90,7 +109,7 @@ void WavelengthPanel::render(wxDC &dc) {
 
  int start = std::min(uv, ir);
 
- dc.SetPen(wxPen(wxColor(240,240,240), 1, wxSOLID));
+ dc.SetPen(wxPen(wxColor(0,0,0), 1, wxSOLID));
 
  int x;
 
@@ -111,7 +130,7 @@ void WavelengthPanel::Align() {
  cur_width = GetParent()->GetSize().GetWidth() - 160;
  cur_height = 50;
  SetSize(cur_width, cur_height);  //nastav velikost
- SetPosition(wxPoint(79, GetParent()->GetSize().GetHeight()-60));
+ SetPosition(wxPoint(79, GetParent()->GetSize().GetHeight()-58));
  //SetPosition(wxPoint(0,0));
  paintNow();
 }
@@ -120,7 +139,7 @@ void WavelengthPanel::drawWavelengthAt(wxDC &dc, const int offset, int wavelengt
 	    std::string text = toString(wavelength);
 		text.append("nm");
 
-        dc.SetTextForeground(*wxRED);
+        dc.SetTextForeground(wxColor(0,100,200));
 		wxSize size = dc.GetTextExtent(_(text.c_str()));
 		dc.DrawText(_(text.c_str()), offset-size.x/2, cur_height-1-size.y);
 

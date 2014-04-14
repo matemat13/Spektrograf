@@ -30,7 +30,10 @@ RC_nexticonP RCDATA "resources/next_press.png"
 RC_previcon RCDATA "resources/prev.png"
 RC_previconF RCDATA "resources/prev_focus.png"
 RC_previconP RCDATA "resources/prev_press.png"
-
+//Pauza
+RC_pause RCDATA "resources/pauza.png"
+RC_pauseF RCDATA "resources/pauza_focus.png"
+RC_pauseP RCDATA "resources/pauza_press.png"
 
 RC_USBdiscon ICON "resources/USB_discon.ico"
 

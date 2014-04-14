@@ -33,6 +33,7 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera, Settin
   kamera = n_kamera;
   m_glRC = new wxGLContext(this);
   SetMan = n_SetMan;
+  pamet = NULL;
 
   //Eventy pro posouvani zdrojove cary
   Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(wxGLCanvasSubClass::OnMousedown), NULL, this);
@@ -103,6 +104,10 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera, Settin
 wxGLCanvasSubClass::~wxGLCanvasSubClass()
 {
  delete m_glRC;
+}
+
+void wxGLCanvasSubClass::setMemory(GraphMemoryMan*nmem) {
+	pamet = nmem;
 }
 
 void wxGLCanvasSubClass::SetZoom()
@@ -413,24 +418,27 @@ void wxGLCanvasSubClass::Render()
   GLdouble y;
 
   //Barvy dle vlnove delky
-  double bx, by, bz, r, g, b;
+  /*double bx, by, bz, r, g, b;
   GLdouble x1, y1, x2, y2;
   x1 = (uv_mid - 10 - data_length/2)/double(data_length)*2;
   y1 = -1;
   x2 = (uv_mid + 10 - data_length/2)/double(data_length)*2;
   y2 = 1;
-
+  //Co je tohle?
   glBegin(GL_POLYGON);
   glColor3f(0.0125, 0.025, 0.1125);
   glVertex2d(x1, y1);
   glVertex2d(x2, y1);
   glVertex2d(x2, y2);
   glVertex2d(x1, y2);
-  glEnd();
+  glEnd();*/
 
+
+  //Vykreslit data A
+
+  /*
   glBegin(GL_LINE_STRIP);
   glColor3f(0.1, .1, .1);
-  //Vykreslit data A
   for (int i = 0; i < data_length; i++)
   {
 
@@ -441,25 +449,39 @@ void wxGLCanvasSubClass::Render()
    //Vypocet pozice
    x = 2.0*double(i - data_length/2)/double(data_length);
    y = 2.0*double(data[i] - SAMPLE_MAX_VALUE/2.0)/SAMPLE_MAX_VALUE;
-   //Vykresleni UV hranice
-   if(i==uv_max_pos) {
 
-	   glEnd();
+   glVertex2d(x, y);
+  }
+  glEnd();*/
+
+   //Vykresleni UV hranice
+
        glBegin(GL_LINE_STRIP);
 
 	   glColor3f(0.0, 0.2, 0.9);
-	   glVertex2d(x, 1.0);
-       glVertex2d(x, -1.0);
+	   glVertex2d(uv_max_pos, 1.0);
+       glVertex2d(uv_max_pos, -1.0);
 
 	   glEnd();
-       glBegin(GL_LINE_STRIP);
-       glColor3f(.1,.1,.1);
-   }
-   glVertex2d(x, y);
+
+  //DrawGraph(data, data_length, wxColor(26,26,26)); 
+  
+  
+
+  if(pamet!=NULL) 
+  {
+    GraphMemory *tmp;
+    short* tmp_data;
+    int tmp_len;
+    for(int i=0,l=pamet->count(); i<l; i++) {
+	    tmp = pamet->getMemory(i);
+	    tmp_len = tmp->getGraphData(tmp_data);
+	    DrawGraph(tmp_data, tmp_len, (wxColour)tmp->getColor(), tmp->isSelected()?1.5:1);
+    }
   }
-  glEnd();
+  DrawGraph(data_prumer, data_length, wxColor(255,255,255), 2);//wxColor(26,52,230)
   //TEST prumeru
-  glBegin(GL_LINE_STRIP);
+  /*glBegin(GL_LINE_STRIP);
   glColor3f(0.1, 0.2, 0.9);
   for (int i = 0; i < data_length; i++)
   {
@@ -467,7 +489,7 @@ void wxGLCanvasSubClass::Render()
    y = 2.0*double(data_prumer[i] - SAMPLE_MAX_VALUE/2.0)/SAMPLE_MAX_VALUE;
    glVertex2d(x, y);
   }
-  glEnd();
+  glEnd();*/
  }
 
  //Dalsi sracky, co tu musej bejt
@@ -475,8 +497,38 @@ void wxGLCanvasSubClass::Render()
  SwapBuffers();
  //Konec dalsich sracek
 }
+void wxGLCanvasSubClass::DrawGraph(short*data, int dataLen, wxColour color, float lineWidth) {
+	
+	GLdouble x,y;
+	glLineWidth(lineWidth);
+	glBegin(GL_LINE_STRIP);  //_STRIP
+    glColor3f(color.Red()/255.0,color.Green()/255.0,color.Blue()/255.0);
+    for (int i = 0; i < data_length; i++)
+    {
+   
+     //Vypocet barvy
+     //spectrum_to_xyz(kamera->WavelengthAt(i), &bx, &by, &bz);
+     //xyz_to_rgb(&HDTVsystem, bx, by, bz, &r, &g, &b);
+   
+     //Vypocet pozice
+     x = 2.0*double(i - data_length/2)/double(data_length);
+     y = 2.0*double(data[i] - SAMPLE_MAX_VALUE/2.0)/(float)SAMPLE_MAX_VALUE;
+     glVertex2d(x, y);
+    }
+	glEnd();
+}
+int wxGLCanvasSubClass::getGraph(short*&data) {
+	data = data_prumer;
+	return data_length;
+}
+void wxGLCanvasSubClass::getPixels(byte*&dst, int &width, int&height) {
+	int size = 3 * cur_width * cur_height;
+	width = cur_width;
+	height = cur_height;
 
-
+	dst = new byte[size];
+	glReadPixels(0, 0, cur_width, cur_height, GL_RGB, GL_UNSIGNED_BYTE, dst);
+}
 
 BasicDrawPane::BasicDrawPane(wxFrame* parent, SettingsManager *n_SetMan) :
 wxPanel(parent)

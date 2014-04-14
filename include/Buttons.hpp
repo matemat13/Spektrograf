@@ -35,10 +35,14 @@ private:
  wxBitmap focus2;
  wxBitmap press2;
 };
+
+//#include "../include/BasicDrawPane.hpp"
+
+class wxGLCanvasSubClass;
 class ScreenshotButton : public wxButton
 {
 public:
- ScreenshotButton(wxFrame *parent, int id);
+ ScreenshotButton(wxFrame *parent, int id, wxGLCanvasSubClass* grafn);
  void onClick(wxCommandEvent& WXUNUSED(event));
  void GetScreenshot(wxBitmap &screenshot);
  void Align();
@@ -46,6 +50,7 @@ private:
  wxBitmap normal;
  wxBitmap focus;
  wxBitmap press;
+ wxGLCanvasSubClass* graf;
 };
 
 class GraphButton : public wxButton
@@ -93,6 +98,20 @@ private:
  SettingsManager *SetMan;
  PreviousButton *PrevBut;
  int state;
+ wxBitmap normal;
+ wxBitmap focus;
+ wxBitmap press;
+};
+
+class GraphMemoryMan;
+class PauseButton : public wxButton
+{
+public:
+ PauseButton(wxFrame *, int, GraphMemoryMan* );
+ void onClick(wxCommandEvent& WXUNUSED(event));
+ void Align();
+private:
+ GraphMemoryMan *graphMemory;
  wxBitmap normal;
  wxBitmap focus;
  wxBitmap press;

@@ -264,7 +264,7 @@ SettingsManager::SettingsManager(void)
   switch (i)
   {
    case SETT_CAM_N: s_sets[i].value = 1;	break;
-   case SETT_CAM_ROT: s_sets[i].value = 1;	break;
+   case SETT_CAM_ROT: s_sets[i].value = 3;	break;
    case SETT_CAM_EXP: s_sets[i].value = 0;	break;
    case SETT_CAM_BRI: s_sets[i].value = 0;	break;
    case SETT_CAM_COM: s_sets[i].value = 0;	break;

@@ -73,11 +73,15 @@ void MaxDemaxButton::ToggleState()
 }
 
 
-ScreenshotButton::ScreenshotButton(wxFrame *parent, int id) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
+
+
+ScreenshotButton::ScreenshotButton(wxFrame *parent, int id, wxGLCanvasSubClass *grafn) : wxButton(parent, id, wxString::FromUTF8("Ukonèit"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
 {
  normal = wxBitmap(wxT("RC_screenshoticon"), wxBITMAP_TYPE_PNG_RESOURCE);//wxBITMAP_TYPE_PNG
  focus = wxBitmap(wxT("RC_screenshoticonF"), wxBITMAP_TYPE_PNG_RESOURCE);
  press = wxBitmap(wxT("RC_screenshoticonP"), wxBITMAP_TYPE_PNG_RESOURCE);
+
+ graf = grafn;
 
  SetCursor(wxCursor(wxCURSOR_HAND));
  SetHelpText(wxString::FromUTF8("Uloží aktuální stav okna jako obrázek."));
@@ -115,7 +119,8 @@ void ScreenshotButton::onClick(wxCommandEvent& WXUNUSED(event)) {
           if( namePath.GetExt().CmpNoCase(wxT("png")) == 0 )  fileType = wxBITMAP_TYPE_PNG;
 		  if( namePath.GetExt().CmpNoCase(wxT("bmp")) == 0 )  fileType = wxBITMAP_TYPE_BMP;
 		  wxImage tosave(screenshot.ConvertToImage());
-		  tosave.ClearAlpha();
+		  if(tosave.HasAlpha())
+		    tosave.ClearAlpha();
 
 		  if(wxFileExists(fileDialog.GetPath())) 
 		  {
@@ -136,12 +141,21 @@ void ScreenshotButton::GetScreenshot(wxBitmap &screenshot) {
 
    //Get the size of the screen/DC
    wxCoord screenWidth, screenHeight;
+
+   //Size of the image
+   int width, height;
+   //The pixel array
+   byte* graph;
+   //Fill the pixel array
+   graf->getPixels(graph, width, height);
+   
    dcScreen.GetSize(&screenWidth, &screenHeight);
 
    //Create a Bitmap that will later on hold the screenshot image
    //Note that the Bitmap must have a size big enough to hold the screenshot
    //-1 means using the current default colour depth
    screenshot.Create(screenWidth, screenHeight,-1);
+   //screenshot.Create(width, height,-1);
 
    //Create a memory DC that will be used for actually taking the screenshot
    wxMemoryDC memDC;
@@ -158,9 +172,32 @@ void ScreenshotButton::GetScreenshot(wxBitmap &screenshot) {
             0, //What's the X offset in the original DC?
             0  //What's the Y offset in the original DC?
          );
+   //Draw the graph on the screenshot
+
+
+   //Temporary color
+   wxColour color = wxColor(255,0,0);
+   //Temporary position in pixel array
+   int pos;
+
+   //Loop through pixel array
+   for(int y=0; y<height; y++) {
+	   for(int x=0; x<width; x++) {
+		   pos = (x+(height-y)*width)*3;
+		   color.Set(graph[pos], graph[pos+1], graph[pos+2]);
+		   memDC.SetBrush(color);
+		   memDC.SetPen(color);
+		   memDC.DrawPoint(x+79, y+59);
+	   }
+   }
+
+   
    //Select the Bitmap out of the memory DC by selecting a new
    //uninitialized Bitmap
    memDC.SelectObject(wxNullBitmap);
+
+   
+
    return;
 }
 
@@ -308,4 +345,39 @@ void NextButton::onClick(wxCommandEvent& WXUNUSED(event))
    Enable(false);
   }
  }
+}
+
+
+
+PauseButton::PauseButton(wxFrame *parent, int id, GraphMemoryMan* gMem) : wxButton(parent, id, wxString::FromUTF8("Pauza"), wxDefaultPosition, wxSize(24,24), wxBORDER_NONE|wxBU_EXACTFIT|wxBU_NOTEXT)
+{
+ normal = wxBitmap(wxT("RC_pause"), wxBITMAP_TYPE_PNG_RESOURCE);//wxBITMAP_TYPE_PNG
+ focus = wxBitmap(wxT("RC_pauseF"), wxBITMAP_TYPE_PNG_RESOURCE);
+ press = wxBitmap(wxT("RC_pauseP"), wxBITMAP_TYPE_PNG_RESOURCE);
+
+ graphMemory = gMem;
+
+ SetCursor(wxCursor(wxCURSOR_HAND));
+ SetHelpText(wxString::FromUTF8("Uloží a zobrazí pozastavenou stopu grafu."));
+ SetToolTip(wxString::FromUTF8("Uložit pozastavený graf"));
+ SetBitmap(normal);
+ SetBitmapHover(focus);
+ SetBitmapPressed(press);
+ SetBackgroundColour(APP_STYLE_MAINBG);
+ Align();
+
+ //wxEVT_COMMAND_RIGHT_DCLICK
+ Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(PauseButton::onClick), NULL, this);
+ //Connect(wxEVT_LEFT_UP, wxMouseEventHandler(ScreenshotButton::onClick));
+}
+void PauseButton::Align()
+{
+ SetSize(60,60);
+ int x, y;
+ GetSize(&x, &y);
+ SetPosition(wxPoint(this->GetParent()->GetSize().x - x -BUT_BIG_BORDER, 5*60+2*BUT_BIG_BORDER));
+}
+void PauseButton::onClick(wxCommandEvent& WXUNUSED(event))
+{
+	graphMemory->createNew();
 }

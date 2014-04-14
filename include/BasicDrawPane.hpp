@@ -22,6 +22,9 @@
 class Kamera;
 class SettingsManager;
 class FrameMain;
+class GraphMemoryMan;
+class GraphMemory;
+
 
 class wxGLCanvasSubClass: public wxGLCanvas {
 public:
@@ -29,6 +32,11 @@ public:
     void paintEvent(wxPaintEvent& event);
 	void paintNow();
 	void Align();
+	void setMemory(GraphMemoryMan*);
+
+	int getGraph(short*&datap);
+	void getPixels(byte*&, int&, int&);
+
 	//Zmenit typ zobrazeni - graf/obraz
 	void SetDisplay(int type);
 	void ToggleDisplay();
@@ -41,10 +49,16 @@ private:
   void Chyba();
   void Render();
   void SetZoom();
+
+  
+
+	//Nakresli graf
+	void DrawGraph(short*data, int dataLen, wxColour color = wxColor(255,255,255), float lineWidth = 1.0);
   //bool initialized;
   Kamera *kamera;
   wxGLContext *m_glRC;
   SettingsManager *SetMan;
+  GraphMemoryMan*pamet;
   unsigned char *chyba_obr;
 
   short* data;

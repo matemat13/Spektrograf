@@ -72,14 +72,14 @@
 #include "include/SettingsManager.hpp"
 #include "include/Buttons.hpp"
 #include "include/Wavelength.hpp"
+#include "include/GraphMemoryMan.hpp"
+#include "include/Percentage.hpp"
 
 #include <String>
 #include <math.h>
 
 
-//Definice vzhledu a textu:
-#define APP_STYLE_MAINBG wxColor(230,230,246)
-#define APP_LOGO_PADDING 10
+#include "include/design.hpp"
 
 //Definice samplovani:
 #define DEFAULT_SAMPLE_LENGTH 1024
@@ -153,10 +153,12 @@ enum
  BUTTON_Screenshot,
  BUTTON_PrevCam,
  BUTTON_NextCam,
- STHREAD_EVENT
+ STHREAD_EVENT,
+ BUTTON_Pause
 };
 
 class WavelengthPanel;
+class PercentagePanel;
 class AppMain;
 class FrameMain : public wxFrame
 {
@@ -180,13 +182,13 @@ public:
 	void SpectrumBoundsChanged();
 
 private:
-
+	GraphMemoryMan* graphMem;
 	wxGLCanvasSubClass* GLcanvas;
 	UVStatusPanel *uvbut;
 	SettingsManager *SetMan;
 	bool drawing;
 
-
+	PauseButton *pauseBut;
 	QuitButton *quitBut;
 	MaxDemaxButton *maxBut;
 	ScreenshotButton *scrBut;
@@ -195,6 +197,7 @@ private:
 	NextButton *nextBut;
     
 	WavelengthPanel *wavlen;
+	PercentagePanel *percpan;
 	/**Window status**/
 	bool dragged;
 	wxPoint dragPoint;
@@ -243,6 +246,13 @@ std::string toString(const T& value)
     std::ostringstream oss;
     oss << value;
     return oss.str();
+}
+
+//Signum
+//http://stackoverflow.com/a/4609795/607407
+//Returns sign of the input value
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
 }
 //Konverze barev do RGB
 

@@ -8,6 +8,10 @@
 *.obj
 *.lastbuildstate
 
+build.bat
+
+.gitignore
+
 #################
 ## Eclipse
 #################

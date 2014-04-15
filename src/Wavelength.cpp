@@ -97,7 +97,9 @@ void WavelengthPanel::render(wxDC &dc) {
 
  int sirka = abs(uv-ir);
 
- 
+ if(sirka<2)
+	 return;
+
 
  sirka-= tsirka+mezera;
 

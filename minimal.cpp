@@ -29,6 +29,14 @@ BEGIN_EVENT_TABLE(WavelengthPanel, wxPanel)
  EVT_PAINT(WavelengthPanel::paintEvent)
 END_EVENT_TABLE()
 
+BEGIN_EVENT_TABLE(PercentagePanel, wxPanel)
+ EVT_PAINT(PercentagePanel::paintEvent)
+END_EVENT_TABLE()
+
+/*BEGIN_EVENT_TABLE(GraphMemory, wxPanel)
+ EVT_PAINT(GraphMemory::paintEvent)
+END_EVENT_TABLE()*/
+
 IMPLEMENT_APP(AppMain)
 
 
@@ -40,6 +48,7 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
 {
  SetFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
  SetFocus();
+
 
  //Zarovnat okno pri maximalizaci
  Connect(wxEVT_MAXIMIZE, wxCommandEventHandler(FrameMain::Align), NULL, this);
@@ -64,12 +73,19 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
   /**Vlnove lenghty*/
   wavlen = new WavelengthPanel(this,SetMan ,666, kam);
   wavlen->Align();
+  /**Procenta nalevo**/
+  percpan = new PercentagePanel(this);
+  percpan->Align();
   /**Graf**/
   
   GLcanvas = new wxGLCanvasSubClass(this, kam, SetMan);
   GLcanvas->Centre();
+  
+  /**Graf pauza**/
+  graphMem = new GraphMemoryMan(this, GLcanvas);
+  GLcanvas->setMemory(graphMem);
 
-
+  pauseBut = new PauseButton(this, BUTTON_Pause, graphMem);
   quitBut = new QuitButton(this, BUTTON_Quit);
   maxBut = new MaxDemaxButton(this, BUTTON_Max, ST_MAXED);
 
@@ -77,7 +93,7 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
   nextBut = new NextButton(this, BUTTON_NextCam, prevBut, SetMan);
   prevBut->SetNextBut(nextBut);
 
-  scrBut = new ScreenshotButton(this, BUTTON_Screenshot);
+  scrBut = new ScreenshotButton(this, BUTTON_Screenshot, GLcanvas);
   grBut = new GraphButton(this, wxID_ANY, SetMan);
   if (SetMan->GetSetting(SETT_GEN_CFG) == 0)
   {
@@ -90,6 +106,7 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
    nextBut->Enable(false);
    nextBut->Hide();
   }
+
 
 
   /*drawPane = new BasicDrawPane(this, SetMan);
@@ -225,8 +242,10 @@ void FrameMain::Align(wxCommandEvent& WXUNUSED(event)) {
  GLcanvas->SetFocus();
  timer->Start();
 
- wavlen->Align();
+ pauseBut->Align();
 
+ wavlen->Align();
+ percpan->Align();
 }
 void FrameMain::setUVStatus(const bool status) {
   uvbut->State(status);

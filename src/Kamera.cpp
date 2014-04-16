@@ -206,18 +206,20 @@ void Kamera::SetSourceLine(int x, int y)
   x = 0;
  switch (img_rotation)
  {
+ case 2:
  case 0: //0°
 		 SetMan->SetSetting(SETT_LINE_POS, radek_posun = y);
 		 break;
+ case 3:
  case 1: //90°
 		 SetMan->SetSetting(SETT_LINE_POS, radek_posun = x);
 		 break;
- case 2: //180°
+ /*case 2: //180°
 		 SetMan->SetSetting(SETT_LINE_POS, radek_posun = -y);
 		 break;
  case 3: //270°
 		 SetMan->SetSetting(SETT_LINE_POS, radek_posun = -x);
-		 break;
+		 break;*/
  }
 }
 

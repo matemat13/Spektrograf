@@ -338,21 +338,29 @@ void wxGLCanvasSubClass::Render()
  SetCurrent(*m_glRC);
 
  //Stav UV
-  float avg;
-  int uv_max;
-  unsigned short uv_max_pos;
-  //unsigned int uv_treshold = SetMan->GetSetting(SETT_UV_TRESHOLD);
-  int uv_mid = SetMan->GetSetting(SETT_LINE_UV);
+ float avg;
+ int uv_max;
+ unsigned short uv_max_pos;
+ int uv_mid;
+ bool state;
 
-  bool state = kamera->findUVSpike(uv_max, avg, uv_max_pos);
+ if(stav != Z_CHYBA) {
   
-  /**Vykopirovat do Kamera()**/
-  //bool state = uv_max-avg>uv_treshold;
-  static bool last_uv_state = (!state);
-  if(last_uv_state != (state)) {
-    ((FrameMain*)GetParent())->setUVStatus(!state);
-	last_uv_state = state;
-  }
+   //unsigned int uv_treshold = SetMan->GetSetting(SETT_UV_TRESHOLD);
+   uv_mid = SetMan->GetSetting(SETT_LINE_UV);
+  
+   state = kamera->findUVSpike(uv_max, avg, uv_max_pos);
+   
+   /**Vykopirovat do Kamera()**/
+   //bool state = uv_max-avg>uv_treshold;
+   static bool last_uv_state = (!state);
+   if(last_uv_state != (state)) {
+     ((FrameMain*)GetParent())->setUVStatus(!state);
+      last_uv_state = state;
+   }
+  
+
+ }
   
 
 
@@ -385,6 +393,7 @@ void wxGLCanvasSubClass::Render()
  } else if (stav == Z_OBRAZ) //Vykreslit obraz z kamery
  {
 	//DODELAT: otaceni obrazu
+	 
   glDrawPixels(img_width, img_height, GL_RGB, GL_UNSIGNED_BYTE, obr_data);
   glLineWidth(1.0); 
   
@@ -503,18 +512,38 @@ void wxGLCanvasSubClass::DrawGraph(short*data, int dataLen, wxColour color, floa
 	glLineWidth(lineWidth);
 	glBegin(GL_LINE_STRIP);  //_STRIP
     glColor3f(color.Red()/255.0,color.Green()/255.0,color.Blue()/255.0);
-    for (int i = 0; i < data_length; i++)
-    {
-   
-     //Vypocet barvy
-     //spectrum_to_xyz(kamera->WavelengthAt(i), &bx, &by, &bz);
-     //xyz_to_rgb(&HDTVsystem, bx, by, bz, &r, &g, &b);
-   
-     //Vypocet pozice
-     x = 2.0*double(i - data_length/2)/double(data_length);
-     y = 2.0*double(data[i] - SAMPLE_MAX_VALUE/2.0)/(float)SAMPLE_MAX_VALUE;
-     glVertex2d(x, y);
-    }
+
+	int rot = SetMan->GetSetting(SETT_CAM_ROT);
+
+	if(rot%2==0) {
+      for (int i = 0; i < data_length; i++)
+      {
+     
+       //Vypocet barvy
+       //spectrum_to_xyz(kamera->WavelengthAt(i), &bx, &by, &bz);
+       //xyz_to_rgb(&HDTVsystem, bx, by, bz, &r, &g, &b);
+     
+       //Vypocet pozice
+       x = 2.0*double(i - data_length/2)/double(data_length);
+       y = 2.0*double(data[i] - SAMPLE_MAX_VALUE/2.0)/(float)SAMPLE_MAX_VALUE;
+       glVertex2d(x, y);
+      }
+	}
+	else {
+      for (int i = 0; i < data_length; i++)
+      {
+     
+       //Vypocet barvy
+       //spectrum_to_xyz(kamera->WavelengthAt(i), &bx, &by, &bz);
+       //xyz_to_rgb(&HDTVsystem, bx, by, bz, &r, &g, &b);
+     
+       //Vypocet pozice
+       x = 2.0*double(i - data_length/2)/double(data_length);
+       y = 2.0*double(data[data_length-i-1] - SAMPLE_MAX_VALUE/2.0)/(float)SAMPLE_MAX_VALUE;
+       glVertex2d(x, y);
+      }
+	}
+
 	glEnd();
 }
 int wxGLCanvasSubClass::getGraph(short*&data) {

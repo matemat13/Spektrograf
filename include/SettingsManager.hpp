@@ -19,6 +19,7 @@ enum SAVED_SETS
  SETT_LINE_POS,	//pozice cary
  SETT_LINE_RED,	//pozice cervene cary
  SETT_LINE_UV,	//pozice UV cary
+ SETT_MARKER_UV,	//pozice UV znacky na grafu
  SETT_DIS_TYPE,	//typ zobrazeni - graf/obraz
  SETT_UV_TRESHOLD,  //Nejmensi rozdil mezi UV spikem a prumerem v zone UV ktery spusti UV varovani
  S_SETS_LAST,		//toto musi byt vzdy predposledni prvek!

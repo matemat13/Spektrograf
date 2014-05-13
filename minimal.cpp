@@ -13,10 +13,6 @@ BEGIN_EVENT_TABLE(wxGLCanvasSubClass, wxGLCanvas)
     EVT_PAINT    (wxGLCanvasSubClass::paintEvent)
 END_EVENT_TABLE()
 
-BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
- EVT_PAINT(BasicDrawPane::paintEvent)
-END_EVENT_TABLE()
-
 BEGIN_EVENT_TABLE(UVStatusPanel, wxPanel)
  EVT_PAINT(UVStatusPanel::paintEvent)
 END_EVENT_TABLE()
@@ -95,7 +91,7 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
 
   scrBut = new ScreenshotButton(this, BUTTON_Screenshot, GLcanvas);
   grBut = new GraphButton(this, wxID_ANY, SetMan);
-  if (SetMan->GetSetting(SETT_GEN_CFG) == 0)
+  /*if (SetMan->GetSetting(SETT_GEN_CFG) == 0)
   {
    scrBut->Enable(false);
    scrBut->Hide();
@@ -105,7 +101,7 @@ FrameMain::FrameMain(const wxString& title, SettingsManager *n_SetMan)
    prevBut->Hide();
    nextBut->Enable(false);
    nextBut->Hide();
-  }
+  }*/
 
 
 
@@ -318,7 +314,7 @@ void AppMain::OnInitCmdLine(wxCmdLineParser& parser)
 
         { wxCMD_LINE_SWITCH, (const char*)wxT("m"), (const char*)wxT("maximized"), (const char*)wxT("Program will start in full window.") },
         { wxCMD_LINE_SWITCH, (const char*)wxT("l"), (const char*)wxT("locked"), (const char*)wxT("Program will start locked.") },
-        { wxCMD_LINE_SWITCH, (const char*)wxT("c"), (const char*)wxT("config"), (const char*)wxT("Configuration mode") },
+       // { wxCMD_LINE_SWITCH, (const char*)wxT("c"), (const char*)wxT("config"), (const char*)wxT("Configuration mode") },
  	   
         { wxCMD_LINE_NONE }
     };

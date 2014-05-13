@@ -54,6 +54,8 @@ private:
 
 	//Nakresli graf
 	void DrawGraph(short*data, int dataLen, wxColour color = wxColor(255,255,255), float lineWidth = 1.0);
+	void DrawVMarker(unsigned short wavelength, wxColour color, float lineWidth);
+	void DrawVMarker(double position, wxColour color, float lineWidth);
   //bool initialized;
   Kamera *kamera;
   wxGLContext *m_glRC;
@@ -86,28 +88,5 @@ private:
 
 bool detect_UV(short *data, int IR_edge, int UV_edge);
 
-class BasicDrawPane : public wxPanel
-{
- 
-public:
-    BasicDrawPane(wxFrame* parent, SettingsManager *n_SetMan);
- 
-    void paintEvent(wxPaintEvent& evt);
-	  void paintNow();
-    void paintNow(unsigned char *data, int data_length);
- 
-    DECLARE_EVENT_TABLE()
-private:
-	bool painting;
-  void render(wxDC& dc);
-	void reRender(wxDC& dc);
-	void renderError(wxDC& dc);
-	void renderData(wxDC& dc, unsigned char* data, int data_length);
-
-  unsigned char *buffer;
-	Kamera *kamera;
-	wxImage *kamObr;
-	wxBitmap bitmap;
-};
 
 void glCircle(float x, float y, float r, bool filled, int subdivs);

@@ -1,27 +1,73 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Desktop
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minimal", "minimal.vcxproj", "{987903F0-DF60-434F-8D35-861743EB615A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Debug|WinXP32 = Debug|WinXP32
+		Debug|XPx32 = Debug|XPx32
 		DLL Debug|Win32 = DLL Debug|Win32
+		DLL Debug|WinXP32 = DLL Debug|WinXP32
+		DLL Debug|XPx32 = DLL Debug|XPx32
 		DLL Release|Win32 = DLL Release|Win32
+		DLL Release|WinXP32 = DLL Release|WinXP32
+		DLL Release|XPx32 = DLL Release|XPx32
+		quick|Win32 = quick|Win32
+		quick|WinXP32 = quick|WinXP32
+		quick|XPx32 = quick|XPx32
 		Release|Win32 = Release|Win32
+		Release|WinXP32 = Release|WinXP32
+		Release|XPx32 = Release|XPx32
 		Template|Win32 = Template|Win32
+		Template|WinXP32 = Template|WinXP32
+		Template|XPx32 = Template|XPx32
+		WinXP|Win32 = WinXP|Win32
+		WinXP|WinXP32 = WinXP|WinXP32
+		WinXP|XPx32 = WinXP|XPx32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{987903F0-DF60-434F-8D35-861743EB615A}.Debug|Win32.ActiveCfg = Debug|Win32
 		{987903F0-DF60-434F-8D35-861743EB615A}.Debug|Win32.Build.0 = Debug|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.Debug|WinXP32.ActiveCfg = Debug|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.Debug|WinXP32.Build.0 = Debug|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.Debug|XPx32.ActiveCfg = Debug|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.Debug|XPx32.Build.0 = Debug|Win32
 		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Debug|Win32.ActiveCfg = DLL Debug|Win32
 		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Debug|Win32.Build.0 = DLL Debug|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Debug|WinXP32.ActiveCfg = DLL Debug|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Debug|WinXP32.Build.0 = DLL Debug|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Debug|XPx32.ActiveCfg = DLL Debug|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Debug|XPx32.Build.0 = DLL Debug|Win32
 		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Release|Win32.ActiveCfg = DLL Release|Win32
 		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Release|Win32.Build.0 = DLL Release|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Release|WinXP32.ActiveCfg = DLL Release|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Release|WinXP32.Build.0 = DLL Release|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Release|XPx32.ActiveCfg = DLL Release|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.DLL Release|XPx32.Build.0 = DLL Release|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.quick|Win32.ActiveCfg = quick|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.quick|Win32.Build.0 = quick|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.quick|WinXP32.ActiveCfg = quick|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.quick|WinXP32.Build.0 = quick|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.quick|XPx32.ActiveCfg = quick|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.quick|XPx32.Build.0 = quick|Win32
 		{987903F0-DF60-434F-8D35-861743EB615A}.Release|Win32.ActiveCfg = Release|Win32
 		{987903F0-DF60-434F-8D35-861743EB615A}.Release|Win32.Build.0 = Release|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.Release|WinXP32.ActiveCfg = Release|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.Release|WinXP32.Build.0 = Release|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.Release|XPx32.ActiveCfg = Release|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.Release|XPx32.Build.0 = Release|Win32
 		{987903F0-DF60-434F-8D35-861743EB615A}.Template|Win32.ActiveCfg = Template|Win32
 		{987903F0-DF60-434F-8D35-861743EB615A}.Template|Win32.Build.0 = Template|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.Template|WinXP32.ActiveCfg = Template|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.Template|WinXP32.Build.0 = Template|ARM
+		{987903F0-DF60-434F-8D35-861743EB615A}.Template|XPx32.ActiveCfg = Template|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.Template|XPx32.Build.0 = Template|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.WinXP|Win32.ActiveCfg = WinXP|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.WinXP|Win32.Build.0 = WinXP|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.WinXP|WinXP32.ActiveCfg = WinXP|Win32
+		{987903F0-DF60-434F-8D35-861743EB615A}.WinXP|XPx32.ActiveCfg = WinXP|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

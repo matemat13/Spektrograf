@@ -736,29 +736,72 @@ void Kamera::error_message(const char* error_message, int error)
 // exit_message(error_message, error);
 }
 
-bool Kamera::findUVSpike(int &max, float &avg, unsigned short &max_pos) {
+bool Kamera::findUVSpike(int &maxf, float &avg, unsigned short &max_pos) {
 	short *data;
 	unsigned short length = Sample_Kalman(data);
 	//Rovnice primky
 	double smernice, konstanta;
-	const int rozsah = 20;
+	int rozsah = 20;
 	bool ret = false;
 	int threshold = SetMan->GetSetting(SETT_UV_TRESHOLD);
 
+	int rot = SetMan->GetSetting(SETT_CAM_ROT);
 	//avg = 0;
 	unsigned short stred = SetMan->GetSetting(SETT_LINE_UV);
-	max = 0;
+
+	/*
+	if(rot==1) 
+		stred=length-stred-1;radsi ne*/
+
+	maxf = 0;
 	max_pos = 0;
+
+	int start = std::max(0, stred-rozsah/2);
+	int end  = std::min(stred+rozsah/2, length-1);
+	rozsah = end - start;
+
+	smernice = (data[end] - data[start])/double(rozsah);
+	konstanta = data[start]-smernice*(start);
+
+    
+	//glColor3f(1.0, 0.0, 0.0);
+	//glBegin(GL_LINE_STRIP);
+	
+    //GLfloat x;
+    //GLfloat y;
+	for(unsigned short i=start; i<=end;i++) {
+      //avg += data[start+i];
+	  if(maxf<data[i])
+	  {
+		  maxf = data[i];
+		  max_pos = i;
+	  }
+	  if (data[i] > (smernice*i + konstanta) + threshold)
+	  {
+	   ret = true;
+	  }
+      //x = 2.0*double(length-i - length/2)/double(length);
+      //y = 2.0*double(smernice*i+konstanta - SAMPLE_MAX_VALUE/2.0)/(float)SAMPLE_MAX_VALUE;
+      //glVertex2d(x, y);
+	}
+    //glEnd();
+  
+  //glPixelZoom(cur_width / (double) 640, cur_height / (double) 480);
+  //start = length-start-1;
+  //end = length-end-1;
+  
+	//Proc to delat jednoduse, kdyz to jde slozite:
+	/*
 	//vypocet rovnice primky
-	smernice = (data[stred+rozsah/2] - data[stred+rozsah/2])/(rozsah);
+	
 	konstanta = data[stred-rozsah]-smernice*(stred-rozsah);
 	
 
 	for(char i=-rozsah/2; i<rozsah/2;i++) {
       //avg += data[start+i];
-	  if(max<data[stred+i])
+	  if(maxf<data[stred+i])
 	  {
-		  max = data[stred+i];
+		  maxf = data[stred+i];
 		  max_pos = stred+i;
 	  }
 	  if (data[stred+i] > (smernice*i + konstanta) + threshold)
@@ -766,8 +809,8 @@ bool Kamera::findUVSpike(int &max, float &avg, unsigned short &max_pos) {
 	   ret = true;
 	  }
 	}
-	
-	avg = avg/20;
+	*/
+	avg = avg/rozsah;
 	//Vypis debug
 
 	delete [] data;

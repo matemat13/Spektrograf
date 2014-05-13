@@ -24,6 +24,8 @@ EXTERN_C const CLSID CLSID_SampleGrabber;
 #define FRAME_CLOCK CLOCKS_PER_SEC/FPS
 
 #define UV_TRESHOLD 20
+
+
 class SettingsManager;
 
 enum
@@ -52,7 +54,7 @@ public:
   //Nastavi zdrojovou caru
   	void SetSourceLine(int x, int y);
   //Najde UV spike, jeho maximalni hodnotu (a jeji pozici) a prumerny jas v oblasti UV, vraci true, pokud je UV detekovano, jinak false
-	bool findUVSpike(int &max, float &avg, unsigned short &max_pos);
+	bool findUVSpike(int &maxf, float &avg, unsigned short &max_pos);
   //Vrati vlnovou delku na danem pixelu (pocita se z nastaveni krajnich hodnot)
 	double Kamera::WavelengthAt(const int pos);
   //Vrati error, jako cstring

@@ -275,6 +275,7 @@ SettingsManager::SettingsManager(void)
    case SETT_LINE_UV: s_sets[i].value = 400;	break;
    case SETT_DIS_TYPE: s_sets[i].value = Z_GRAF; break;
    case SETT_UV_TRESHOLD: s_sets[i].value = 20; break;
+   case SETT_MARKER_UV: s_sets[i].value = 400; break;
   }
  }
  

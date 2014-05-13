@@ -68,7 +68,7 @@ wxGLCanvasSubClass::wxGLCanvasSubClass(wxFrame *parent, Kamera *n_kamera, Settin
   temp_dc.DrawBitmap(usbdis,(size.GetX()-x)/2-usbdis.GetSize().GetX(),(size.GetY()-usbdis.GetSize().GetY())/2);
   temp_dc.SelectObject(wxNullBitmap);
 
-  img.SaveFile("test.png", wxBITMAP_TYPE_PNG);
+  //img.SaveFile("test.png", wxBITMAP_TYPE_PNG);
 
   chyba_obr = new unsigned char[(640*480*3)];
   wxNativePixelData data(img);
@@ -282,7 +282,7 @@ void wxGLCanvasSubClass::OnMousemove(wxMouseEvent& event)
  {
   int x, y;
   x = event.GetX()*img_width/cur_width;
-  y = img_height - event.GetY()*img_height/cur_height;
+  y = img_height - event.GetY()*img_height/cur_height;//praso
   kamera->SetSourceLine(x, y);
 
 
@@ -346,18 +346,7 @@ void wxGLCanvasSubClass::Render()
 
  if(stav != Z_CHYBA) {
   
-   //unsigned int uv_treshold = SetMan->GetSetting(SETT_UV_TRESHOLD);
-   uv_mid = SetMan->GetSetting(SETT_LINE_UV);
-  
-   state = kamera->findUVSpike(uv_max, avg, uv_max_pos);
-   
-   /**Vykopirovat do Kamera()**/
-   //bool state = uv_max-avg>uv_treshold;
-   static bool last_uv_state = (!state);
-   if(last_uv_state != (state)) {
-     ((FrameMain*)GetParent())->setUVStatus(!state);
-      last_uv_state = state;
-   }
+	 //Detekce UV docasne resunuta do generovani grafu
   
 
  }
@@ -422,11 +411,23 @@ void wxGLCanvasSubClass::Render()
   */
  } else if (stav == Z_GRAF)	//Vykreslit cernobilej graf
  {
+  //DETEKCE UV
+   //unsigned int uv_treshold = SetMan->GetSetting(SETT_UV_TRESHOLD);
+   uv_mid = SetMan->GetSetting(SETT_LINE_UV);
+  
+   state = kamera->findUVSpike(uv_max, avg, uv_max_pos);
+   
+   /**Vykopirovat do Kamera()**/
+   //bool state = uv_max-avg>uv_treshold;
+   static bool last_uv_state = (!state);
+   if(last_uv_state != (state)) {
+     ((FrameMain*)GetParent())->setUVStatus(!state);
+      last_uv_state = state;
+   }
+  //GLdouble x;
+  //GLdouble y;
 
-  GLdouble x;
-  GLdouble y;
-
-  //Barvy dle vlnove delky
+  //DEBUG DETEKCE UV
   /*double bx, by, bz, r, g, b;
   GLdouble x1, y1, x2, y2;
   x1 = (uv_mid - 10 - data_length/2)/double(data_length)*2;
@@ -458,20 +459,20 @@ void wxGLCanvasSubClass::Render()
    //Vypocet pozice
    x = 2.0*double(i - data_length/2)/double(data_length);
    y = 2.0*double(data[i] - SAMPLE_MAX_VALUE/2.0)/SAMPLE_MAX_VALUE;
-
+ual Studio Ultimate 2012 is now able to open IntelliTrace Log files that are created by Microsoft Monitoring Agent.
    glVertex2d(x, y);
   }
   glEnd();*/
 
    //Vykresleni UV hranice
 
-       glBegin(GL_LINE_STRIP);
+    glBegin(GL_LINE_STRIP);
 
-	   glColor3f(0.0, 0.2, 0.9);
-	   glVertex2d(uv_max_pos, 1.0);
-       glVertex2d(uv_max_pos, -1.0);
+    glColor3f(0.0, 0.2, 0.9);
+    glVertex2d(uv_max_pos, 1.0);
+    glVertex2d(uv_max_pos, -1.0);
 
-	   glEnd();
+	glEnd();
 
   //DrawGraph(data, data_length, wxColor(26,26,26)); 
   
@@ -489,6 +490,7 @@ void wxGLCanvasSubClass::Render()
     }
   }
   DrawGraph(data_prumer, data_length, wxColor(255,255,255), 2);//wxColor(26,52,230)
+  DrawVMarker((unsigned short)SetMan->GetSetting(SETT_MARKER_UV), wxColor(100,0,100), 1);
   //TEST prumeru
   /*glBegin(GL_LINE_STRIP);
   glColor3f(0.1, 0.2, 0.9);
@@ -546,6 +548,57 @@ void wxGLCanvasSubClass::DrawGraph(short*data, int dataLen, wxColour color, floa
 
 	glEnd();
 }
+
+void wxGLCanvasSubClass::DrawVMarker(unsigned short wavelength, wxColour color, float lineWidth) {
+    float uv = SetMan->GetSetting(SETT_LINE_UV);
+    float ir = SetMan->GetSetting(SETT_LINE_RED);
+	//double px_per_nm = abs(uv-ir)/269.0;
+	//short direction = uv<ir?1:-1;
+    //Zjisteni otoceni a pote sirky grafu
+    int width;
+    //Jestli je graf zrcadlove - potom je treba od hodnot odecist width
+    bool zrcadlovy = false;
+    switch(SetMan->GetSetting(SETT_CAM_ROT)) {
+      case 0 : width = kamera->GetWidth();break;
+      case 1 : width = kamera->GetHeight();break;
+      case 2 : width = kamera->GetWidth();zrcadlovy=true;break;
+      case 3 : width = kamera->GetHeight();zrcadlovy=true;break;
+    }
+    //Transformace velikosti grafu na velikost okna
+    double transform = cur_width/((double)width);
+    if(zrcadlovy) {
+      uv = width-uv;
+      ir = width - ir;
+    }
+    //Provedeni transformace
+    uv = (uv)*transform;
+    ir = (ir)*transform;
+	//Pixely na nanometr vlnove delky
+	//double px_per_nm = abs(uv-ir)/269.0;
+	//double wavepos = wavelength*px_per_nm;
+	double wavepos = ((wavelength-380)/(double(649-380)))*(ir-uv) + uv;
+
+	//DrawVMarker(uv, wxColor(255,0,255), 1);
+	//DrawVMarker(ir, wxColor(255,0,0), 1);
+
+	DrawVMarker(wavepos, color, lineWidth);
+}
+void wxGLCanvasSubClass::DrawVMarker(double position, wxColour color, float lineWidth) {
+	glPushAttrib(GL_ENABLE_BIT); 
+	//glPushAttrib is done to return everything to normal after drawing
+	glColor3f(color.Red()/255.0,color.Green()/255.0,color.Blue()/255.0);
+	glLineStipple(3, 0xABAA);  // [1]
+	glLineWidth(lineWidth);
+	glEnable(GL_LINE_STIPPLE);
+	glBegin(GL_LINES);
+	glVertex2d((position/(double)cur_width)*2.0 - 1.0,-1.0);
+	glVertex2d((position/(double)cur_width)*2.0 - 1.0,1.0);
+	glEnd();
+
+	glPopAttrib();
+
+	glEnd();
+}
 int wxGLCanvasSubClass::getGraph(short*&data) {
 	data = data_prumer;
 	return data_length;
@@ -557,193 +610,6 @@ void wxGLCanvasSubClass::getPixels(byte*&dst, int &width, int&height) {
 
 	dst = new byte[size];
 	glReadPixels(0, 0, cur_width, cur_height, GL_RGB, GL_UNSIGNED_BYTE, dst);
-}
-
-BasicDrawPane::BasicDrawPane(wxFrame* parent, SettingsManager *n_SetMan) :
-wxPanel(parent)
-{
- painting = false;
- SetBackgroundColour(wxColor(80,100,255));
- SetDoubleBuffered(true);
- SetBackgroundStyle(wxBG_STYLE_PAINT);
- SetSize(WIDTH, HEIGHT);
- Centre();
- kamera = new Kamera(n_SetMan);
- kamObr = new wxImage();
- buffer = new unsigned char[WIDTH*HEIGHT*3];
-}
-void BasicDrawPane::paintEvent(wxPaintEvent& WXUNUSED(evt))
-{
- if (!painting)
- {
-  wxPaintDC dc(this);
-  reRender(dc);
- }
-}
-void BasicDrawPane::paintNow()
-{
- if (!painting)
- {
-  wxClientDC dc(this);
-  render(dc);
- }
-}
-void BasicDrawPane::paintNow(unsigned char *data, int data_length)
-{
- if (!painting)
- {
-  wxClientDC dc(this);
-  renderData(dc, data, data_length);
- }
-}
-void BasicDrawPane::renderData(wxDC& dc, unsigned char* data, int data_length)
-{
- painting = true;
- bool painted = false; 
- //image->Mirror(true);
- //(image->Rotate180())
- int prumer;
-
- for (int i = 0; i < WIDTH*HEIGHT*3; i++)
-   buffer[i] = 0;
-
- int pomerX = data_length/WIDTH;
- double pomerY = HEIGHT/255.0;
- if (pomerX == 0)
-   pomerX = 1;
- if (pomerY == 0)
-   pomerY = 1;
-
- for (int x = 0; x < WIDTH; x++)
- {
-  prumer = 0;
-  
-  for (int i = 0; i < pomerX; i++)
-  {
-   prumer += data[x*pomerX + i];
-  }
-  prumer /= pomerX;
-  prumer *= pomerY;
-  if (prumer < 0)
-    prumer = 0;
-  else if (prumer >= HEIGHT)
-    prumer = HEIGHT-1;
-  //prumer = data[x];
-  buffer[(HEIGHT - prumer)*WIDTH + x] = 255;
-  buffer[(HEIGHT - prumer)*WIDTH + x+1] = 255;
-  buffer[(HEIGHT - prumer)*WIDTH + x+2] = 255;
- }
-
- //bitmap = wxBitmap((char*)buffer, WIDTH, HEIGHT);
- //kamObr->Create(WIDTH, HEIGHT, buffer, true);
- //if (kamObr->IsOk())
- {
-  //wxSize imageSize = kamObr->GetSize();
-  //bitmap = wxBitmap(*kamObr);
-  //if (bitmap.IsOk())
-  {
-   dc.DrawBitmap(bitmap = wxBitmap((char*)buffer, WIDTH, HEIGHT),0,0, false);
-   painted = true;
-  }
- }
- if (!painted)
- {
-  renderError(dc);
- }
-
- painting = false;
-}
-void BasicDrawPane::reRender(wxDC& dc)
-{
- painting = true;
- bool painted = false; 
-
- if (kamObr->IsOk())
- {
-  wxSize imageSize = kamObr->GetSize();
-  bitmap = wxBitmap(*kamObr);
-  if (bitmap.IsOk())
-  {
-   dc.DrawBitmap(bitmap,0,0, false);
-   painted = true;
-  }
- }
- if (!painted)
- {
-  renderError(dc);
- }
-
- painting = false;
-}
-void BasicDrawPane::render(wxDC& dc)
-{
- return;
- painting = true;
- bool painted = false; 
- //image->Mirror(true);
- //(image->Rotate180())
-  
-  
- if (kamera->Obrazek(kamObr) && kamObr->IsOk())
- {
-  wxSize imageSize = kamObr->GetSize();
-  bitmap = wxBitmap(*kamObr);
-  if (bitmap.IsOk())
-  {
-   dc.DrawBitmap(bitmap,0,0, false);
-   painted = true;
-  }
- }
- if (!painted)
- {
-  renderError(dc);
- }
- 
-  
-
-  //delete image;
- //dc.SetBackground( *wxWHITE_BRUSH );
-// dc.Clear();
-  //dc.DrawBitmap(wxBitmap("./oko.gif", wxBITMAP_TYPE_GIF),0,0, false);
- painting = false;
-
-}
-void BasicDrawPane::renderError(wxDC& dc)
-{
-	
- dc.SetBackgroundMode(wxBG_STYLE_PAINT);
- dc.SetBackground(*wxBLACK_BRUSH);
- dc.SetTextBackground(*wxBLACK);
- dc.SetTextForeground(*wxWHITE);
- dc.Clear();
- wxString text = wxT("Nastal problém s kamerou.\nZkontrolujte, jestli není vypojená.");
- wxCoord x,y;
- dc.GetMultiLineTextExtent (text, &x, &y);//, (wxCoord *)NULL, (wxFont*)NULL
- wxSize size = dc.GetSize();
- dc.DrawText(wxT("Nastal problém s kamerou.\nZkontrolujte, jestli není vypojená."), (size.GetX()-x)/2, (size.GetY()-y)/2);
-
- wxBitmap usbdis = wxBitmap(wxT("RC_USBdiscon"), wxBITMAP_TYPE_ICO_RESOURCE);
-
- dc.DrawBitmap(usbdis,(size.GetX()-x)/2-usbdis.GetSize().GetX(),(size.GetY()-usbdis.GetSize().GetY())/2);
-	/*
- dc.SetBackground(*wxWHITE_BRUSH);
- dc.Clear();
- 
- wxBitmap bmp(wxT("RC_closeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
- wxBitmap bmp2(wxT("RC_demaximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
- wxBitmap bmp3(wxT("RC_maximizeicon"), wxBITMAP_TYPE_ICO_RESOURCE);
- wxBitmap bmp4(wxT("RC_USBdiscon"), wxBITMAP_TYPE_ICO_RESOURCE);
- 
-  dc.DrawText("BMP from resources", 30, 128);
-    if ( bmp.IsOk() )
-        dc.DrawBitmap(bmp, 30, 160, true);
-    if ( bmp2.IsOk() )
-        dc.DrawBitmap(bmp2, 30, 256, true);
-    if ( bmp3.IsOk() )
-        dc.DrawBitmap(bmp3, 30, 384, true);
-    if ( bmp4.IsOk() )
-        dc.DrawBitmap(bmp4, 30, 412, true);
-		*/
 }
 
 void glCircle(float x, float y, float r, bool filled, int subdivs) 

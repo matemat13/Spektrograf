@@ -27,7 +27,8 @@ void WavelengthPanel::render(wxDC &dc) {
  //dc.DrawLine(wxPoint(0, cur_height-1),wxPoint(cur_width, cur_height-1));
 
  //Draw the inportant shit
-
+ if(!kam->isReady())
+   return;
  
  //Draw boundaries
  dc.SetPen(wxPen(wxColor(150,0,140), 3, wxSOLID));

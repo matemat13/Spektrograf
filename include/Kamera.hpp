@@ -16,10 +16,10 @@
 EXTERN_C const CLSID CLSID_NullRenderer;
 EXTERN_C const CLSID CLSID_SampleGrabber;
 
-#include "include/debug_exit.hpp"
+//#include "include/debug_exit.hpp"
 #include "include/SettingsManager.hpp"
 
-#define ERROR_STILL_IMGS 50
+#define ERROR_STILL_IMGS 100
 #define FPS 30
 #define FRAME_CLOCK CLOCKS_PER_SEC/FPS
 
@@ -45,6 +45,8 @@ public:
 	bool Obrazek(wxImage *img);
   //Vrati true, pokud se podarilo ziskat data obrazku, jinak false
 	bool Obrazek(unsigned char *&img);
+  //Vrati true, pokud je kamera pripravena vracet data
+	bool isReady();
   //Vrati pocet hodnot, zapsanych do bufferu nebo nulu, pokud je kamera v chybnem stavu
 	int Sample(short *&buffer);
   //Vrati pocet bytu, zapsanych do bufferu nebo nulu, pokud je kamera v chybnem stavu

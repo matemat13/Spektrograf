@@ -327,6 +327,6 @@ bool AppMain::OnCmdLineParsed(wxCmdLineParser& parser)
 {
 
 	cmd_start_maximized = parser.Found(wxT("m"));
-	cmd_config_mode = parser.Found(wxT("c"));
+	//cmd_config_mode = parser.Found(wxT("c"));
     return true;
 }

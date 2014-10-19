@@ -169,6 +169,7 @@ void wxGLCanvasSubClass::Graf(short *n_data, short*data_pr, int n_data_length)
 {
  if (data != NULL) {
   delete [] data; //Uvolnim starou pamet
+  data = NULL;
  }
  if(data_prumer != NULL) {
   delete [] data_prumer;
@@ -238,15 +239,15 @@ void wxGLCanvasSubClass::paintNow()
  case Z_CHYBA: Chyba(); break;
  case Z_GRAF: {
 			   short *data;
-			   short *data_old;
-			   int data_length = kamera->Sample(data_old);
-			   kamera->Sample_Kalman(data);
+			   short *data_kalman;
+			   int data_length = kamera->Sample(data);
+			   kamera->Sample_Kalman(data_kalman);
 			   if (data_length == 0)
 			   {
 			    SetDisplay(Z_CHYBA);
 			   } else
 			   {
-			    Graf(data_old, data, data_length);
+			    Graf(data, data_kalman, data_length);
 			   }
 			   break;
 			  }
@@ -317,7 +318,7 @@ void wxGLCanvasSubClass::OnScroll(wxMouseEvent &event)
     //selected_line = selected_line==0?1:0;
 	
 	//Vypis debug
-
+	/*
 	int max;
 	float sum;
 	unsigned short max_pos;
@@ -327,7 +328,7 @@ void wxGLCanvasSubClass::OnScroll(wxMouseEvent &event)
     wxMessageDialog pokus(GetParent(), (wxString)ss.str().c_str(), "Nasrat");
 	pokus.ShowModal();
 
-	
+	*/
 }
 
 void wxGLCanvasSubClass::Render()
@@ -383,12 +384,14 @@ void wxGLCanvasSubClass::Render()
  {
 	//DODELAT: otaceni obrazu
 	 
+	 //vykresleni obrazu z kamery
   glDrawPixels(img_width, img_height, GL_RGB, GL_UNSIGNED_BYTE, obr_data);
   glLineWidth(1.0); 
   
   glColor3f(1.0, 0.0, 0.0);
   //glPixelZoom(cur_width / (double) 640, cur_height / (double) 480);
 
+  //vykresleni car, oznacujicich vyznacne vlnove delky
   glBegin(GL_LINE_STRIP);
   glVertex2d(-1.0, double(2*SetMan->GetSetting(SETT_LINE_RED)/(double)img_height-1.0));//( 1.0/double(SetMan->GetSetting(SETT_LINE_RED))));
   glVertex2d(1.0, double(2*SetMan->GetSetting(SETT_LINE_RED)/(double)img_height-1.0));//( 1.0/double(SetMan->GetSetting(SETT_LINE_RED))));
@@ -420,7 +423,8 @@ void wxGLCanvasSubClass::Render()
    /**Vykopirovat do Kamera()**/
    //bool state = uv_max-avg>uv_treshold;
    static bool last_uv_state = (!state);
-   if(last_uv_state != (state)) {
+   if(last_uv_state != (state))
+   {
      ((FrameMain*)GetParent())->setUVStatus(!state);
       last_uv_state = state;
    }
@@ -466,19 +470,19 @@ ual Studio Ultimate 2012 is now able to open IntelliTrace Log files that are cre
 
    //Vykresleni UV hranice
 
-    glBegin(GL_LINE_STRIP);
+    /*glBegin(GL_LINE_STRIP);
 
     glColor3f(0.0, 0.2, 0.9);
     glVertex2d(uv_max_pos, 1.0);
     glVertex2d(uv_max_pos, -1.0);
 
-	glEnd();
+	glEnd();*/
 
   //DrawGraph(data, data_length, wxColor(26,26,26)); 
   
   
 
-  if(pamet!=NULL) 
+  if(pamet!=NULL)
   {
     GraphMemory *tmp;
     short* tmp_data;
@@ -490,7 +494,7 @@ ual Studio Ultimate 2012 is now able to open IntelliTrace Log files that are cre
     }
   }
   DrawGraph(data_prumer, data_length, wxColor(255,255,255), 2);//wxColor(26,52,230)
-  DrawVMarker((unsigned short)SetMan->GetSetting(SETT_MARKER_UV), wxColor(100,0,100), 1);
+  //DrawVMarker((unsigned short)SetMan->GetSetting(SETT_MARKER_UV), wxColor(100,0,100), 1);
   //TEST prumeru
   /*glBegin(GL_LINE_STRIP);
   glColor3f(0.1, 0.2, 0.9);

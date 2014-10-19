@@ -149,7 +149,7 @@ bool SettingsManager::CreateSettingsFile()
  std::ofstream ofile("settings.bin", std::ofstream::trunc);
  if (ofile && ofile.good())
  {
-  ofile << VERSION << '\n';
+  ofile << VERSION_STR << '\n';
   for (int i = 0; i < S_N_SETS; i++)
   {
    ofile << s_sets[i].value << '\n';
@@ -270,12 +270,12 @@ SettingsManager::SettingsManager(void)
    case SETT_CAM_COM: s_sets[i].value = 0;	break;
    case SETT_CAM_WBA: s_sets[i].value = 6000;	break;
    case SETT_CAM_GAI: s_sets[i].value = 0;	break;
-   case SETT_LINE_POS: s_sets[i].value = 320;	break;
-   case SETT_LINE_RED: s_sets[i].value = 200;	break;
-   case SETT_LINE_UV: s_sets[i].value = 400;	break;
+   case SETT_LINE_POS: s_sets[i].value = 359;	break;
+   case SETT_LINE_RED: s_sets[i].value = 25;	break;
+   case SETT_LINE_UV: s_sets[i].value = 416;	break;
+   case SETT_MARKER_UV: s_sets[i].value = 400; break;
    case SETT_DIS_TYPE: s_sets[i].value = Z_GRAF; break;
    case SETT_UV_TRESHOLD: s_sets[i].value = 20; break;
-   case SETT_MARKER_UV: s_sets[i].value = 400; break;
   }
  }
  
@@ -317,7 +317,7 @@ SettingsManager::~SettingsManager()
 {
  //Ulozeni nastaveni
  std::ofstream ofile("settings.bin", std::fstream::trunc);
- ofile << VERSION << '\n';
+ ofile << VERSION_STR << '\n';
  for (int i = 0; i < S_N_SETS; i++)
  {
   ofile << s_sets[i].value << '\n';

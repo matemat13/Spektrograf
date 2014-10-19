@@ -2,10 +2,9 @@
 
 #include <iostream>
 #include <fstream>
-#include "include/debug_exit.hpp"
+//#include "include/debug_exit.hpp"
 #include "include/BasicDrawPane.hpp"
-
-#define VERSION "0.9-22.1.2014"
+#include "include/version.hpp"
 
 enum SAVED_SETS
 {
@@ -19,7 +18,7 @@ enum SAVED_SETS
  SETT_LINE_POS,	//pozice cary
  SETT_LINE_RED,	//pozice cervene cary
  SETT_LINE_UV,	//pozice UV cary
- SETT_MARKER_UV,	//pozice UV znacky na grafu
+ SETT_MARKER_UV,	//pozice UV znacky na grafu v nm
  SETT_DIS_TYPE,	//typ zobrazeni - graf/obraz
  SETT_UV_TRESHOLD,  //Nejmensi rozdil mezi UV spikem a prumerem v zone UV ktery spusti UV varovani
  S_SETS_LAST,		//toto musi byt vzdy predposledni prvek!

@@ -95,6 +95,11 @@ bool Kamera::Obrazek(unsigned char *&img)
  return true;
 }
 
+bool Kamera::isReady()
+{
+ return STAV_OK == stav;
+}
+
 int Kamera::Radek(unsigned char *&buffer)
 {
  int ret = 0;
@@ -144,24 +149,29 @@ int Kamera::Radek(unsigned char *&buffer)
  }
  return ret;
 }
-int Kamera::Sample_Kalman(short *&buffer) {
-	int size = Sample(buffer);
-	int K;
+int Kamera::Sample_Kalman(short *&buffer)
+{
+ int size = Sample(buffer);
 
-	short *buffer2 = new short[size];
-	memcpy(buffer2, buffer, size*sizeof(short));
-	//Nejdriv jen prumer
-	const short okenko = 4;
-	for(unsigned short i=0; i<size; i++) {
-		short old = buffer[i];
-		buffer[i] = Kamera::PrumerOkenko(buffer2, size,okenko, i);
-		/*if(i>180) {
-			int b = (int)i + 5;
-		}*/
-	}
-	//Smazat docasnej buffer
-	delete[] buffer2;
-    return size;
+ //Pokud je kamera neinicializovana nebo v chybnem stavu, vratim nulu
+ if (stav != STAV_OK) return 0;
+
+ int K;
+ 
+ short *buffer2 = new short[size];
+ memcpy(buffer2, buffer, size*sizeof(short));
+ //Nejdriv jen prumer
+ const short okenko = 4;
+ for(unsigned short i=0; i<size; i++) {
+ 	short old = buffer[i];
+ 	buffer[i] = Kamera::PrumerOkenko(buffer2, size,okenko, i);
+ 	/*if(i>180) {
+ 		int b = (int)i + 5;
+ 	}*/
+ }
+ //Smazat docasnej buffer
+ delete[] buffer2;
+ return size;
 }
 short Kamera::PrumerOkenko(short *&buffer, unsigned short buffsize,unsigned short range, unsigned short pos) {
 	unsigned short start = std::max(pos-range, 0);
@@ -542,7 +552,7 @@ void Kamera::NastavKamery()
 			(DexterLib::_AMMediaType *)&mt);
 	if (hr != S_OK)
 	{
-	 exit_message("Could not get media type", 1);
+	 error_message("Could not get media type", 1);
 	 return;
 	}
 	// Retrieve format information
@@ -590,7 +600,7 @@ bool Kamera::KeepFPS()
   hr = pSampleGrabber->GetCurrentBuffer(&buffer_size, (long*)pBuffer);
   if (hr != S_OK)
   {
-   exit_message("Could not get buffer data from sample grabber", 1);
+   error_message("Could not get buffer data from sample grabber", 1);
    return false;
   }
   
@@ -739,6 +749,11 @@ void Kamera::error_message(const char* error_message, int error)
 bool Kamera::findUVSpike(int &maxf, float &avg, unsigned short &max_pos) {
 	short *data;
 	unsigned short length = Sample_Kalman(data);
+
+	if (stav != STAV_OK)
+		return false;
+
+
 	//Rovnice primky
 	double smernice, konstanta;
 	int rozsah = 20;

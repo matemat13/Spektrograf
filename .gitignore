@@ -12,7 +12,11 @@ build.bat
 
 .gitignore
 
+Template/*
 vc_mswu/*
+vc_mswuXP/*
+vc_mswud/*
+
 #################
 ## Eclipse
 #################

@@ -43,6 +43,8 @@ public:
 	~Kamera();
   //Vrati true, pokud se podarilo vytvorit obrazek do argumentu img, jinak false
 	bool Obrazek(wxImage *img);
+  //Vrati true, pokud je kamera pripravena vracet data
+	bool isReady();
   //Vrati true, pokud se podarilo ziskat data obrazku, jinak false
 	bool Obrazek(unsigned char *&img);
   //Vrati pocet hodnot, zapsanych do bufferu nebo nulu, pokud je kamera v chybnem stavu

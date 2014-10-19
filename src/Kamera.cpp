@@ -644,7 +644,9 @@ bool Kamera::KeepFPS()
  return true;
 }
 
-
+bool Kamera::isReady() {
+  return STAV_OK==stav;
+}
 
 bool Kamera::Obrazek(wxImage *img)
 {

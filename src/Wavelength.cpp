@@ -28,7 +28,11 @@ void WavelengthPanel::render(wxDC &dc) {
 
  //Draw the inportant shit
  if(!kam->isReady())
+<<<<<<< HEAD
    return;
+=======
+	 return;
+>>>>>>> origin/master
  
  //Draw boundaries
  dc.SetPen(wxPen(wxColor(150,0,140), 3, wxSOLID));
